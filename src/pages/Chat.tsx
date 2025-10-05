@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Plus, Search } from 'lucide-react';
+import { Send, Bot, User, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,6 @@ const ChatPage = () => {
   const [message, setMessage] = useState('');
   const [selectedAgent, setSelectedAgent] = useState('Matemática');
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -39,12 +38,6 @@ const ChatPage = () => {
       return data;
     }
   });
-
-  // Filter conversations based on search term
-  const filteredConversations = conversations?.filter(conversation =>
-    conversation.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    conversation.agent.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
 
   // Fetch messages for active conversation
   const { data: messages = [] } = useQuery({
@@ -155,47 +148,6 @@ const ChatPage = () => {
       </div>
 
       <div className="flex flex-col md:flex-row gap-6 flex-1">
-        {/* Conversations sidebar */}
-        <div className="w-full md:w-64 flex-shrink-0">
-          <Card className="bg-gray-800 border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold">Conversas</h2>
-                <Button 
-                  size="sm" 
-                  onClick={createConversation}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <div className="space-y-2">
-                {filteredConversations?.map((conversation: any) => (
-                  <div
-                    key={conversation.id}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      activeConversation === conversation.id
-                        ? 'bg-purple-900'
-                        : 'bg-gray-700 hover:bg-gray-600'
-                    }`}
-                    onClick={() => setActiveConversation(conversation.id)}
-                  >
-                    <p className="font-medium truncate">{conversation.title}</p>
-                    <p className="text-xs text-gray-400 truncate">{conversation.agent}</p>
-                  </div>
-                ))}
-                
-                {(!filteredConversations || filteredConversations.length === 0) && (
-                  <p className="text-gray-400 text-sm text-center py-4">
-                    {searchTerm ? 'Nenhuma conversa encontrada' : 'Nenhuma conversa ainda'}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Chat area */}
         <div className="flex-1 flex flex-col">
           <Card className="bg-gray-800 border-gray-700 flex-1 flex flex-col">
