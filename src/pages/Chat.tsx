@@ -170,19 +170,6 @@ const ChatPage = () => {
                 </Button>
               </div>
               
-              {/* Search input */}
-              <div className="mb-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Buscar conversas..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white pl-10"
-                  />
-                </div>
-              </div>
-              
               <div className="space-y-2">
                 {filteredConversations?.map((conversation: any) => (
                   <div
