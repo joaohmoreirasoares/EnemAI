@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Save, Download, Trash2, Edit3 } from 'lucide-react';
+import { Plus, Search, Save, Download, Trash2, Edit3, X, Settings } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ const NotesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch user's notes
@@ -138,6 +139,16 @@ const NotesPage = () => {
     URL.revokeObjectURL(url);
   };
 
+  // Open settings popup
+  const openSettings = () => {
+    setShowSettings(true);
+  };
+
+  // Close settings popup
+  const closeSettings = () => {
+    setShowSettings(false);
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="mb-6">
@@ -152,13 +163,23 @@ const NotesPage = () => {
             <CardContent className="p-4 flex-1 flex flex-col">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold">Minhas Anotações</h2>
-                <Button 
-                  size="sm" 
-                  onClick={createNote}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm" 
+                    onClick={openSettings}
+                    variant="outline"
+                    className="h-8 w-8 p-0 border-gray-600 text-gray-300 hover:bg-gray-700"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    onClick={createNote}
+                    className="bg-purple-600 hover:bg-purple-700 h-8 w-8 p-0"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               
               <div className="mb-4">
@@ -283,6 +304,120 @@ const NotesPage = () => {
           )}
         </div>
       </div>
+
+      {/* Settings popup modal */}
+      {showSettings && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="bg-gray-800 border-gray-700 w-full max-w-md max-h-[80vh] flex flex-col">
+            <CardContent className="p-6 flex-1 flex flex-col">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-white">Configurações</h2>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={closeSettings}
+                  className="text-gray-400 hover:text-white h-8 w-8 p-0"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+              
+              <ScrollArea className="flex-1">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium text-white mb-3">Gerenciar Anotações</h3>
+                    <div className="space-y-3">
+                      <Button 
+                        onClick={createNote}
+                        variant="outline"
+                        className="w-full justify-start bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Criar Nova Anotação
+                      </Button>
+                      
+                      <div className="pt-2">
+                        <h4 className="text-sm font-medium text-gray-300 mb-2">Ações em Massa</h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            className="bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
+                          >
+                            Exportar Todas
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            className="bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
+                          >
+                            Importar
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-medium text-white mb-3">Estatísticas</h3>
+                    <div className="bg-gray-700 rounded-lg p-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-400">Total de Anotações</p>
+                          <p className="text-2xl font-bold text-white">{notes.length}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Última Atualização</p>
+                          <p className="text-lg font-medium text-white">
+                            {notes.length > 0 
+                              ? new Date(notes[0]?.updated_at).toLocaleDateString('pt-BR') 
+                              : 'N/A'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-medium text-white mb-3">Preferências</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Modo Escuro</span>
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          className="bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
+                        >
+                          Ativado
+                        </Button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Notificações</span>
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          className="bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
+                        >
+                          Ativado
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ScrollArea>
+              
+              <div className="mt-6">
+                <Button 
+                  onClick={closeSettings}
+                  className="w-full bg-purple-600 hover:bg-purple-700"
+                >
+                  Fechar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
