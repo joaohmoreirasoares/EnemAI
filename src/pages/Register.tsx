@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { RadioGroup } from '@/components/ui/radio-group';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -98,11 +98,7 @@ const Register = () => {
             <div className="space-y-6">
               <div className="text-center">
                 <h2 className="text-xl font-semibold text-white mb-4">Você é:</h2>
-                <RadioGroup 
-                  value={role} 
-                  onValueChange={(value) => setRole(value as 'student' | 'teacher')}
-                  className="flex flex-col space-y-4"
-                >
+                <div className="flex flex-col space-y-4">
                   <div 
                     className={`flex items-center space-x-2 p-4 rounded-lg cursor-pointer transition-all duration-200 ${
                       role === 'student' 
@@ -111,12 +107,12 @@ const Register = () => {
                     }`}
                     onClick={() => setRole('student')}
                   >
-                    <RadioGroupItem 
-                      value="student" 
-                      id="student" 
-                      className={role === 'student' ? 'border-white' : ''}
-                    />
-                    <Label htmlFor="student" className="text-white flex-1 cursor-pointer">
+                    <div className="flex items-center justify-center w-5 h-5 rounded-full border-2 border-gray-400">
+                      {role === 'student' && (
+                        <div className="w-3 h-3 rounded-full bg-white"></div>
+                      )}
+                    </div>
+                    <div className="text-white flex-1">
                       <div className="flex items-center">
                         <div className="bg-purple-500 w-10 h-10 rounded-full flex items-center justify-center mr-3">
                           <span className="text-lg">🎓</span>
@@ -126,7 +122,7 @@ const Register = () => {
                           <div className="text-sm text-gray-200">Preparando-se para o ENEM</div>
                         </div>
                       </div>
-                    </Label>
+                    </div>
                   </div>
                   
                   <div 
@@ -137,12 +133,12 @@ const Register = () => {
                     }`}
                     onClick={() => setRole('teacher')}
                   >
-                    <RadioGroupItem 
-                      value="teacher" 
-                      id="teacher" 
-                      className={role === 'teacher' ? 'border-white' : ''}
-                    />
-                    <Label htmlFor="teacher" className="text-white flex-1 cursor-pointer">
+                    <div className="flex items-center justify-center w-5 h-5 rounded-full border-2 border-gray-400">
+                      {role === 'teacher' && (
+                        <div className="w-3 h-3 rounded-full bg-white"></div>
+                      )}
+                    </div>
+                    <div className="text-white flex-1">
                       <div className="flex items-center">
                         <div className="bg-purple-500 w-10 h-10 rounded-full flex items-center justify-center mr-3">
                           <span className="text-lg">👨‍🏫</span>
@@ -152,9 +148,9 @@ const Register = () => {
                           <div className="text-sm text-gray-200">Ensina para o ENEM</div>
                         </div>
                       </div>
-                    </Label>
+                    </div>
                   </div>
-                </RadioGroup>
+                </div>
               </div>
               
               <Button 
