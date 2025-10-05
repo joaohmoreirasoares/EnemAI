@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Plus, MessageSquare, ChevronLeft, Trash2, X } from 'lucide-react';
+import { Send, Bot, User, Plus, MessageSquare, ChevronLeft, Trash2, X, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ const ChatPage = () => {
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showConversations, setShowConversations] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -108,10 +109,16 @@ const ChatPage = () => {
   // Call OpenRouter API to get AI response
   const getAIResponse = async (userMessage: string) => {
     try {
+      // Verificar se a chave da API está configurada
+      const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+      if (!apiKey) {
+        throw new Error('Chave da API não configurada. Por favor, configure a variável VITE_OPENROUTER_API_KEY no arquivo .env');
+      }
+
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
           'HTTP-Referer': window.location.href,
           'X-Title': 'Enem AI'
@@ -142,7 +149,7 @@ const ChatPage = () => {
       return data.choices[0].message.content;
     } catch (error: any) {
       console.error('Error calling OpenRouter API:', error);
-      showError(error.message || 'Erro ao obter resposta da IA. Tente novamente.');
+      setError(error.message || 'Erro ao obter resposta da IA. Tente novamente.');
       return null;
     }
   };
@@ -155,6 +162,7 @@ const ChatPage = () => {
     if (!user) return;
 
     setIsLoading(true);
+    setError(null);
 
     // Add user message to conversation
     const userMessage = {
@@ -327,6 +335,17 @@ const ChatPage = () => {
                     <Button onClick={createConversation} className="bg-purple-600 hover:bg-purple-700 text-white">
                       Iniciar Conversa
                     </Button>
+                  </div>
+                )}
+                
+                {/* Error message */}
+                {error && (
+                  <div className="mt-4 p-3 bg-red-900/30 border border-red-700 rounded-lg flex items-start">
+                    <AlertCircle className="h-5 w-5 text-red-400 mt-0.5 mr-2 flex-shrink-0" />
+                    <div>
+                      <p className="text-red-400 font-medium">Erro</p>
+                      <p className="text-red-300 text-sm">{error}</p>
+                    </div>
                   </div>
                 )}
               </ScrollArea>
