@@ -149,7 +149,7 @@ const NotesPage = () => {
         {/* Notes sidebar */}
         <div className="w-full md:w-80 flex-shrink-0">
           <Card className="bg-gray-800 border-gray-700 h-full flex flex-col">
-            <CardContent className="flex-1 flex flex-col">
+            <CardContent className="p-4 flex-1 flex flex-col">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold">Minhas Anotações</h2>
                 <Button 
