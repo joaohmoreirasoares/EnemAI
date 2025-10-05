@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
+import { showError } from '@/utils/toast';
 
 const ChatPage = () => {
   const [message, setMessage] = useState('');
   const [selectedAgent, setSelectedAgent] = useState('Matemática');
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -80,12 +82,55 @@ const ChatPage = () => {
     refetchConversations();
   };
 
-  // Send message to AI (mock implementation)
+  // Call OpenRouter API to get AI response
+  const getAIResponse = async (userMessage: string) => {
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': window.location.href,
+          'X-Title': 'Enem AI'
+        },
+        body: JSON.stringify({
+          model: 'qwen/qwen3-235b-a22b:free',
+          messages: [
+            {
+              role: 'system',
+              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática.`
+            },
+            {
+              role: 'user',
+              content: userMessage
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 1000
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error('Error calling OpenRouter API:', error);
+      showError('Erro ao obter resposta da IA. Tente novamente.');
+      return null;
+    }
+  };
+
+  // Send message to AI
   const sendMessage = async () => {
-    if (!message.trim() || !activeConversation) return;
+    if (!message.trim() || !activeConversation || isLoading) return;
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+
+    setIsLoading(true);
 
     // Add user message to conversation
     const userMessage = {
@@ -110,12 +155,14 @@ const ChatPage = () => {
     queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
     refetchConversations();
 
-    // Simulate AI response after a delay
-    setTimeout(async () => {
+    // Get AI response
+    const aiResponse = await getAIResponse(message);
+    
+    if (aiResponse) {
       const aiMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `Esta é uma resposta simulada da área de ${selectedAgent}. Em uma implementação real, isso seria conectado a um modelo de linguagem.`,
+        content: aiResponse,
         timestamp: new Date().toISOString()
       };
 
@@ -130,7 +177,9 @@ const ChatPage = () => {
         .eq('id', activeConversation);
 
       queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
-    }, 1000);
+    }
+
+    setIsLoading(false);
   };
 
   // Scroll to bottom when messages change
@@ -207,6 +256,23 @@ const ChatPage = () => {
                         </div>
                       </div>
                     ))}
+                    {isLoading && (
+                      <div className="flex justify-start">
+                        <div className="max-w-[80%] rounded-lg p-4 bg-gray-700 text-white">
+                          <div className="flex items-start gap-2">
+                            <Bot className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                            <div>
+                              <p className="font-medium text-xs mb-1">{selectedAgent}</p>
+                              <p className="flex gap-1">
+                                <span className="inline-block w-2 h-2 rounded-full bg-gray-400 animate-bounce"></span>
+                                <span className="inline-block w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                                <span className="inline-block w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center p-8">
@@ -236,13 +302,22 @@ const ChatPage = () => {
                         sendMessage();
                       }
                     }}
+                    disabled={isLoading}
                   />
                   <Button
                     onClick={sendMessage}
-                    disabled={!message.trim() || !activeConversation}
+                    disabled={!message.trim() || !activeConversation || isLoading}
                     className="bg-purple-600 hover:bg-purple-700 text-white"
                   >
-                    <Send className="h-4 w-4" />
+                    {isLoading ? (
+                      <div className="flex items-center gap-1">
+                        <span className="inline-block w-2 h-2 rounded-full bg-white animate-bounce"></span>
+                        <span className="inline-block w-2 h-2 rounded-full bg-white animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                        <span className="inline-block w-2 h-2 rounded-full bg-white animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                      </div>
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               </div>
