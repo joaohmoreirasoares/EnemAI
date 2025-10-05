@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User } from 'lucide-react';
+import { Send, Bot, User, Plus, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ const ChatPage = () => {
   const [message, setMessage] = useState('');
   const [selectedAgent, setSelectedAgent] = useState('Matemática');
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -38,6 +39,12 @@ const ChatPage = () => {
       return data;
     }
   });
+
+  // Filter conversations based on search term
+  const filteredConversations = conversations?.filter(conversation =>
+    conversation.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    conversation.agent.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
 
   // Fetch messages for active conversation
   const { data: messages = [] } = useQuery({
@@ -159,12 +166,25 @@ const ChatPage = () => {
                   onClick={createConversation}
                   className="bg-purple-600 hover:bg-purple-700"
                 >
-                  Nova
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
               
+              {/* Search input */}
+              <div className="mb-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Buscar conversas..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="bg-gray-700 border-gray-600 text-white pl-10"
+                  />
+                </div>
+              </div>
+              
               <div className="space-y-2">
-                {conversations?.map((conversation: any) => (
+                {filteredConversations?.map((conversation: any) => (
                   <div
                     key={conversation.id}
                     className={`p-3 rounded-lg cursor-pointer transition-colors ${
@@ -179,9 +199,9 @@ const ChatPage = () => {
                   </div>
                 ))}
                 
-                {(!conversations || conversations.length === 0) && (
+                {(!filteredConversations || filteredConversations.length === 0) && (
                   <p className="text-gray-400 text-sm text-center py-4">
-                    Nenhuma conversa ainda
+                    {searchTerm ? 'Nenhuma conversa encontrada' : 'Nenhuma conversa ainda'}
                   </p>
                 )}
               </div>
