@@ -145,7 +145,7 @@ const Register = () => {
               
               <Button 
                 onClick={handleRoleSelect}
-                className="w-full bg-purple-600 hover:bg-purple-700"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white"
               >
                 Continuar
               </Button>
@@ -183,13 +183,13 @@ const Register = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setStep(1)}
-                  className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+                  className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                 >
                   Voltar
                 </Button>
                 <Button 
                   type="submit"
-                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
                 >
                   Continuar
                 </Button>
@@ -267,14 +267,14 @@ const Register = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setStep(2)}
-                  className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+                  className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                 >
                   Voltar
                 </Button>
                 <Button 
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
                 >
                   {loading ? 'Criando conta...' : 'Criar Conta'}
                 </Button>
