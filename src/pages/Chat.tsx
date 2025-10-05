@@ -150,7 +150,7 @@ const ChatPage = () => {
       <div className="flex flex-col md:flex-row gap-6 flex-1">
         {/* Chat area */}
         <div className="flex-1 flex flex-col">
-          <Card className="bg-gray-800 border-gray-700 flex-1 flex flex-col">
+          <Card className="bg-gray-900 border-gray-700 flex-1 flex flex-col">
             <CardContent className="p-0 flex-1 flex flex-col">
               {/* Agent selector */}
               <div className="p-4 border-b border-gray-700">
@@ -174,7 +174,7 @@ const ChatPage = () => {
               </div>
 
               {/* Messages area */}
-              <ScrollArea className="flex-1 p-4 bg-gray-800" ref={scrollAreaRef}>
+              <ScrollArea className="flex-1 p-4 bg-gray-900" ref={scrollAreaRef}>
                 {messages.length > 0 ? (
                   <div className="space-y-4">
                     {messages.map((msg: any) => (
