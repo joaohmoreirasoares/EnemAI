@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Plus } from 'lucide-react';
+import { Send, Bot, User, Plus, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
-import { showError } from '@/utils/toast';
+import { showError, showSuccess } from '@/utils/toast';
 
 const ChatPage = () => {
   const [message, setMessage] = useState('');
@@ -80,6 +80,27 @@ const ChatPage = () => {
     
     setActiveConversation(data.id);
     refetchConversations();
+    showSuccess('Nova conversa criada!');
+  };
+
+  // Delete conversation
+  const deleteConversation = async (conversationId: string) => {
+    const { error } = await supabase
+      .from('chat_conversations')
+      .delete()
+      .eq('id', conversationId);
+
+    if (error) {
+      showError('Erro ao deletar conversa');
+      return;
+    }
+
+    if (activeConversation === conversationId) {
+      setActiveConversation(null);
+    }
+
+    refetchConversations();
+    showSuccess('Conversa deletada com sucesso!');
   };
 
   // Call OpenRouter API to get AI response
@@ -111,14 +132,15 @@ const ChatPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || `API request failed with status ${response.status}`);
       }
 
       const data = await response.json();
       return data.choices[0].message.content;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error calling OpenRouter API:', error);
-      showError('Erro ao obter resposta da IA. Tente novamente.');
+      showError(error.message || 'Erro ao obter resposta da IA. Tente novamente.');
       return null;
     }
   };
@@ -143,13 +165,19 @@ const ChatPage = () => {
     // Update conversation with user message
     const updatedMessages = [...messages, userMessage];
     
-    await supabase
+    const { error: updateError } = await supabase
       .from('chat_conversations')
       .update({
         messages: updatedMessages,
         updated_at: new Date().toISOString()
       })
       .eq('id', activeConversation);
+
+    if (updateError) {
+      showError('Erro ao enviar mensagem');
+      setIsLoading(false);
+      return;
+    }
 
     setMessage('');
     queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
@@ -168,13 +196,17 @@ const ChatPage = () => {
 
       const finalMessages = [...updatedMessages, aiMessage];
       
-      await supabase
+      const { error: finalError } = await supabase
         .from('chat_conversations')
         .update({
           messages: finalMessages,
           updated_at: new Date().toISOString()
         })
         .eq('id', activeConversation);
+
+      if (finalError) {
+        showError('Erro ao salvar resposta da IA');
+      }
 
       queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
     }
@@ -187,7 +219,7 @@ const ChatPage = () => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   return (
     <div className="flex flex-col h-full">
@@ -197,6 +229,66 @@ const ChatPage = () => {
       </div>
 
       <div className="flex flex-col md:flex-row gap-6 flex-1">
+        {/* Conversations sidebar */}
+        <div className="w-full md:w-64 flex-shrink-0">
+          <Card className="bg-gray-800 border-gray-700 h-full flex flex-col">
+            <CardContent className="p-4 flex-1 flex flex-col">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold">Conversas</h2>
+                <Button 
+                  size="sm" 
+                  onClick={createConversation}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <ScrollArea className="flex-1">
+                <div className="space-y-2">
+                  {conversations && conversations.map((conversation: any) => (
+                    <div
+                      key={conversation.id}
+                      className={`p-3 rounded-lg cursor-pointer transition-colors relative group ${
+                        activeConversation === conversation.id
+                          ? 'bg-purple-900'
+                          : 'bg-gray-700 hover:bg-gray-600'
+                      }`}
+                      onClick={() => setActiveConversation(conversation.id)}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{conversation.title}</p>
+                          <p className="text-xs text-gray-400 truncate">
+                            {new Date(conversation.updated_at).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteConversation(conversation.id);
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {conversations && conversations.length === 0 && (
+                    <p className="text-gray-400 text-sm text-center py-4">
+                      Nenhuma conversa ainda
+                    </p>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Chat area */}
         <div className="flex-1 flex flex-col">
           <Card className="bg-gray-900 border-gray-700 flex-1 flex flex-col">
@@ -302,7 +394,7 @@ const ChatPage = () => {
                         sendMessage();
                       }
                     }}
-                    disabled={isLoading}
+                    disabled={isLoading || !activeConversation}
                   />
                   <Button
                     onClick={sendMessage}
