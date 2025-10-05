@@ -164,7 +164,7 @@ const ChatPage = () => {
                       className={
                         selectedAgent === agent
                           ? "bg-purple-600 hover:bg-purple-700 text-white"
-                          : "border-gray-600 text-black hover:bg-gray-700 hover:text-white"
+                          : "bg-black text-white hover:bg-gray-800 border-gray-600"
                       }
                     >
                       {agent}
