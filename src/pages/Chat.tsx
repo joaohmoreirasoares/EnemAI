@@ -174,7 +174,7 @@ const ChatPage = () => {
               </div>
 
               {/* Messages area */}
-              <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+              <ScrollArea className="flex-1 p-4 bg-gray-800" ref={scrollAreaRef}>
                 {messages.length > 0 ? (
                   <div className="space-y-4">
                     {messages.map((msg: any) => (
