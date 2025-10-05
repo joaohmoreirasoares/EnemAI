@@ -163,8 +163,8 @@ const ChatPage = () => {
                       onClick={() => setSelectedAgent(agent)}
                       className={
                         selectedAgent === agent
-                          ? "bg-purple-600 hover:bg-purple-700"
-                          : "border-gray-600 text-gray-300 hover:bg-gray-700"
+                          ? "bg-purple-600 hover:bg-purple-700 text-white"
+                          : "border-gray-600 text-black hover:bg-gray-700 hover:text-white"
                       }
                     >
                       {agent}
@@ -215,7 +215,7 @@ const ChatPage = () => {
                     <p className="text-gray-400 mb-4">
                       Selecione um agente e comece uma conversa sobre as competências do ENEM.
                     </p>
-                    <Button onClick={createConversation} className="bg-purple-600 hover:bg-purple-700">
+                    <Button onClick={createConversation} className="bg-purple-600 hover:bg-purple-700 text-white">
                       Iniciar Conversa
                     </Button>
                   </div>
@@ -240,7 +240,7 @@ const ChatPage = () => {
                   <Button
                     onClick={sendMessage}
                     disabled={!message.trim() || !activeConversation}
-                    className="bg-purple-600 hover:bg-purple-700"
+                    className="bg-purple-600 hover:bg-purple-700 text-white"
                   >
                     <Send className="h-4 w-4" />
                   </Button>
