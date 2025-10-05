@@ -183,7 +183,7 @@ const Register = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setStep(1)}
-                  className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                  className="flex-1 border-gray-600 text-yellow-300 hover:bg-gray-700 hover:text-yellow-200"
                 >
                   Voltar
                 </Button>
@@ -267,7 +267,7 @@ const Register = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setStep(2)}
-                  className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                  className="flex-1 border-gray-600 text-yellow-300 hover:bg-gray-700 hover:text-yellow-200"
                 >
                   Voltar
                 </Button>
