@@ -60,7 +60,7 @@ const Index = () => {
           </div>
           <div className="flex gap-3">
             <Link to="/login">
-              <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">
+              <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
                 Entrar
               </Button>
             </Link>
@@ -90,7 +90,7 @@ const Index = () => {
               </Button>
             </Link>
             <Link to="/login">
-              <Button size="lg" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white text-lg px-8 py-6">
+              <Button size="lg" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800 text-lg px-8 py-6">
                 Já tenho uma conta
               </Button>
             </Link>
