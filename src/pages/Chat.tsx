@@ -375,7 +375,7 @@ const ChatPage = () => {
           <Card className="bg-gray-800 border-gray-700 w-full max-w-md max-h-[80vh] flex flex-col">
             <CardContent className="p-4 flex-1 flex flex-col">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold">Conversas</h2>
+                <h2 className="text-lg font-semibold text-white">Conversas</h2>
                 <div className="flex gap-2">
                   <Button 
                     size="sm" 
@@ -412,7 +412,7 @@ const ChatPage = () => {
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{conversation.title}</p>
+                          <p className="font-medium truncate text-white">{conversation.title}</p>
                           <p className="text-xs text-gray-400 truncate">
                             {new Date(conversation.updated_at).toLocaleDateString('pt-BR')}
                           </p>
