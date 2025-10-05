@@ -154,7 +154,7 @@ const ChatPage = () => {
             <CardContent className="p-0 flex-1 flex flex-col">
               {/* Agent selector */}
               <div className="p-4 border-b border-gray-700">
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 justify-center">
                   {agents.map((agent) => (
                     <Button
                       key={agent}
