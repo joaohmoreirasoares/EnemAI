@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Plus, MessageSquare, ChevronLeft, Trash2 } from 'lucide-react';
+import { Send, Bot, User, Plus, MessageSquare, ChevronLeft, Trash2, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -231,119 +231,38 @@ const ChatPage = () => {
       </div>
 
       <div className="flex flex-col md:flex-row gap-6 flex-1">
-        {/* Conversations panel - retrátil */}
-        {showConversations && (
-          <div className="w-full md:w-64 flex-shrink-0">
-            <Card className="bg-gray-800 border-gray-700 h-full flex flex-col">
-              <CardContent className="p-4 flex-1 flex flex-col">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold">Conversas</h2>
-                  <Button 
-                    size="sm" 
-                    onClick={createConversation}
-                    className="bg-purple-600 hover:bg-purple-700"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                <ScrollArea className="flex-1">
-                  <div className="space-y-2">
-                    {conversations && conversations.map((conversation: any) => (
-                      <div
-                        key={conversation.id}
-                        className={`p-3 rounded-lg cursor-pointer transition-colors relative group ${
-                          activeConversation === conversation.id
-                            ? 'bg-purple-900'
-                            : 'bg-gray-700 hover:bg-gray-600'
-                        }`}
-                        onClick={() => {
-                          setActiveConversation(conversation.id);
-                          setShowConversations(false);
-                        }}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{conversation.title}</p>
-                            <p className="text-xs text-gray-400 truncate">
-                              {new Date(conversation.updated_at).toLocaleDateString('pt-BR')}
-                            </p>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteConversation(conversation.id);
-                            }}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {conversations && conversations.length === 0 && (
-                      <p className="text-gray-400 text-sm text-center py-4">
-                        Nenhuma conversa ainda
-                      </p>
-                    )}
-                  </div>
-                </ScrollArea>
-                
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setShowConversations(false)}
-                  className="mt-4 bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-                >
-                  <ChevronLeft className="h-4 w-4 mr-2" />
-                  Voltar
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
         {/* Chat area */}
         <div className="flex-1 flex flex-col">
           <Card className="bg-gray-900 border-gray-700 flex-1 flex flex-col">
             <CardContent className="p-0 flex-1 flex flex-col">
               {/* Agent selector or Conversations button */}
               <div className="p-4 border-b border-gray-700">
-                {showConversations ? (
-                  <div className="flex justify-center">
-                    <h3 className="text-lg font-semibold">Selecione uma conversa</h3>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap gap-2 justify-center">
+                <div className="flex flex-wrap gap-2 justify-center">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowConversations(true)}
+                    className="bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Conversas
+                  </Button>
+                  {agents.map((agent) => (
                     <Button
-                      variant="outline"
+                      key={agent}
+                      variant={selectedAgent === agent ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setShowConversations(true)}
-                      className="bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
+                      onClick={() => setSelectedAgent(agent)}
+                      className={
+                        selectedAgent === agent
+                          ? "bg-purple-600 hover:bg-purple-700 text-white"
+                          : "bg-black text-white hover:bg-gray-800 border-gray-600"
+                      }
                     >
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Conversas
+                      {agent}
                     </Button>
-                    {agents.map((agent) => (
-                      <Button
-                        key={agent}
-                        variant={selectedAgent === agent ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setSelectedAgent(agent)}
-                        className={
-                          selectedAgent === agent
-                            ? "bg-purple-600 hover:bg-purple-700 text-white"
-                            : "bg-black text-white hover:bg-gray-800 border-gray-600"
-                        }
-                      >
-                        {agent}
-                      </Button>
-                    ))}
-                  </div>
-                )}
+                  ))}
+                </div>
               </div>
 
               {/* Messages area */}
@@ -449,6 +368,81 @@ const ChatPage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Conversations popup modal */}
+      {showConversations && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="bg-gray-800 border-gray-700 w-full max-w-md max-h-[80vh] flex flex-col">
+            <CardContent className="p-4 flex-1 flex flex-col">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold">Conversas</h2>
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm" 
+                    onClick={createConversation}
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={() => setShowConversations(false)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              <ScrollArea className="flex-1">
+                <div className="space-y-2">
+                  {conversations && conversations.map((conversation: any) => (
+                    <div
+                      key={conversation.id}
+                      className={`p-3 rounded-lg cursor-pointer transition-colors relative group ${
+                        activeConversation === conversation.id
+                          ? 'bg-purple-900'
+                          : 'bg-gray-700 hover:bg-gray-600'
+                      }`}
+                      onClick={() => {
+                        setActiveConversation(conversation.id);
+                        setShowConversations(false);
+                      }}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{conversation.title}</p>
+                          <p className="text-xs text-gray-400 truncate">
+                            {new Date(conversation.updated_at).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteConversation(conversation.id);
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {conversations && conversations.length === 0 && (
+                    <p className="text-gray-400 text-sm text-center py-4">
+                      Nenhuma conversa ainda
+                    </p>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
