@@ -103,31 +103,53 @@ const Register = () => {
                   onValueChange={(value) => setRole(value as 'student' | 'teacher')}
                   className="flex flex-col space-y-4"
                 >
-                  <div className="flex items-center space-x-2 p-4 bg-gray-700 rounded-lg">
-                    <RadioGroupItem value="student" id="student" />
+                  <div 
+                    className={`flex items-center space-x-2 p-4 rounded-lg cursor-pointer transition-all duration-200 ${
+                      role === 'student' 
+                        ? 'bg-purple-600 scale-[1.02]' 
+                        : 'bg-gray-700 hover:bg-gray-600 hover:scale-[1.02]'
+                    }`}
+                    onClick={() => setRole('student')}
+                  >
+                    <RadioGroupItem 
+                      value="student" 
+                      id="student" 
+                      className={role === 'student' ? 'border-white' : ''}
+                    />
                     <Label htmlFor="student" className="text-white flex-1 cursor-pointer">
                       <div className="flex items-center">
-                        <div className="bg-purple-600 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                        <div className="bg-purple-500 w-10 h-10 rounded-full flex items-center justify-center mr-3">
                           <span className="text-lg">🎓</span>
                         </div>
                         <div className="text-left">
                           <div className="font-medium">Estudante</div>
-                          <div className="text-sm text-gray-400">Preparando-se para o ENEM</div>
+                          <div className="text-sm text-gray-200">Preparando-se para o ENEM</div>
                         </div>
                       </div>
                     </Label>
                   </div>
                   
-                  <div className="flex items-center space-x-2 p-4 bg-gray-700 rounded-lg">
-                    <RadioGroupItem value="teacher" id="teacher" />
+                  <div 
+                    className={`flex items-center space-x-2 p-4 rounded-lg cursor-pointer transition-all duration-200 ${
+                      role === 'teacher' 
+                        ? 'bg-purple-600 scale-[1.02]' 
+                        : 'bg-gray-700 hover:bg-gray-600 hover:scale-[1.02]'
+                    }`}
+                    onClick={() => setRole('teacher')}
+                  >
+                    <RadioGroupItem 
+                      value="teacher" 
+                      id="teacher" 
+                      className={role === 'teacher' ? 'border-white' : ''}
+                    />
                     <Label htmlFor="teacher" className="text-white flex-1 cursor-pointer">
                       <div className="flex items-center">
-                        <div className="bg-purple-600 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                        <div className="bg-purple-500 w-10 h-10 rounded-full flex items-center justify-center mr-3">
                           <span className="text-lg">👨‍🏫</span>
                         </div>
                         <div className="text-left">
                           <div className="font-medium">Professor</div>
-                          <div className="text-sm text-gray-400">Ensina para o ENEM</div>
+                          <div className="text-sm text-gray-200">Ensina para o ENEM</div>
                         </div>
                       </div>
                     </Label>
