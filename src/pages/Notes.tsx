@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Save, Download, Trash2, Edit3 } from 'lucide-react';
+import { Plus, Search, Save, Download, Trash2, Edit3, FilePlus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,8 @@ const NotesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [showNewNotePopup, setShowNewNotePopup] = useState(false);
+  const [newNoteTitle, setNewNoteTitle] = useState('');
   const queryClient = useQueryClient();
 
   // Fetch user's notes
@@ -60,7 +62,7 @@ const NotesPage = () => {
       .from('notes')
       .insert({
         user_id: user.id,
-        title: 'Nova Anotação',
+        title: newNoteTitle || 'Nova Anotação',
         content: ''
       })
       .select()
@@ -69,6 +71,8 @@ const NotesPage = () => {
     if (error) throw error;
     
     setActiveNote(data);
+    setShowNewNotePopup(false);
+    setNewNoteTitle('');
     queryClient.invalidateQueries({ queryKey: ['notes'] });
   };
 
@@ -154,7 +158,7 @@ const NotesPage = () => {
                 <h2 className="text-lg font-semibold">Minhas Anotações</h2>
                 <Button 
                   size="sm" 
-                  onClick={createNote}
+                  onClick={() => setShowNewNotePopup(true)}
                   className="bg-purple-600 hover:bg-purple-700"
                 >
                   <Plus className="h-4 w-4" />
@@ -274,7 +278,7 @@ const NotesPage = () => {
                 <p className="text-gray-400 mb-4">
                   Selecione uma anotação existente ou crie uma nova para começar.
                 </p>
-                <Button onClick={createNote} className="bg-purple-600 hover:bg-purple-700">
+                <Button onClick={() => setShowNewNotePopup(true)} className="bg-purple-600 hover:bg-purple-700">
                   <Plus className="h-4 w-4 mr-2" />
                   Criar Nova Anotação
                 </Button>
@@ -283,6 +287,58 @@ const NotesPage = () => {
           )}
         </div>
       </div>
+
+      {/* New Note Popup */}
+      {showNewNotePopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="bg-gray-800 border-gray-700 w-full max-w-md">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-white">Criar Nova Anotação</h3>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setShowNewNotePopup(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </Button>
+              </div>
+              
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Título da Anotação
+                </label>
+                <Input
+                  value={newNoteTitle}
+                  onChange={(e) => setNewNoteTitle(e.target.value)}
+                  placeholder="Digite o título da anotação"
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+              
+              <div className="flex justify-end gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowNewNotePopup(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  onClick={createNote}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  <FilePlus className="h-4 w-4 mr-2" />
+                  Criar Anotação
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
