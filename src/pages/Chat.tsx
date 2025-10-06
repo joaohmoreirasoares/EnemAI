@@ -271,9 +271,9 @@ const ChatPage = () => {
             });
         }
       }, 10); // Faster interval - 10ms instead of 20ms
+    } else {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   // Scroll to bottom when messages change
