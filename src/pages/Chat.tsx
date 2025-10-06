@@ -159,7 +159,7 @@ const ChatPage = () => {
           messages: [
             {
               role: 'system',
-              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática. Use markdown para formatar suas respostas. Se precisar pensar, coloque seu raciocínio entre <thinking> e </thinking>, mas mantenha-o com no máximo 200 caracteres.`
+              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática. Use markdown para formatar suas respostas. Se precisar pensar, coloque seu raciocínio entre <thinking> e </thinking>, mas mantenha-o com no máximo 200 caracteres (nunca passe desse limite, se passar você será penalisado).`
             },
             {
               role: 'user',
