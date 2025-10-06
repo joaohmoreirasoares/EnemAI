@@ -9,6 +9,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { showError, showSuccess } from '@/utils/toast';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 const ChatPage = () => {
   const [message, setMessage] = useState('');
@@ -159,7 +162,7 @@ const ChatPage = () => {
           messages: [
             {
               role: 'system',
-              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática. Use markdown para formatar suas respostas. Se precisar pensar, coloque seu raciocínio entre <thinking> e </thinking>, mas mantenha-o com no máximo 200 caracteres (nunca passe desse limite, se passar você será penalizado).`
+              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática. Use markdown para formatar suas respostas. Se precisar pensar, coloque seu raciocínio entre <thinking> e </thinking>, mas mantenha-o com no máximo 200 caracteres.`
             },
             {
               role: 'user',
@@ -287,10 +290,13 @@ const ChatPage = () => {
     // Remove thinking tags
     const processedContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
     
-    // Render markdown
+    // Render markdown with math support
     return (
       <div className="prose prose-invert max-w-none">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm, remarkMath]} 
+          rehypePlugins={[rehypeKatex]}
+        >
           {processedContent}
         </ReactMarkdown>
       </div>
@@ -385,7 +391,10 @@ const ChatPage = () => {
                             <div className="flex-1">
                               <p className="font-medium text-xs mb-1">{selectedAgent}</p>
                               <div className="prose prose-invert max-w-none">
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                <ReactMarkdown 
+                                  remarkPlugins={[remarkGfm, remarkMath]} 
+                                  rehypePlugins={[rehypeKatex]}
+                                >
                                   {generatedResponse}
                                 </ReactMarkdown>
                               </div>
