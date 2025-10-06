@@ -1,17 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Plus, MessageSquare, ChevronLeft, Trash2, X, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { showError, showSuccess } from '@/utils/toast';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
-import 'katex/dist/katex.min.css';
+import AgentSelector from '@/components/chat/AgentSelector';
+import ChatMessages from '@/components/chat/ChatMessages';
+import ChatInput from '@/components/chat/ChatInput';
+import ConversationsModal from '@/components/chat/ConversationsModal';
+import WelcomeMessage from '@/components/chat/WelcomeMessage';
 
 const ChatPage = () => {
   const [message, setMessage] = useState('');
@@ -53,7 +51,7 @@ const ChatPage = () => {
   }, []);
 
   // Fetch user's conversations
-  const { data: conversations, refetch: refetchConversations } = useQuery({
+  const { data: conversations = [], refetch: refetchConversations } = useQuery({
     queryKey: ['conversations'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -285,24 +283,6 @@ const ChatPage = () => {
     }
   }, [messages, isLoading, generatedResponse, isGenerating]);
 
-  // Process message content to remove thinking tags and render markdown
-  const processMessageContent = (content: string) => {
-    // Remove thinking tags
-    const processedContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
-    
-    // Render markdown with math support
-    return (
-      <div className="prose prose-invert max-w-none">
-        <ReactMarkdown 
-          remarkPlugins={[remarkGfm, remarkMath]} 
-          rehypePlugins={[rehypeKatex]}
-        >
-          {processedContent}
-        </ReactMarkdown>
-      </div>
-    );
-  };
-
   return (
     <div className="flex flex-col h-full">
       <div className="mb-6">
@@ -315,111 +295,25 @@ const ChatPage = () => {
         <div className="flex-1 flex flex-col">
           <Card className="bg-gray-900 border-gray-700 flex-1 flex flex-col">
             <CardContent className="p-0 flex-1 flex flex-col">
-              {/* Agent selector or Conversations button */}
-              <div className="p-4 border-b border-gray-700">
-                <div className="flex flex-wrap gap-2 justify-center">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowConversations(true)}
-                    className="bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
-                  >
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Conversas
-                  </Button>
-                  {agents.map((agent) => (
-                    <Button
-                      key={agent}
-                      variant={selectedAgent === agent ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedAgent(agent)}
-                      className={
-                        selectedAgent === agent
-                          ? "bg-purple-600 hover:bg-purple-700 text-white"
-                          : "bg-black text-white hover:bg-gray-800 border-gray-600"
-                      }
-                    >
-                      {agent}
-                    </Button>
-                  ))}
-                </div>
-              </div>
+              {/* Agent selector */}
+              <AgentSelector 
+                agents={agents}
+                selectedAgent={selectedAgent}
+                setSelectedAgent={setSelectedAgent}
+                onShowConversations={() => setShowConversations(true)}
+              />
 
               {/* Messages area */}
               <ScrollArea className="flex-1 p-4 bg-gray-900" ref={scrollAreaRef}>
                 {messages.length > 0 ? (
-                  <div className="space-y-4">
-                    {messages.map((msg: any) => (
-                      <div
-                        key={msg.id}
-                        className={`flex ${
-                          msg.role === 'user' ? 'justify-end' : 'justify-start'
-                        }`}
-                      >
-                        <div
-                          className={`max-w-[80%] rounded-lg p-4 ${
-                            msg.role === 'user'
-                              ? 'bg-purple-600 text-white'
-                              : 'bg-gray-700 text-white'
-                          }`}
-                        >
-                          <div className="flex items-start gap-2">
-                            {msg.role === 'assistant' ? (
-                              <Bot className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                            ) : (
-                              <User className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                            )}
-                            <div>
-                              <p className="font-medium text-xs mb-1">
-                                {msg.role === 'user' ? 'Você' : selectedAgent}
-                              </p>
-                              {msg.role === 'assistant' ? (
-                                processMessageContent(msg.content)
-                              ) : (
-                                <p className="whitespace-pre-wrap">{msg.content}</p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    {isGenerating && (
-                      <div className="flex justify-start">
-                        <div className="max-w-[80%] rounded-lg p-4 bg-gray-700 text-white">
-                          <div className="flex items-start gap-2">
-                            <Bot className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                            <div className="flex-1">
-                              <p className="font-medium text-xs mb-1">{selectedAgent}</p>
-                              <div className="prose prose-invert max-w-none">
-                                <ReactMarkdown 
-                                  remarkPlugins={[remarkGfm, remarkMath]} 
-                                  rehypePlugins={[rehypeKatex]}
-                                >
-                                  {generatedResponse}
-                                </ReactMarkdown>
-                              </div>
-                              <div className="flex items-center gap-1 mt-2">
-                                <span className="inline-block w-2 h-2 rounded-full bg-gray-400 animate-bounce"></span>
-                                <span className="inline-block w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.2s' }}></span>
-                                <span className="inline-block w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.4s' }}></span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  <ChatMessages 
+                    messages={messages}
+                    selectedAgent={selectedAgent}
+                    isGenerating={isGenerating}
+                    generatedResponse={generatedResponse}
+                  />
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                    <Bot className="h-16 w-16 text-purple-500 mb-4" />
-                    <h3 className="text-xl font-semibold mb-2 text-white">Bem-vindo ao Chat IA</h3>
-                    <p className="text-gray-400 mb-4">
-                      Selecione um agente e comece uma conversa sobre as competências do ENEM.
-                    </p>
-                    <Button onClick={createConversation} className="bg-purple-600 hover:bg-purple-700 text-white">
-                      Iniciar Conversa
-                    </Button>
-                  </div>
+                  <WelcomeMessage onCreateConversation={createConversation} />
                 )}
                 
                 {/* Error message */}
@@ -435,43 +329,14 @@ const ChatPage = () => {
               </ScrollArea>
 
               {/* Input area */}
-              <div className="p-4 border-t border-gray-700">
-                <div className="flex gap-2">
-                  <Input
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Digite sua mensagem..."
-                    className="bg-gray-700 border-gray-600 text-white flex-1"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                    disabled={isLoading || !activeConversation || !apiKey}
-                  />
-                  <Button
-                    onClick={sendMessage}
-                    disabled={!message.trim() || !activeConversation || isLoading || !apiKey}
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center gap-1">
-                        <span className="inline-block w-2 h-2 rounded-full bg-white animate-bounce"></span>
-                        <span className="inline-block w-2 h-2 rounded-full bg-white animate-bounce" style={{ animationDelay: '0.2s' }}></span>
-                        <span className="inline-block w-2 h-2 rounded-full bg-white animate-bounce" style={{ animationDelay: '0.4s' }}></span>
-                      </div>
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-                {!apiKey && (
-                  <p className="text-red-400 text-sm mt-2">
-                    ⚠️ Chave da API não configurada. Configure VITE_OPENROUTER_API_KEY no arquivo .env
-                  </p>
-                )}
-              </div>
+              <ChatInput
+                message={message}
+                setMessage={setMessage}
+                onSend={sendMessage}
+                isLoading={isLoading}
+                hasApiKey={!!apiKey}
+                hasActiveConversation={!!activeConversation}
+              />
             </CardContent>
           </Card>
         </div>
@@ -479,77 +344,14 @@ const ChatPage = () => {
 
       {/* Conversations popup modal */}
       {showConversations && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="bg-gray-800 border-gray-700 w-full max-w-md max-h-[80vh] flex flex-col">
-            <CardContent className="p-4 flex-1 flex flex-col">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold text-white">Conversas</h2>
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    onClick={createConversation}
-                    className="bg-purple-600 hover:bg-purple-700"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="ghost"
-                    onClick={() => setShowConversations(false)}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              <ScrollArea className="flex-1">
-                <div className="space-y-2">
-                  {conversations && conversations.map((conversation: any) => (
-                    <div
-                      key={conversation.id}
-                      className={`p-3 rounded-lg cursor-pointer transition-colors relative group ${
-                        activeConversation === conversation.id
-                          ? 'bg-purple-900'
-                          : 'bg-gray-700 hover:bg-gray-600'
-                      }`}
-                      onClick={() => {
-                        setActiveConversation(conversation.id);
-                        setShowConversations(false);
-                      }}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate text-white">{conversation.title}</p>
-                          <p className="text-xs text-gray-400 truncate">
-                            {new Date(conversation.updated_at).toLocaleDateString('pt-BR')}
-                          </p>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-white hover:text-red-500"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteConversation(conversation.id);
-                          }}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {conversations && conversations.length === 0 && (
-                    <p className="text-gray-400 text-sm text-center py-4">
-                      Nenhuma conversa ainda
-                    </p>
-                  )}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </div>
+        <ConversationsModal
+          conversations={conversations}
+          activeConversation={activeConversation}
+          onCreateConversation={createConversation}
+          onSelectConversation={setActiveConversation}
+          onDeleteConversation={deleteConversation}
+          onClose={() => setShowConversations(false)}
+        />
       )}
     </div>
   );
