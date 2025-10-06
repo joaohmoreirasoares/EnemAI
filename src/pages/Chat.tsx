@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { showError, showSuccess } from '@/utils/toast';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const ChatPage = () => {
   const [message, setMessage] = useState('');
@@ -155,7 +157,7 @@ const ChatPage = () => {
           messages: [
             {
               role: 'system',
-              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática.`
+              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática. Use markdown para formatar suas respostas. Se precisar pensar, coloque seu raciocínio entre <thinking> e </thinking>.`
             },
             {
               role: 'user',
@@ -258,6 +260,21 @@ const ChatPage = () => {
     }
   }, [messages, isLoading]);
 
+  // Process message content to remove thinking tags and render markdown
+  const processMessageContent = (content: string) => {
+    // Remove thinking tags
+    const processedContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
+    
+    // Render markdown
+    return (
+      <div className="prose prose-invert max-w-none">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {processedContent}
+        </ReactMarkdown>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="mb-6">
@@ -328,7 +345,11 @@ const ChatPage = () => {
                               <p className="font-medium text-xs mb-1">
                                 {msg.role === 'user' ? 'Você' : selectedAgent}
                               </p>
-                              <p className="whitespace-pre-wrap">{msg.content}</p>
+                              {msg.role === 'assistant' ? (
+                                processMessageContent(msg.content)
+                              ) : (
+                                <p className="whitespace-pre-wrap">{msg.content}</p>
+                              )}
                             </div>
                           </div>
                         </div>
