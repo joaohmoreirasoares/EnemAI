@@ -18,7 +18,6 @@ const ChatPage = () => {
   const [showConversations, setShowConversations] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState<string | null>(null);
-  const [isThinking, setIsThinking] = useState(false);
   const [generatedResponse, setGeneratedResponse] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -160,7 +159,7 @@ const ChatPage = () => {
           messages: [
             {
               role: 'system',
-              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática. Use markdown para formatar suas respostas. Se precisar pensar, coloque seu raciocínio entre <thinking> e </thinking>.`
+              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática. Use markdown para formatar suas respostas.`
             },
             {
               role: 'user',
@@ -194,7 +193,6 @@ const ChatPage = () => {
     if (!user) return;
 
     setIsLoading(true);
-    setIsThinking(true);
     setGeneratedResponse('');
     setIsGenerating(false);
     setError(null);
@@ -221,7 +219,6 @@ const ChatPage = () => {
     if (updateError) {
       showError('Erro ao enviar mensagem');
       setIsLoading(false);
-      setIsThinking(false);
       return;
     }
 
@@ -237,12 +234,12 @@ const ChatPage = () => {
       setIsGenerating(true);
       setGeneratedResponse('');
       
-      // Simulate typing effect
+      // Simulate typing effect - faster speed
       let currentIndex = 0;
       const typingInterval = setInterval(() => {
         if (currentIndex <= aiResponse.length) {
           setGeneratedResponse(aiResponse.substring(0, currentIndex));
-          currentIndex++;
+          currentIndex += 3; // Increased speed - show 3 characters at a time
         } else {
           clearInterval(typingInterval);
           setIsGenerating(false);
@@ -272,11 +269,289 @@ const ChatPage = () => {
               queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
             });
         }
-      }, 20); // Adjust typing speed here
+      }, 10); // Faster interval - 10ms instead of 20ms
     }
 
     setIsLoading(false);
-    setIsThinking(false);
+  };
+
+
+<dyad-write path="src/pages/Chat.tsx" description="Deixando mais rápido e removendo mensagem de thinking">
+import { useState, useRef, useEffect } from 'react';
+import { Send, Bot, User, Plus, MessageSquare, ChevronLeft, Trash2, X, AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent } from '@/components/ui/card';
+import { showError, showSuccess } from '@/utils/toast';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+const ChatPage = () => {
+  const [message, setMessage] = useState('');
+  const [selectedAgent, setSelectedAgent] = useState('Matemática');
+  const [activeConversation, setActiveConversation] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showConversations, setShowConversations] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [generatedResponse, setGeneratedResponse] = useState<string>('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
+
+  const agents = [
+    'Linguagens',
+    'Matemática',
+    'Ciências da Natureza',
+    'Ciências Humanas'
+  ];
+
+  // Load API key on component mount
+  useEffect(() => {
+    const loadApiKey = () => {
+      try {
+        const envApiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+        if (envApiKey && envApiKey !== 'your_openrouter_api_key_here') {
+          setApiKey(envApiKey);
+        } else {
+          setError('Chave da API do OpenRouter não configurada. Por favor, configure a variável VITE_OPENROUTER_API_KEY no arquivo .env');
+        }
+      } catch (error) {
+        console.error('Error loading environment variables:', error);
+        setError('Erro ao carregar configurações. Verifique o arquivo .env');
+      }
+    };
+
+    loadApiKey();
+  }, []);
+
+  // Fetch user's conversations
+  const { data: conversations, refetch: refetchConversations } = useQuery({
+    queryKey: ['conversations'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from('chat_conversations')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Fetch messages for active conversation
+  const { data: messages = [] } = useQuery({
+    queryKey: ['conversation', activeConversation],
+    queryFn: async () => {
+      if (!activeConversation) return [];
+
+      const { data, error } = await supabase
+        .from('chat_conversations')
+        .select('messages')
+        .eq('id', activeConversation)
+        .single();
+
+      if (error) throw error;
+      return data.messages || [];
+    },
+    enabled: !!activeConversation
+  });
+
+  // Create new conversation
+  const createConversation = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const timestamp = new Date().toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    const newTitle = `Chat sobre ${selectedAgent} - ${timestamp}`;
+    const { data, error } = await supabase
+      .from('chat_conversations')
+      .insert({
+        user_id: user.id,
+        agent: selectedAgent,
+        title: newTitle,
+        messages: []
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    
+    setActiveConversation(data.id);
+    refetchConversations();
+    showSuccess('Nova conversa criada!');
+    setShowConversations(false);
+  };
+
+  // Delete conversation
+  const deleteConversation = async (conversationId: string) => {
+    const { error } = await supabase
+      .from('chat_conversations')
+      .delete()
+      .eq('id', conversationId);
+
+    if (error) {
+      showError('Erro ao deletar conversa');
+      return;
+    }
+
+    if (activeConversation === conversationId) {
+      setActiveConversation(null);
+    }
+
+    refetchConversations();
+    showSuccess('Conversa deletada com sucesso!');
+  };
+
+  // Call OpenRouter API to get AI response
+  const getAIResponse = async (userMessage: string) => {
+    if (!apiKey) {
+      setError('Chave da API não configurada');
+      return null;
+    }
+
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': window.location.href,
+          'X-Title': 'Enem AI'
+        },
+        body: JSON.stringify({
+          model: 'qwen/qwen3-235b-a22b:free',
+          messages: [
+            {
+              role: 'system',
+              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática. Use markdown para formatar suas respostas.`
+            },
+            {
+              role: 'user',
+              content: userMessage
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 1000
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || `API request failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content;
+    } catch (error: any) {
+      console.error('Error calling OpenRouter API:', error);
+      setError(error.message || 'Erro ao obter resposta da IA. Tente novamente.');
+      return null;
+    }
+  };
+
+  // Send message to AI
+  const sendMessage = async () => {
+    if (!message.trim() || !activeConversation || isLoading || !apiKey) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    setIsLoading(true);
+    setGeneratedResponse('');
+    setIsGenerating(false);
+    setError(null);
+
+    // Add user message to conversation
+    const userMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: message,
+      timestamp: new Date().toISOString()
+    };
+
+    // Update conversation with user message
+    const updatedMessages = [...messages, userMessage];
+    
+    const { error: updateError } = await supabase
+      .from('chat_conversations')
+      .update({
+        messages: updatedMessages,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', activeConversation);
+
+    if (updateError) {
+      showError('Erro ao enviar mensagem');
+      setIsLoading(false);
+      return;
+    }
+
+    setMessage('');
+    queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
+    refetchConversations();
+
+    // Get AI response
+    const aiResponse = await getAIResponse(message);
+    
+    if (aiResponse) {
+      // Start generating animation
+      setIsGenerating(true);
+      setGeneratedResponse('');
+      
+      // Simulate typing effect - faster speed
+      let currentIndex = 0;
+      const typingInterval = setInterval(() => {
+        if (currentIndex <= aiResponse.length) {
+          setGeneratedResponse(aiResponse.substring(0, currentIndex));
+          currentIndex += 3; // Increased speed - show 3 characters at a time
+        } else {
+          clearInterval(typingInterval);
+          setIsGenerating(false);
+          
+          // Save final response to database
+          const aiMessage = {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            content: aiResponse,
+            timestamp: new Date().toISOString()
+          };
+
+          const finalMessages = [...updatedMessages, aiMessage];
+          
+          // Update database with final response
+          supabase
+            .from('chat_conversations')
+            .update({
+              messages: finalMessages,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', activeConversation)
+            .then(({ error: finalError }) => {
+              if (finalError) {
+                showError('Erro ao salvar resposta da IA');
+              }
+              queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
+            });
+        }
+      }, 10); // Faster interval - 10ms instead of 20ms
+    }
+
+    setIsLoading(false);
   };
 
   // Scroll to bottom when messages change
@@ -284,18 +559,15 @@ const ChatPage = () => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages, isLoading, isThinking, generatedResponse, isGenerating]);
+  }, [messages, isLoading, generatedResponse, isGenerating]);
 
   // Process message content to remove thinking tags and render markdown
   const processMessageContent = (content: string) => {
-    // Remove thinking tags
-    const processedContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
-    
     // Render markdown
     return (
       <div className="prose prose-invert max-w-none">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {processedContent}
+          {content}
         </ReactMarkdown>
       </div>
     );
@@ -381,33 +653,6 @@ const ChatPage = () => {
                         </div>
                       </div>
                     ))}
-                    {isThinking && (
-                      <div className="flex justify-start">
-                        <div className="max-w-[80%] rounded-lg p-4 bg-gray-700 text-white">
-                          <div className="flex items-start gap-2">
-                            <Bot className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                            <div className="flex-1">
-                              <p className="font-medium text-xs mb-2">{selectedAgent}</p>
-                              <div className="bg-gray-800 rounded-lg p-3 mb-2">
-                                <div className="flex items-center gap-2">
-                                  <div className="flex gap-1">
-                                    <span className="inline-block w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
-                                    <span className="inline-block w-2 h-2 rounded-full bg-purple-400 animate-pulse" style={{ animationDelay: '0.2s' }}></span>
-                                    <span className="inline-block w-2 h-2 rounded-full bg-purple-400 animate-pulse" style={{ animationDelay: '0.4s' }}></span>
-                                  </div>
-                                  <span className="text-sm text-purple-300">Pensando para uma resposta melhor...</span>
-                                </div>
-                              </div>
-                              <div className="space-y-1">
-                                <div className="h-2 bg-gray-600 rounded animate-pulse"></div>
-                                <div className="h-2 bg-gray-600 rounded animate-pulse" style={{ animationDelay: '0.1s' }}></div>
-                                <div className="h-2 bg-gray-600 rounded animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
                     {isGenerating && (
                       <div className="flex justify-start">
                         <div className="max-w-[80%] rounded-lg p-4 bg-gray-700 text-white">
