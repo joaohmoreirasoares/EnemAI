@@ -19,6 +19,8 @@ const ChatPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [isThinking, setIsThinking] = useState(false);
+  const [generatedResponse, setGeneratedResponse] = useState<string>('');
+  const [isGenerating, setIsGenerating] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -193,6 +195,8 @@ const ChatPage = () => {
 
     setIsLoading(true);
     setIsThinking(true);
+    setGeneratedResponse('');
+    setIsGenerating(false);
     setError(null);
 
     // Add user message to conversation
@@ -229,28 +233,45 @@ const ChatPage = () => {
     const aiResponse = await getAIResponse(message);
     
     if (aiResponse) {
-      const aiMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: aiResponse,
-        timestamp: new Date().toISOString()
-      };
-
-      const finalMessages = [...updatedMessages, aiMessage];
+      // Start generating animation
+      setIsGenerating(true);
+      setGeneratedResponse('');
       
-      const { error: finalError } = await supabase
-        .from('chat_conversations')
-        .update({
-          messages: finalMessages,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', activeConversation);
+      // Simulate typing effect
+      let currentIndex = 0;
+      const typingInterval = setInterval(() => {
+        if (currentIndex <= aiResponse.length) {
+          setGeneratedResponse(aiResponse.substring(0, currentIndex));
+          currentIndex++;
+        } else {
+          clearInterval(typingInterval);
+          setIsGenerating(false);
+          
+          // Save final response to database
+          const aiMessage = {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            content: aiResponse,
+            timestamp: new Date().toISOString()
+          };
 
-      if (finalError) {
-        showError('Erro ao salvar resposta da IA');
-      }
+          const finalMessages = [...updatedMessages, aiMessage];
+          
+          const { error: finalError } = await supabase
+            .from('chat_conversations')
+            .update({
+              messages: finalMessages,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', activeConversation);
 
-      queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
+          if (finalError) {
+            showError('Erro ao salvar resposta da IA');
+          }
+
+          queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
+        }
+      }, 20); // Adjust typing speed here
     }
 
     setIsLoading(false);
@@ -262,7 +283,7 @@ const ChatPage = () => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages, isLoading, isThinking]);
+  }, [messages, isLoading, isThinking, generatedResponse, isGenerating]);
 
   // Process message content to remove thinking tags and render markdown
   const processMessageContent = (content: string) => {
@@ -386,18 +407,23 @@ const ChatPage = () => {
                         </div>
                       </div>
                     )}
-                    {isLoading && !isThinking && (
+                    {isGenerating && (
                       <div className="flex justify-start">
                         <div className="max-w-[80%] rounded-lg p-4 bg-gray-700 text-white">
                           <div className="flex items-start gap-2">
                             <Bot className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                            <div>
+                            <div className="flex-1">
                               <p className="font-medium text-xs mb-1">{selectedAgent}</p>
-                              <p className="flex gap-1">
+                              <div className="prose prose-invert max-w-none">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                  {generatedResponse}
+                                </ReactMarkdown>
+                              </div>
+                              <div className="flex items-center gap-1 mt-2">
                                 <span className="inline-block w-2 h-2 rounded-full bg-gray-400 animate-bounce"></span>
                                 <span className="inline-block w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.2s' }}></span>
                                 <span className="inline-block w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.4s' }}></span>
-                              </p>
+                              </div>
                             </div>
                           </div>
                         </div>
