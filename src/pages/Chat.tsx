@@ -15,6 +15,7 @@ const ChatPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showConversations, setShowConversations] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -24,6 +25,25 @@ const ChatPage = () => {
     'Ciências da Natureza',
     'Ciências Humanas'
   ];
+
+  // Load API key on component mount
+  useEffect(() => {
+    const loadApiKey = () => {
+      try {
+        const envApiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+        if (envApiKey && envApiKey !== 'your_openrouter_api_key_here') {
+          setApiKey(envApiKey);
+        } else {
+          setError('Chave da API do OpenRouter não configurada. Por favor, configure a variável VITE_OPENROUTER_API_KEY no arquivo .env');
+        }
+      } catch (error) {
+        console.error('Error loading environment variables:', error);
+        setError('Erro ao carregar configurações. Verifique o arquivo .env');
+      }
+    };
+
+    loadApiKey();
+  }, []);
 
   // Fetch user's conversations
   const { data: conversations, refetch: refetchConversations } = useQuery({
@@ -108,13 +128,12 @@ const ChatPage = () => {
 
   // Call OpenRouter API to get AI response
   const getAIResponse = async (userMessage: string) => {
-    try {
-      // Verificar se a chave da API está configurada
-      const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-      if (!apiKey) {
-        throw new Error('Chave da API não configurada. Por favor, configure a variável VITE_OPENROUTER_API_KEY no arquivo .env');
-      }
+    if (!apiKey) {
+      setError('Chave da API não configurada');
+      return null;
+    }
 
+    try {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -156,7 +175,7 @@ const ChatPage = () => {
 
   // Send message to AI
   const sendMessage = async () => {
-    if (!message.trim() || !activeConversation || isLoading) return;
+    if (!message.trim() || !activeConversation || isLoading || !apiKey) return;
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -364,11 +383,11 @@ const ChatPage = () => {
                         sendMessage();
                       }
                     }}
-                    disabled={isLoading || !activeConversation}
+                    disabled={isLoading || !activeConversation || !apiKey}
                   />
                   <Button
                     onClick={sendMessage}
-                    disabled={!message.trim() || !activeConversation || isLoading}
+                    disabled={!message.trim() || !activeConversation || isLoading || !apiKey}
                     className="bg-purple-600 hover:bg-purple-700 text-white"
                   >
                     {isLoading ? (
@@ -382,6 +401,11 @@ const ChatPage = () => {
                     )}
                   </Button>
                 </div>
+                {!apiKey && (
+                  <p className="text-red-400 text-sm mt-2">
+                    ⚠️ Chave da API não configurada. Configure VITE_OPENROUTER_API_KEY no arquivo .env
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
