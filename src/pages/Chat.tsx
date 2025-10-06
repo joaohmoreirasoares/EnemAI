@@ -18,6 +18,7 @@ const ChatPage = () => {
   const [showConversations, setShowConversations] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState<string | null>(null);
+  const [isThinking, setIsThinking] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -191,6 +192,7 @@ const ChatPage = () => {
     if (!user) return;
 
     setIsLoading(true);
+    setIsThinking(true);
     setError(null);
 
     // Add user message to conversation
@@ -215,6 +217,7 @@ const ChatPage = () => {
     if (updateError) {
       showError('Erro ao enviar mensagem');
       setIsLoading(false);
+      setIsThinking(false);
       return;
     }
 
@@ -251,6 +254,7 @@ const ChatPage = () => {
     }
 
     setIsLoading(false);
+    setIsThinking(false);
   };
 
   // Scroll to bottom when messages change
@@ -258,7 +262,7 @@ const ChatPage = () => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, isThinking]);
 
   // Process message content to remove thinking tags and render markdown
   const processMessageContent = (content: string) => {
@@ -355,7 +359,34 @@ const ChatPage = () => {
                         </div>
                       </div>
                     ))}
-                    {isLoading && (
+                    {isThinking && (
+                      <div className="flex justify-start">
+                        <div className="max-w-[80%] rounded-lg p-4 bg-gray-700 text-white">
+                          <div className="flex items-start gap-2">
+                            <Bot className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1">
+                              <p className="font-medium text-xs mb-2">{selectedAgent}</p>
+                              <div className="bg-gray-800 rounded-lg p-3 mb-2">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex gap-1">
+                                    <span className="inline-block w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                                    <span className="inline-block w-2 h-2 rounded-full bg-purple-400 animate-pulse" style={{ animationDelay: '0.2s' }}></span>
+                                    <span className="inline-block w-2 h-2 rounded-full bg-purple-400 animate-pulse" style={{ animationDelay: '0.4s' }}></span>
+                                  </div>
+                                  <span className="text-sm text-purple-300">Pensando para uma resposta melhor...</span>
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="h-2 bg-gray-600 rounded animate-pulse"></div>
+                                <div className="h-2 bg-gray-600 rounded animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+                                <div className="h-2 bg-gray-600 rounded animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {isLoading && !isThinking && (
                       <div className="flex justify-start">
                         <div className="max-w-[80%] rounded-lg p-4 bg-gray-700 text-white">
                           <div className="flex items-start gap-2">
