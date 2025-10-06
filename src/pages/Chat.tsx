@@ -159,7 +159,7 @@ const ChatPage = () => {
           messages: [
             {
               role: 'system',
-              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática. Use markdown para formatar suas respostas.`
+              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática. Use markdown para formatar suas respostas. Se precisar pensar, coloque seu raciocínio entre <thinking> e </thinking>, mas mantenha-o com no máximo 500 caracteres.`
             },
             {
               role: 'user',
@@ -284,11 +284,14 @@ const ChatPage = () => {
 
   // Process message content to remove thinking tags and render markdown
   const processMessageContent = (content: string) => {
+    // Remove thinking tags
+    const processedContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
+    
     // Render markdown
     return (
       <div className="prose prose-invert max-w-none">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {content}
+          {processedContent}
         </ReactMarkdown>
       </div>
     );
