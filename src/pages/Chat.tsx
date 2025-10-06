@@ -257,19 +257,20 @@ const ChatPage = () => {
 
           const finalMessages = [...updatedMessages, aiMessage];
           
-          const { error: finalError } = await supabase
+          // Update database with final response
+          supabase
             .from('chat_conversations')
             .update({
               messages: finalMessages,
               updated_at: new Date().toISOString()
             })
-            .eq('id', activeConversation);
-
-          if (finalError) {
-            showError('Erro ao salvar resposta da IA');
-          }
-
-          queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
+            .eq('id', activeConversation)
+            .then(({ error: finalError }) => {
+              if (finalError) {
+                showError('Erro ao salvar resposta da IA');
+              }
+              queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
+            });
         }
       }, 20); // Adjust typing speed here
     }
