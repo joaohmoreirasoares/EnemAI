@@ -36,7 +36,7 @@ const TextType: React.FC<TextTypeProps> = ({
           }, pauseDuration);
         }
       } else {
-        // Deleting
+        // Deleting - made much faster
         setCurrentText(currentPhrase.substring(0, currentIndex - 1));
         setCurrentIndex(currentIndex - 1);
         
