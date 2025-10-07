@@ -239,7 +239,9 @@ const ChatPage = () => {
       let currentIndex = 0;
       const typingInterval = setInterval(() => {
         if (currentIndex <= aiResponse.length) {
-          setGeneratedResponse(aiResponse.substring(0, currentIndex));
+          // Process content to remove thinking tags for display during typing
+          const displayContent = aiResponse.substring(0, currentIndex).replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
+          setGeneratedResponse(displayContent);
           currentIndex += 3; // Increased speed - show 3 characters at a time
         } else {
           clearInterval(typingInterval);
