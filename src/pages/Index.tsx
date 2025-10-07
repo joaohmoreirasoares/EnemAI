@@ -82,7 +82,146 @@ const Index = () => {
           </h1>
           <p className="text-xl text-gray-300 mb-10">
             <TextType 
-              text={["A plataforma completa para estudantes", "que buscam excelência no vestibular", "Chat com IA, anotações inteligentes e comunidade"]}
+              text={["Um tutor personalizado na palma de sua mão", "Aprenda mais rápido com IA especializada", "Chegue na sua universidade dos sonhos"]}
+              typingSpeed={75}
+              pauseDuration={1500}
+              showCursor={true}
+              cursorCharacter="|"
+            />
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link to="/register">
+              <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-lg px-8 py-6">
+                Começar Gratuitamente
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button size="lg" variant="outline" className="border-gray-600 text-black hover:bg-gray-800 hover:text-white text-lg px-8 py-6">
+                Já tenho uma conta
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="px-4 py-16 sm:px-6 lg:px-8 bg-gray-800/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">Tudo que você precisa em um só lugar</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Ferramentas poderosas para otimizar seus estudos e alcançar o desempenho máximo no ENEM
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <div key={index} className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-purple-500 transition-colors">
+                  <div className="bg-purple-900/30 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
+                    <Icon className="h-8 w-8 text-purple-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                  <p className="text-gray-400">{feature.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="px-4 py-16 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">Por que estudar com
+<dyad-write path="src/pages/Index.tsx" description="Updating the Index page with more direct selling phrases and violet color">
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { 
+  MessageSquare, 
+  FileText, 
+  Users, 
+  Brain,
+  BookOpen,
+  Award
+} from 'lucide-react';
+import { MadeWithDyad } from '@/components/made-with-dyad';
+import TextType from '@/components/TextType';
+
+const Index = () => {
+  const features = [
+    {
+      icon: MessageSquare,
+      title: "Chat com IA",
+      description: "Converse com agentes especializados em cada área do ENEM para tirar dúvidas e revisar conteúdos."
+    },
+    {
+      icon: FileText,
+      title: "Anotações Inteligentes",
+      description: "Crie e organize suas anotações com um editor rico, tags e exportação para diversos formatos."
+    },
+    {
+      icon: Users,
+      title: "Comunidade de Estudos",
+      description: "Conecte-se com outros estudantes, compartilhe conhecimento e participe de discussões."
+    }
+  ];
+
+  const benefits = [
+    {
+      icon: Brain,
+      title: "Aprendizado Personalizado",
+      description: "Nossa IA adapta as respostas ao seu nível de conhecimento e estilo de aprendizagem."
+    },
+    {
+      icon: BookOpen,
+      title: "Conteúdo Especializado",
+      description: "Todo o conteúdo é baseado nas competências e habilidades cobradas no ENEM."
+    },
+    {
+      icon: Award,
+      title: "Preparação Eficaz",
+      description: "Ferramentas projetadas para maximizar seu desempenho no vestibular."
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+      {/* Header */}
+      <header className="px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            <div className="bg-purple-600 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+              <Brain className="h-6 w-6" />
+            </div>
+            <h1 className="text-2xl font-bold">Enem AI</h1>
+          </div>
+          <div className="flex gap-3">
+            <Link to="/login">
+              <Button variant="outline" className="border-gray-600 text-black hover:bg-gray-800 hover:text-white">
+                Entrar
+              </Button>
+            </Link>
+            <Link to="/register">
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                Começar Agora
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="px-4 py-16 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-3xl mx-auto">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-6">
+            Prepare-se para o ENEM com <span className="text-purple-400">Inteligência Artificial</span>
+          </h1>
+          <p className="text-xl text-gray-300 mb-10">
+            <TextType 
+              text={["Um tutor personalizado na palma de sua mão", "Aprenda mais rápido com IA especializada", "Chegue na sua universidade dos sonhos"]}
               typingSpeed={75}
               pauseDuration={1500}
               showCursor={true}
