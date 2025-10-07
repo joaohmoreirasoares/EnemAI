@@ -44,7 +44,14 @@ const Sidebar = () => {
   return (
     <div className="flex flex-col h-full bg-gray-900 text-white w-64 border-r border-gray-800">
       <div className="p-4 border-b border-gray-800">
-        <h1 className="text-2xl font-bold text-purple-400">Enem AI</h1>
+        <div className="flex items-center">
+          <img 
+            src="/logo.svg" 
+            alt="Enem AI Logo" 
+            className="h-8 w-auto mr-3"
+          />
+          <h1 className="text-xl font-bold text-purple-400">Enem AI</h1>
+        </div>
         {profile && (
           <p className="text-sm text-gray-400 mt-1">
             {profile.first_name} {profile.last_name}
