@@ -54,11 +54,9 @@ const Index = () => {
       <header className="px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <img 
-              src="/logo.svg" 
-              alt="Enem AI Logo" 
-              className="h-10 w-auto mr-3"
-            />
+            <div className="bg-purple-600 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+              <Brain className="h-6 w-6" />
+            </div>
             <h1 className="text-2xl font-bold">Enem AI</h1>
           </div>
           <div className="flex gap-3">
@@ -180,11 +178,9 @@ const Index = () => {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-6 md:mb-0">
-              <img 
-                src="/logo.svg" 
-                alt="Enem AI Logo" 
-                className="h-8 w-auto mr-3"
-              />
+              <div className="bg-purple-600 w-8 h-8 rounded-lg flex items-center justify-center mr-3">
+                <Brain className="h-5 w-5" />
+              </div>
               <h2 className="text-xl font-bold">Enem AI</h2>
             </div>
             <div className="flex flex-col items-center md:items-end">
