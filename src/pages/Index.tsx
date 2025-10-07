@@ -9,6 +9,7 @@ import {
   Award
 } from 'lucide-react';
 import { MadeWithDyad } from '@/components/made-with-dyad';
+import TextType from '@/components/TextType';
 
 const Index = () => {
   const features = [
@@ -80,8 +81,13 @@ const Index = () => {
             Prepare-se para o ENEM com <span className="text-purple-400">Inteligência Artificial</span>
           </h1>
           <p className="text-xl text-gray-300 mb-10">
-            A plataforma completa para estudantes que buscam excelência no vestibular. 
-            Chat com IA, anotações inteligentes e comunidade de estudos em um só lugar.
+            <TextType 
+              text={["A plataforma completa para estudantes", "que buscam excelência no vestibular", "Chat com IA, anotações inteligentes e comunidade"]}
+              typingSpeed={75}
+              pauseDuration={1500}
+              showCursor={true}
+              cursorCharacter="|"
+            />
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link to="/register">
