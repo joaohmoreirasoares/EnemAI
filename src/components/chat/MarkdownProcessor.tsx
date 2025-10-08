@@ -1,63 +1,52 @@
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
+import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
-import remarkRehype from 'remark-rehype';
 import rehypeKatex from 'rehype-katex';
-import rehypeStringify from 'rehype-stringify';
+import 'katex/dist/katex.min.css';
 
 interface MarkdownProcessorProps {
   content: string;
 }
 
 const MarkdownProcessor = ({ content }: MarkdownProcessorProps) => {
-  // Process the content through a unified pipeline
-  const processMarkdown = (text: string): string => {
-    try {
-      // Create processor with proper typing
-      const processor = unified()
-        .use(remarkParse)
-        .use(remarkGfm)
-        .use(remarkMath)
-        .use(() => {
-          // Custom plugin to handle thinking tags
-          return (tree: any) => {
-            // Remove thinking nodes from the AST
-            const removeThinking = (node: any) => {
-              if (node.type === 'html' && node.value?.includes('<thinking>')) {
-                return null;
-              }
-              if (node.children) {
-                node.children = node.children
-                  .map(removeThinking)
-                  .filter(Boolean);
-              }
-              return node;
-            };
-            
-            return removeThinking(tree);
-          };
-        })
-        .use(remarkRehype)
-        .use(rehypeKatex)
-        .use(rehypeStringify);
-      
-      // Process the content
-      const result = processor.processSync(text);
-      return String(result);
-    } catch (error) {
-      console.error('Error processing markdown:', error);
-      // Fallback to basic markdown processing
-      return text;
-    }
-  };
-
-  // Process the content
-  const processedContent = processMarkdown(content);
+  // Remove thinking tags before processing
+  const cleanContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
 
   return (
     <div className="prose prose-invert max-w-none">
-      <div dangerouslySetInnerHTML={{ __html: processedContent }} />
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeKatex]}
+        components={{
+          p: ({ node, ...props }) => <p className="mb-3" {...props} />,
+          h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-6 mb-4" {...props} />,
+          h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-5 mb-3" {...props} />,
+          h3: ({ node, ...props }) => <h3 className="text-lg font-bold mt-4 mb-2" {...props} />,
+          ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-3" {...props} />,
+          ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-3" {...props} />,
+          li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+          blockquote: ({ node, ...props }) => (
+            <blockquote className="border-l-4 border-purple-500 pl-4 italic" {...props} />
+          ),
+          code: ({ node, className, children, ...props }) => {
+            const match = /language-(\w+)/.exec(className || '');
+            return match ? (
+              <code className={`language-${match[1]}`} {...props}>
+                {children}
+              </code>
+            ) : (
+              <code className="bg-gray-800 rounded px-1.5 py-0.5 text-sm" {...props}>
+                {children}
+              </code>
+            );
+          },
+          pre: ({ node, ...props }) => (
+            <pre className="bg-gray-800 rounded p-4 mb-4 overflow-x-auto" {...props} />
+          ),
+        }}
+      >
+        {cleanContent}
+      </ReactMarkdown>
     </div>
   );
 };
