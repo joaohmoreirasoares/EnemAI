@@ -51,15 +51,7 @@ const ChatMessages = ({
       .replace(/\\,/g, ',') // Fix escaped commas
       .replace(/\\cdot/g, '·') // Fix multiplication dots
       .replace(/\\qquad/g, ' ') // Fix spacing
-      .replace(/\\,/g, ',') // Fix commas
-      // Fix complex LaTeX expressions with spaces and newlines
-      .replace(/sum\s+k=\s*0\s*\^\s*{([^}]+)}/g, '$\\sum_{k=0}^{$1}$')
-      .replace(/begin\{aligned\}([\s\S]*?)end\{aligned\}/g, '$\\begin{aligned}$1$\\end{aligned}$')
-      .replace(/quad/g, '\\quad')
-      .replace(/text\{([^}]+)\}/g, '\\text{$1}')
-      .replace(/ll/g, '\\ll')
-      .replace(/≈/g, '\\approx')
-      .replace(/quad/g, '\\quad'); // Fix spacing
+      .replace(/\\,/g, ','); // Fix commas
     
     // Render markdown with math support
     return (
