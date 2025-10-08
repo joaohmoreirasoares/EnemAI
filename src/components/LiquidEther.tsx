@@ -40,89 +40,92 @@ const LiquidEther: React.FC<LiquidEtherProps> = ({
   const particlesInit = useCallback(async (engine: any) => {
     try {
       await loadFull(engine);
+      console.log('Particles loaded successfully');
     } catch (error) {
       console.error('Error loading particles:', error);
     }
   }, []);
 
   return (
-    <Particles
-      id="tsparticles"
-      init={particlesInit}
-      options={{
-        background: {
-          color: {
-            value: "transparent",
-          },
-        },
-        fpsLimit: 60,
-        particles: {
-          color: {
-            value: colors,
-          },
-          links: {
-            color: colors,
-            distance: 150,
-            enable: true,
-            opacity: 0.5,
-            width: 1,
-          },
-          move: {
-            direction: "none",
-            enable: true,
-            outModes: {
-              default: "bounce",
+    <div className="absolute inset-0">
+      <Particles
+        id="tsparticles"
+        init={particlesInit}
+        options={{
+          background: {
+            color: {
+              value: "transparent",
             },
-            random: true,
-            speed: autoSpeed,
-            straight: false,
           },
-          number: {
-            density: {
+          fpsLimit: 60,
+          particles: {
+            color: {
+              value: colors,
+            },
+            links: {
+              color: colors,
+              distance: 150,
               enable: true,
-              area: 800,
+              opacity: 0.5,
+              width: 1,
             },
-            value: 80,
-          },
-          opacity: {
-            value: 0.5,
-          },
-          shape: {
-            type: "circle",
-          },
-          size: {
-            value: { min: 1, max: 5 },
-          },
-        },
-        detectRetina: true,
-        interactivity: {
-          detectsOn: "canvas",
-          events: {
-            onHover: {
+            move: {
+              direction: "none",
               enable: true,
-              mode: "grab",
+              outModes: {
+                default: "bounce",
+              },
+              random: true,
+              speed: 2,
+              straight: false,
             },
-            onClick: {
-              enable: true,
-              mode: "push",
+            number: {
+              density: {
+                enable: true,
+                area: 800,
+              },
+              value: 80,
             },
-            resize: true,
+            opacity: {
+              value: 0.5,
+            },
+            shape: {
+              type: "circle",
+            },
+            size: {
+              value: { min: 1, max: 5 },
+            },
           },
-          modes: {
-            grab: {
-              distance: 140,
-              links: {
-                opacity: 1,
+          detectRetina: true,
+          interactivity: {
+            detectsOn: "canvas",
+            events: {
+              onHover: {
+                enable: true,
+                mode: "grab",
+              },
+              onClick: {
+                enable: true,
+                mode: "push",
+              },
+              resize: true,
+            },
+            modes: {
+              grab: {
+                distance: 140,
+                links: {
+                  opacity: 1,
+                },
+              },
+              push: {
+                quantity: 4,
               },
             },
-            push: {
-              quantity: 4,
-            },
           },
-        },
-      }}
-      className="absolute inset-0"
-    />
+        }}
+        className="w-full h-full"
+      />
+    </div>
   );
 };
 
