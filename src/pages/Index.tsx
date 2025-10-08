@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import CircularGallery from '@/components/CircularGallery';
 
 export default function Index() {
   return (
@@ -64,57 +65,44 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Testimonials Section */}
+        {/* Testimonials Section with Circular Gallery */}
         <div className="mt-20">
           <h2 className="text-4xl font-bold text-white mb-12 text-center">O que nossos alunos dizem</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-lg">👩‍🎓</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-white">Ana Silva</h4>
-                  <p className="text-sm text-gray-400">Estudante</p>
-                </div>
-              </div>
-              <p className="text-gray-300 italic">
-                "O chat da IA me ajudou a entender conceitos difíceis de Matemática que eu nunca tinha conseguido antes. 
-                Minha nota melhorou 200 pontos em 3 meses!"
-              </p>
-            </div>
-            
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-lg">👨‍🎓</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-white">Carlos Mendes</h4>
-                  <p className="text-sm text-gray-400">Estudante</p>
-                </div>
-              </div>
-              <p className="text-gray-300 italic">
-                "As anotações inteligentes organizam meu estudo de forma incrível. Consigo encontrar qualquer 
-                conteúdo rapidamente e exportar resumos perfeitos para revisão."
-              </p>
-            </div>
-            
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-lg">👩‍🏫</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-white">Prof. Maria Santos</h4>
-                  <p className="text-sm text-gray-400">Professora</p>
-                </div>
-              </div>
-              <p className="text-gray-300 italic">
-                "A plataforma é fantástica para meus alunos. Eles têm acesso a explicações 24/7 e a comunidade 
-                ajuda muito no aprendizado colaborativo."
-              </p>
-            </div>
+          <div className="h-96">
+            <CircularGallery
+              items={[
+                {
+                  image: 'https://picsum.photos/seed/testimonial1/800/600?grayscale',
+                  text: '"O chat da IA me ajudou a entender conceitos difíceis de Matemática que eu nunca tinha conseguido antes. Minha nota melhorou 200 pontos em 3 meses!" - Ana Silva'
+                },
+                {
+                  image: 'https://picsum.photos/seed/testimonial2/800/600?grayscale',
+                  text: '"As anotações inteligentes organizam meu estudo de forma incrível. Consigo encontrar qualquer conteúdo rapidamente e exportar resumos perfeitos para revisão." - Carlos Mendes'
+                },
+                {
+                  image: 'https://picsum.photos/seed/testimonial3/800/600?grayscale',
+                  text: '"A plataforma é fantástica para meus alunos. Eles têm acesso a explicações 24/7 e a comunidade ajuda muito no aprendizado colaborativo." - Prof. Maria Santos'
+                },
+                {
+                  image: 'https://picsum.photos/seed/testimonial4/800/600?grayscale',
+                  text: '"Finalmente consegui entender Redação! A IA me dá feedbacks detalhados que meus professores não tinham tempo para dar." - Pedro Oliveira'
+                },
+                {
+                  image: 'https://picsum.photos/seed/testimonial5/800/600?grayscale',
+                  text: '"O sistema de simulados personalizados me ajudou a identificar minhas fraquezas e focar no que realmente importava para o ENEM." - Juliana Costa'
+                },
+                {
+                  image: 'https://picsum.photos/seed/testimonial6/800/600?grayscale',
+                  text: '"Comunidade incrível! Encontrei study partners e materiais compartilhados que me deram uma vantagem enorme." - Ricardo Almeida'
+                }
+              ]}
+              bend={3}
+              textColor="#ffffff"
+              borderRadius={0.05}
+              font="bold 24px Figtree"
+              scrollSpeed={2}
+              scrollEase={0.05}
+            />
           </div>
         </div>
 
