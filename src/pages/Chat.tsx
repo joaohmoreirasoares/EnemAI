@@ -23,6 +23,7 @@ const ChatPage = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const agents = [
     'Linguagens',
@@ -30,6 +31,15 @@ const ChatPage = () => {
     'Ciências da Natureza',
     'Ciências Humanas'
   ];
+
+  // Clear interval on unmount
+  useEffect(() => {
+    return () => {
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
+      }
+    };
+  }, []);
 
   // Load API key on component mount
   useEffect(() => {
@@ -166,7 +176,8 @@ const ChatPage = () => {
             }
           ],
           temperature: 0.7,
-          max_tokens: 1000
+          max_tokens: 1000,
+          stream: false // Ensure we get the full response at once
         })
       });
 
@@ -190,6 +201,12 @@ const ChatPage = () => {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+
+    // Clear any existing intervals
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+      typingIntervalRef.current = null;
+    }
 
     setIsLoading(true);
     setGeneratedResponse('');
@@ -235,14 +252,22 @@ const ChatPage = () => {
       
       // Simulate typing effect - faster speed
       let currentIndex = 0;
-      const typingInterval = setInterval(() => {
-        if (currentIndex <= aiResponse.length) {
-          // Process content to remove thinking tags for display during typing
-          const displayContent = aiResponse.substring(0, currentIndex).replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
-          setGeneratedResponse(displayContent);
+      const fullResponse = aiResponse.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
+      
+      // Clear any existing interval before starting a new one
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
+      }
+      
+      typingIntervalRef.current = setInterval(() => {
+        if (currentIndex <= fullResponse.length) {
+          setGeneratedResponse(fullResponse.substring(0, currentIndex));
           currentIndex += 3; // Increased speed - show 3 characters at a time
         } else {
-          clearInterval(typingInterval);
+          if (typingIntervalRef.current) {
+            clearInterval(typingIntervalRef.current);
+            typingIntervalRef.current = null;
+          }
           setIsGenerating(false);
           
           // Save final response to database
@@ -268,6 +293,7 @@ const ChatPage = () => {
                 showError('Erro ao salvar resposta da IA');
               }
               queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
+              setIsLoading(false);
             });
         }
       }, 10); // Faster interval - 10ms instead of 20ms
@@ -282,6 +308,21 @@ const ChatPage = () => {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages, isLoading, generatedResponse, isGenerating]);
+
+  // Reset loading states when conversation changes
+  useEffect(() => {
+    // Clear any existing intervals when conversation changes
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+      typingIntervalRef.current = null;
+    }
+    
+    // Reset states
+    setIsLoading(false);
+    setIsGenerating(false);
+    setGeneratedResponse('');
+    setError(null);
+  }, [activeConversation]);
 
   return (
     <div className="flex flex-col h-full">
