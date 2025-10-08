@@ -36,6 +36,16 @@ const ChatMessages = ({
         <ReactMarkdown 
           remarkPlugins={[remarkGfm, remarkMath]} 
           rehypePlugins={[rehypeKatex]}
+          components={{
+            // Custom component for inline math
+            inlineMath: ({ value }) => (
+              <span className="inline-block">{value}</span>
+            ),
+            // Custom component for block math
+            math: ({ value }) => (
+              <div className="block my-2">{value}</div>
+            )
+          }}
         >
           {processedContent}
         </ReactMarkdown>
@@ -90,6 +100,16 @@ const ChatMessages = ({
                   <ReactMarkdown 
                     remarkPlugins={[remarkGfm, remarkMath]} 
                     rehypePlugins={[rehypeKatex]}
+                    components={{
+                      // Custom component for inline math
+                      inlineMath: ({ value }) => (
+                        <span className="inline-block">{value}</span>
+                      ),
+                      // Custom component for block math
+                      math: ({ value }) => (
+                        <div className="block my-2">{value}</div>
+                      )
+                    }}
                   >
                     {generatedResponse}
                   </ReactMarkdown>
