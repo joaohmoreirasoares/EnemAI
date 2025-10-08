@@ -39,7 +39,11 @@ const LiquidEther: React.FC<LiquidEtherProps> = ({
   autoRampDuration = 0.6,
 }) => {
   const particlesInit = useCallback(async (engine: Engine) => {
-    await loadFull(engine);
+    try {
+      await loadFull(engine);
+    } catch (error) {
+      console.error('Error loading particles:', error);
+    }
   }, []);
 
   return (
