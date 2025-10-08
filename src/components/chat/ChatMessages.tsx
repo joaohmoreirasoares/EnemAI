@@ -25,10 +25,21 @@ const ChatMessages = ({
   isGenerating, 
   generatedResponse 
 }: ChatMessagesProps) => {
-  // Process message content to remove thinking tags and render markdown
+  // Process message content to remove thinking tags and fix markdown
   const processMessageContent = (content: string) => {
     // Remove thinking tags
-    const processedContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
+    let processedContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
+    
+    // Fix common markdown formatting issues
+    processedContent = processedContent
+      .replace(/\\boxed\{([^}]+)\}/g, '$1') // Remove \boxed wrapper
+      .replace(/\\,/g, ',') // Fix escaped commas
+      .replace(/\\cdot/g, '·') // Fix multiplication dots
+      .replace(/\\qquad/g, ' ') // Fix spacing
+      .replace(/\\displaystyle/g, '') // Remove displaystyle
+      .replace(/\\left\(/g, '(') // Fix left parentheses
+      .replace(/\\right\)/g, ')') // Fix right parentheses
+      .replace(/\\,/g, ','); // Fix commas
     
     // Render markdown with math support
     return (
