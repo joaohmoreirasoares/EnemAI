@@ -5,7 +5,7 @@ import remarkMath from 'remark-math';
 import remarkRehype from 'remark-rehype';
 import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
-import { Root } from 'remark-parse/lib';
+import type { Root } from 'remark-parse';
 import { VFile } from 'vfile';
 
 interface MarkdownProcessorProps {
