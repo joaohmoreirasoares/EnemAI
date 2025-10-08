@@ -21,6 +21,7 @@ const ChatPage = () => {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [generatedResponse, setGeneratedResponse] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [processedResponse, setProcessedResponse] = useState<string>('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -149,6 +150,23 @@ const ChatPage = () => {
     showSuccess('Conversa deletada com sucesso!');
   };
 
+  // Process markdown content before showing
+  const processMarkdownContent = (content: string) => {
+    let processedContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
+    
+    processedContent = processedContent
+      .replace(/\\boxed\{([^}]+)\}/g, '$1')
+      .replace(/\\,/g, ',')
+      .replace(/\\cdot/g, '·')
+      .replace(/\\qquad/g, ' ')
+      .replace(/\\displaystyle/g, '')
+      .replace(/\\left\(/g, '(')
+      .replace(/\\right\)/g, ')')
+      .replace(/\\,/g, ',');
+    
+    return processedContent;
+  };
+
   // Call Groq API to get AI response
   const getAIResponse = async (userMessage: string) => {
     if (!apiKey) {
@@ -177,7 +195,7 @@ const ChatPage = () => {
           ],
           temperature: 0.7,
           max_tokens: 1000,
-          stream: false // Ensure we get the full response at once
+          stream: false
         })
       });
 
@@ -210,6 +228,7 @@ const ChatPage = () => {
 
     setIsLoading(true);
     setGeneratedResponse('');
+    setProcessedResponse('');
     setIsGenerating(false);
     setError(null);
 
@@ -246,13 +265,16 @@ const ChatPage = () => {
     const aiResponse = await getAIResponse(message);
     
     if (aiResponse) {
-      // Start generating animation
+      // Process the markdown content first
+      const processedContent = processMarkdownContent(aiResponse);
+      
+      // Start generating animation with processed content
       setIsGenerating(true);
       setGeneratedResponse('');
+      setProcessedResponse('');
       
-      // Simulate typing effect - faster speed
+      // Simulate typing effect with processed content
       let currentIndex = 0;
-      const fullResponse = aiResponse.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
       
       // Clear any existing interval before starting a new one
       if (typingIntervalRef.current) {
@@ -260,9 +282,10 @@ const ChatPage = () => {
       }
       
       typingIntervalRef.current = setInterval(() => {
-        if (currentIndex <= fullResponse.length) {
-          setGeneratedResponse(fullResponse.substring(0, currentIndex));
-          currentIndex += 3; // Increased speed - show 3 characters at a time
+        if (currentIndex <= processedContent.length) {
+          setGeneratedResponse(processedContent.substring(0, currentIndex));
+          setProcessedResponse(processedContent.substring(0, currentIndex));
+          currentIndex += 3; // Show 3 characters at a time
         } else {
           if (typingIntervalRef.current) {
             clearInterval(typingIntervalRef.current);
@@ -274,7 +297,7 @@ const ChatPage = () => {
           const aiMessage = {
             id: (Date.now() + 1).toString(),
             role: 'assistant',
-            content: aiResponse,
+            content: aiResponse, // Save original response with markdown
             timestamp: new Date().toISOString()
           };
 
@@ -296,7 +319,7 @@ const ChatPage = () => {
               setIsLoading(false);
             });
         }
-      }, 10); // Faster interval - 10ms instead of 20ms
+      }, 10); // 10ms interval for smooth typing
     } else {
       setIsLoading(false);
     }
@@ -307,7 +330,7 @@ const ChatPage = () => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages, isLoading, generatedResponse, isGenerating]);
+  }, [messages, isLoading, processedResponse, isGenerating]);
 
   // Reset loading states when conversation changes
   useEffect(() => {
@@ -321,6 +344,7 @@ const ChatPage = () => {
     setIsLoading(false);
     setIsGenerating(false);
     setGeneratedResponse('');
+    setProcessedResponse('');
     setError(null);
   }, [activeConversation]);
 
@@ -351,7 +375,7 @@ const ChatPage = () => {
                     messages={messages}
                     selectedAgent={selectedAgent}
                     isGenerating={isGenerating}
-                    generatedResponse={generatedResponse}
+                    generatedResponse={processedResponse} // Use processed response here
                   />
                 ) : (
                   <WelcomeMessage onCreateConversation={createConversation} />
