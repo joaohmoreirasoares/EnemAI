@@ -1,4 +1,8 @@
 import { Bot, User } from 'lucide-react';
+
+
+<dyad-write path="src/components/chat/ChatMessages.tsx" description="Fixing markdown processing to properly handle LaTeX expressions">
+import { Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
