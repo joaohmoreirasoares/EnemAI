@@ -48,6 +48,15 @@ const ChatMessages = ({
     // Remove \boxed{...} wrapper
     processedContent = processedContent.replace(/\\boxed\{([^}]+)\}/g, '$1');
 
+    // Wrap \vec{...} in inline math
+    processedContent = processedContent.replace(/\\vec\{[^}]+\}/g, (m) => `$${m}$`);
+
+    // Wrap \frac{...}{...} and \dfrac{...}{...} in inline math
+    processedContent = processedContent.replace(/\\(d?frac)\{[^}]+\}\{[^}]+\}/g, (m) => `$${m}$`);
+
+    // Wrap superscript patterns ^{...} or ^... in inline math
+    processedContent = processedContent.replace(/(\^(\{[^}]+\}|[^ \t\n\r\{\}]))/g, (m) => `$${m}$`);
+
     // Wrap parentheses that contain LaTeX commands with inline math delimiters
     processedContent = processedContent.replace(
       /\(([^)]+\\[^)]+)\)/g,
