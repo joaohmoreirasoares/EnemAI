@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 
 type GL = Renderer['gl'];
 
+// Utility functions
 function debounce<T extends (...args: any[]) => void>(func: T, wait: number) {
   let timeout: number;
   return function (this: any, ...args: Parameters<T>) {
@@ -29,6 +30,7 @@ function getFontSize(font: string): number {
   return match ? parseInt(match[1], 10) : 30;
 }
 
+// Text texture creation utility
 function createTextTexture(
   gl: GL,
   text: string,
@@ -60,6 +62,7 @@ function createTextTexture(
   return { texture, width: canvas.width, height: canvas.height };
 }
 
+// Title component class
 interface TitleProps {
   gl: GL;
   plane: Mesh;
@@ -127,6 +130,7 @@ class Title {
   }
 }
 
+// Types
 interface ScreenSize {
   width: number;
   height: number;
@@ -137,6 +141,7 @@ interface Viewport {
   height: number;
 }
 
+// Media item component class
 interface MediaProps {
   geometry: Plane;
   gl: GL;
@@ -373,6 +378,7 @@ class Media {
   }
 }
 
+// Main gallery app class
 interface AppConfig {
   items?: { image: string; text: string }[];
   bend?: number;
@@ -383,7 +389,7 @@ interface AppConfig {
   scrollEase?: number;
 }
 
-class App {
+class CircularGalleryApp {
   container: HTMLElement;
   scrollSpeed: number;
   scroll: {
@@ -644,6 +650,7 @@ class App {
   }
 }
 
+// React component interface
 interface CircularGalleryProps {
   items?: { image: string; text: string }[];
   bend?: number;
@@ -654,6 +661,7 @@ interface CircularGalleryProps {
   scrollEase?: number;
 }
 
+// Main React component
 export default function CircularGallery({
   items,
   bend = 3,
@@ -664,9 +672,13 @@ export default function CircularGallery({
   scrollEase = 0.05
 }: CircularGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const appRef = useRef<CircularGalleryApp | null>(null);
+
   useEffect(() => {
     if (!containerRef.current) return;
-    const app = new App(containerRef.current, {
+    
+    // Create the gallery app
+    appRef.current = new CircularGalleryApp(containerRef.current, {
       items,
       bend,
       textColor,
@@ -675,9 +687,11 @@ export default function CircularGallery({
       scrollSpeed,
       scrollEase
     });
+
     return () => {
-      app.destroy();
+      appRef.current?.destroy();
     };
   }, [items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase]);
+
   return <div className="w-full h-full overflow-hidden cursor-grab active:cursor-grabbing" ref={containerRef} />;
 }
