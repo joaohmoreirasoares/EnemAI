@@ -5,7 +5,7 @@ import remarkMath from 'remark-math';
 import remarkRehype from 'remark-rehype';
 import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
-import type { Root } from 'remark-parse';
+import type * as remark from 'remark-parse';
 import { VFile } from 'vfile';
 
 interface MarkdownProcessorProps {
@@ -26,7 +26,7 @@ const MarkdownProcessor = ({ content }: MarkdownProcessorProps) => {
         .use(remarkMath)
         .use(() => {
           // Custom plugin to handle thinking tags
-          return (tree: Root) => {
+          return (tree: remark.Root) => {
             // Remove thinking nodes from the AST
             const removeThinking = (node: any) => {
               if (node.type === 'html' && node.value.includes('<thinking>')) {
