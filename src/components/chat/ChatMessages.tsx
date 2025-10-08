@@ -30,6 +30,21 @@ const ChatMessages = ({
     // Remove thinking tags
     let processedContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
 
+    // Replace <br> tags with newlines
+    processedContent = processedContent.replace(/<br\s*\/?>/gi, '\n');
+
+    // Convert tab‑separated rows into markdown table rows
+    processedContent = processedContent.replace(
+      /([^\n]+)\t([^\n]+)\t([^\n]+)\n/g,
+      (_match, col1, col2, col3) => `| ${col1.trim()} | ${col2.trim()} | ${col3.trim()} |\n`
+    );
+
+    // Add leading and trailing pipes for any line that contains tabs but no pipes
+    processedContent = processedContent.replace(
+      /([^\n]+)\t([^\n]+)\t([^\n]+)/g,
+      (_match, col1, col2, col3) => `| ${col1.trim()} | ${col2.trim()} | ${col3.trim()} |`
+    );
+
     // Remove \boxed{...} wrapper
     processedContent = processedContent.replace(/\\boxed\{([^}]+)\}/g, '$1');
 
