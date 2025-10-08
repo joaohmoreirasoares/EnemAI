@@ -35,11 +35,11 @@ const ChatPage = () => {
   useEffect(() => {
     const loadApiKey = () => {
       try {
-        const envApiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-        if (envApiKey && envApiKey !== 'your_openrouter_api_key_here') {
+        const envApiKey = import.meta.env.VITE_GROQ_API_KEY;
+        if (envApiKey && envApiKey !== 'your_groq_api_key_here') {
           setApiKey(envApiKey);
         } else {
-          setError('Chave da API do OpenRouter não configurada. Por favor, configure a variável VITE_OPENROUTER_API_KEY no arquivo .env');
+          setError('Chave da API do Groq não configurada. Por favor, configure a variável VITE_GROQ_API_KEY no arquivo .env');
         }
       } catch (error) {
         console.error('Error loading environment variables:', error);
@@ -139,7 +139,7 @@ const ChatPage = () => {
     showSuccess('Conversa deletada com sucesso!');
   };
 
-  // Call OpenRouter API to get AI response
+  // Call Groq API to get AI response
   const getAIResponse = async (userMessage: string) => {
     if (!apiKey) {
       setError('Chave da API não configurada');
@@ -147,16 +147,14 @@ const ChatPage = () => {
     }
 
     try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.href,
-          'X-Title': 'Enem AI'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'qwen/qwen3-235b-a22b:free',
+          model: 'openai/gpt-oss-120b',
           messages: [
             {
               role: 'system',
@@ -180,7 +178,7 @@ const ChatPage = () => {
       const data = await response.json();
       return data.choices[0].message.content;
     } catch (error: any) {
-      console.error('Error calling OpenRouter API:', error);
+      console.error('Error calling Groq API:', error);
       setError(error.message || 'Erro ao obter resposta da IA. Tente novamente.');
       return null;
     }
