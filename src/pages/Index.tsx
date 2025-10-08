@@ -72,28 +72,24 @@ export default function Index() {
             <CircularGallery
               items={[
                 {
-                  image: 'https://picsum.photos/seed/testimonial1/800/600?grayscale',
+                  image: 'placeholder',
                   text: '"O chat da IA me ajudou a entender conceitos difíceis de Matemática que eu nunca tinha conseguido antes. Minha nota melhorou 200 pontos em 3 meses!" - Ana Silva'
                 },
                 {
-                  image: 'https://picsum.photos/seed/testimonial2/800/600?grayscale',
+                  image: 'placeholder',
                   text: '"As anotações inteligentes organizam meu estudo de forma incrível. Consigo encontrar qualquer conteúdo rapidamente e exportar resumos perfeitos para revisão." - Carlos Mendes'
                 },
                 {
-                  image: 'https://picsum.photos/seed/testimonial3/800/600?grayscale',
+                  image: 'placeholder',
                   text: '"A plataforma é fantástica para meus alunos. Eles têm acesso a explicações 24/7 e a comunidade ajuda muito no aprendizado colaborativo." - Prof. Maria Santos'
                 },
                 {
-                  image: 'https://picsum.photos/seed/testimonial4/800/600?grayscale',
+                  image: 'placeholder',
                   text: '"Finalmente consegui entender Redação! A IA me dá feedbacks detalhados que meus professores não tinham tempo para dar." - Pedro Oliveira'
                 },
                 {
-                  image: 'https://picsum.photos/seed/testimonial5/800/600?grayscale',
+                  image: 'placeholder',
                   text: '"O sistema de simulados personalizados me ajudou a identificar minhas fraquezas e focar no que realmente importava para o ENEM." - Juliana Costa'
-                },
-                {
-                  image: 'https://picsum.photos/seed/testimonial6/800/600?grayscale',
-                  text: '"Comunidade incrível! Encontrei study partners e materiais compartilhados que me deram uma vantagem enorme." - Ricardo Almeida'
                 }
               ]}
               bend={3}

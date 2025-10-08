@@ -289,13 +289,31 @@ class Media {
       },
       transparent: true
     });
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = this.image;
-    img.onload = () => {
-      texture.image = img;
-      this.program.uniforms.uImageSizes.value = [img.naturalWidth, img.naturalHeight];
-    };
+    
+    // Create placeholder texture for testimonials
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('Could not get 2d context');
+
+    canvas.width = 800;
+    canvas.height = 600;
+
+    // Create gradient background
+    const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, '#8B5CF6');
+    gradient.addColorStop(1, '#A855F7');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Add text overlay
+    context.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    context.font = 'bold 48px sans-serif';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText('Avaliação', canvas.width / 2, canvas.height / 2);
+
+    texture.image = canvas;
+    this.program.uniforms.uImageSizes.value = [canvas.width, canvas.height];
   }
 
   createMesh() {
@@ -482,54 +500,27 @@ class CircularGalleryApp {
     borderRadius: number,
     font: string
   ) {
+    // Default testimonials with placeholder divs
     const defaultItems = [
       {
-        image: `https://picsum.photos/seed/1/800/600?grayscale`,
-        text: 'Bridge'
+        image: 'placeholder',
+        text: '"O chat da IA me ajudou a entender conceitos difíceis de Matemática que eu nunca tinha conseguido antes. Minha nota melhorou 200 pontos em 3 meses!" - Ana Silva'
       },
       {
-        image: `https://picsum.photos/seed/2/800/600?grayscale`,
-        text: 'Desk Setup'
+        image: 'placeholder',
+        text: '"As anotações inteligentes organizam meu estudo de forma incrível. Consigo encontrar qualquer conteúdo rapidamente e exportar resumos perfeitos para revisão." - Carlos Mendes'
       },
       {
-        image: `https://picsum.photos/seed/3/800/600?grayscale`,
-        text: 'Waterfall'
+        image: 'placeholder',
+        text: '"A plataforma é fantástica para meus alunos. Eles têm acesso a explicações 24/7 e a comunidade ajuda muito no aprendizado colaborativo." - Prof. Maria Santos'
       },
       {
-        image: `https://picsum.photos/seed/4/800/600?grayscale`,
-        text: 'Strawberries'
+        image: 'placeholder',
+        text: '"Finalmente consegui entender Redação! A IA me dá feedbacks detalhados que meus professores não tinham tempo para dar." - Pedro Oliveira'
       },
       {
-        image: `https://picsum.photos/seed/5/800/600?grayscale`,
-        text: 'Deep Diving'
-      },
-      {
-        image: `https://picsum.photos/seed/16/800/600?grayscale`,
-        text: 'Train Track'
-      },
-      {
-        image: `https://picsum.photos/seed/17/800/600?grayscale`,
-        text: 'Santorini'
-      },
-      {
-        image: `https://picsum.photos/seed/8/800/600?grayscale`,
-        text: 'Blurry Lights'
-      },
-      {
-        image: `https://picsum.photos/seed/9/800/600?grayscale`,
-        text: 'New York'
-      },
-      {
-        image: `https://picsum.photos/seed/10/800/600?grayscale`,
-        text: 'Good Boy'
-      },
-      {
-        image: `https://picsum.photos/seed/21/800/600?grayscale`,
-        text: 'Coastline'
-      },
-      {
-        image: `https://picsum.photos/seed/12/800/600?grayscale`,
-        text: 'Palm Trees'
+        image: 'placeholder',
+        text: '"O sistema de simulados personalizados me ajudou a identificar minhas fraquezas e focar no que realmente importava para o ENEM." - Juliana Costa'
       }
     ];
     const galleryItems = items && items.length ? items : defaultItems;
