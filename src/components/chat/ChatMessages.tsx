@@ -1,4 +1,8 @@
 import { Bot, User } from 'lucide-react';
+
+
+<dyad-write path="src/components/chat/ChatMessages.tsx" description="Fixing markdown processing to properly handle LaTeX expressions">
+import { Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -30,15 +34,27 @@ const ChatMessages = ({
     // Remove thinking tags
     let processedContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
     
-    // Fix common markdown formatting issues
+    // Fix LaTeX expressions by adding proper delimiters
     processedContent = processedContent
-      .replace(/\\boxed\{([^}]+)\}/g, '$1') // Remove \boxed wrapper
-      .replace(/\\,/g, ',') // Fix escaped commas
-      .replace(/\\cdot/g, '·') // Fix multiplication dots
-      .replace(/\\qquad/g, ' ') // Fix spacing
+      // Fix inline LaTeX expressions like ((a+b)^n) -> $(a+b)^n$
+      .replace(/\(\(([^)]+)\)\)/g, '$$$1$$')
+      // Fix LaTeX expressions that are already properly formatted but might need delimiters
+      .replace(/([^$\\])\\([a-zA-Z]+_[^}]+\\[a-zA-Z]+[^$])/g, '$1$$$2$$')
+      .replace(/([^$\\])\\([a-zA-Z]+_[^}]+[^$])/g, '$1$$$2$$')
+      .replace(/([^$\\])\\([a-zA-Z]+[^$])/g, '$1$$$2$$')
+      // Fix binomial coefficients
+      .replace(/\\binom\{([^}]+)\}\{([^}]+)\}/g, '$\\binom{$1}{$2}$')
+      // Fix sums and integrals
+      .replace(/\\sum\{([^}]+)\}\{([^}]+)\}/g, '$\\sum_{$1}^{$2}$')
+      .replace(/\\int\{([^}]+)\}\{([^}]+)\}/g, '$\\int_{$1}^{$2}$')
+      // Fix other LaTeX commands
+      .replace(/\\boxed\{([^}]+)\}/g, '$\\boxed{$1}$')
       .replace(/\\displaystyle/g, '') // Remove displaystyle
       .replace(/\\left\(/g, '(') // Fix left parentheses
       .replace(/\\right\)/g, ')') // Fix right parentheses
+      .replace(/\\,/g, ',') // Fix escaped commas
+      .replace(/\\cdot/g, '·') // Fix multiplication dots
+      .replace(/\\qquad/g, ' ') // Fix spacing
       .replace(/\\,/g, ','); // Fix commas
     
     // Render markdown with math support
