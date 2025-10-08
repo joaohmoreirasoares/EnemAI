@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback } from 'react';
 import Particles from 'react-tsparticles';
 import { loadFull } from 'tsparticles';
 import type { Engine } from 'tsparticles-engine';
@@ -42,15 +42,10 @@ const LiquidEther: React.FC<LiquidEtherProps> = ({
     await loadFull(engine);
   }, []);
 
-  const particlesLoaded = useCallback(async () => {
-    // Particles loaded callback
-  }, []);
-
   return (
     <Particles
       id="tsparticles"
       init={particlesInit}
-      loaded={particlesLoaded}
       options={{
         background: {
           color: {
