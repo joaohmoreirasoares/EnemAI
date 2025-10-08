@@ -1,6 +1,4 @@
-import React, { useCallback } from 'react';
-import Particles from 'react-tsparticles';
-import { loadFull } from 'tsparticles';
+import React, { useEffect, useRef } from 'react';
 
 interface LiquidEtherProps {
   colors: string[];
@@ -22,110 +20,120 @@ interface LiquidEtherProps {
 
 const LiquidEther: React.FC<LiquidEtherProps> = ({
   colors,
-  mouseForce = 20,
-  cursorSize = 100,
-  isViscous = false,
-  viscous = 30,
-  iterationsViscous = 32,
-  iterationsPoisson = 32,
-  resolution = 0.5,
-  isBounce = false,
   autoDemo = true,
-  autoSpeed = 0.5,
-  autoIntensity = 2.2,
-  takeoverDuration = 0.25,
-  autoResumeDelay = 3000,
-  autoRampDuration = 0.6,
 }) => {
-  const particlesInit = useCallback(async (engine: any) => {
-    try {
-      await loadFull(engine);
-      console.log('Particles loaded successfully');
-    } catch (error) {
-      console.error('Error loading particles:', error);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas size
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Particle class
+    class Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radius: number;
+      color: string;
+
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.radius = Math.random() * 3 + 1;
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Bounce off walls
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      }
     }
-  }, []);
+
+    // Create particles
+    const particles: Particle[] = [];
+    const particleCount = 80;
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+
+    // Animation loop
+    let animationId: number;
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Update and draw particles
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+
+      // Draw connections
+      particles.forEach((particle, i) => {
+        particles.slice(i + 1).forEach(otherParticle => {
+          const dx = particle.x - otherParticle.x;
+          const dy = particle.y - otherParticle.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 150) {
+            ctx.beginPath();
+            ctx.moveTo(particle.x, particle.y);
+            ctx.lineTo(otherParticle.x, otherParticle.y);
+            ctx.strokeStyle = `${particle.color}${Math.floor((1 - distance / 150) * 0.5 * 255).toString(16).padStart(2, '0')}`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        });
+      });
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    if (autoDemo) {
+      animate();
+    }
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [colors, autoDemo]);
 
   return (
-    <div className="absolute inset-0">
-      <Particles
-        id="tsparticles"
-        init={particlesInit}
-        options={{
-          background: {
-            color: {
-              value: "transparent",
-            },
-          },
-          fpsLimit: 60,
-          particles: {
-            color: {
-              value: colors,
-            },
-            links: {
-              color: colors,
-              distance: 150,
-              enable: true,
-              opacity: 0.5,
-              width: 1,
-            },
-            move: {
-              direction: "none",
-              enable: true,
-              outModes: {
-                default: "bounce",
-              },
-              random: true,
-              speed: 2,
-              straight: false,
-            },
-            number: {
-              density: {
-                enable: true,
-                area: 800,
-              },
-              value: 80,
-            },
-            opacity: {
-              value: 0.5,
-            },
-            shape: {
-              type: "circle",
-            },
-            size: {
-              value: { min: 1, max: 5 },
-            },
-          },
-          detectRetina: true,
-          interactivity: {
-            detectsOn: "canvas",
-            events: {
-              onHover: {
-                enable: true,
-                mode: "grab",
-              },
-              onClick: {
-                enable: true,
-                mode: "push",
-              },
-              resize: true,
-            },
-            modes: {
-              grab: {
-                distance: 140,
-                links: {
-                  opacity: 1,
-                },
-              },
-              push: {
-                quantity: 4,
-              },
-            },
-          },
-        }}
-        className="w-full h-full"
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 pointer-events-none"
+      style={{ zIndex: 0 }}
+    />
   );
 };
 
