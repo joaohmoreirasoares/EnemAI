@@ -30,19 +30,19 @@ const ChatMessages = ({
     // Remove thinking tags
     let processedContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
     
-    // Fix fragmented LaTeX expressions
+    // Fix LaTeX expressions by adding proper delimiters
     processedContent = processedContent
       // Fix inline LaTeX expressions like ((a+b)^n) -> $(a+b)^n$
       .replace(/\(\(([^)]+)\)\)/g, '$$$1$$')
-      // Fix fragmented binomial coefficients
-      .replace(/b\s*i\s*n\s*o\s*m\s*\{\s*([^}]+)\s*\}\s*\{\s*([^}]+)\s*\}/g, '\\binom{$1}{$2}')
-      // Fix fragmented sum expressions
-      .replace(/s\s*u\s*m\s*\{\s*k\s*=\s*0\s*\}\s*\^\s*\{\s*n\s*\}/g, '\\sum_{k=0}^{n}')
-      .replace(/s\s*u\s*m\s*\{\s*k\s*=\s*0\s*\}\s*\^\s*\{\s*([^}]+)\s*\}/g, '\\sum_{k=0}^{$1}')
-      // Fix fragmented displaystyle expressions
-      .replace(/displaystyle\s*\$\$(.*?)\$\$/g, '$$$$$1$$$$')
-      // Fix fragmented fraction expressions
-      .replace(/f\s*r\s*a\s*c\s*\{\s*([^}]+)\s*\}\s*\{\s*([^}]+)\s*\}/g, '\\frac{$1}{$2}')
+      // Fix LaTeX expressions that are already properly formatted but might need delimiters
+      .replace(/([^$\\])\\([a-zA-Z]+_[^}]+\\[a-zA-Z]+[^$])/g, '$1$$$2$$')
+      .replace(/([^$\\])\\([a-zA-Z]+_[^}]+[^$])/g, '$1$$$2$$')
+      .replace(/([^$\\])\\([a-zA-Z]+[^$])/g, '$1$$$2$$')
+      // Fix binomial coefficients
+      .replace(/\\binom\{([^}]+)\}\{([^}]+)\}/g, '$\\binom{$1}{$2}$')
+      // Fix sums and integrals
+      .replace(/\\sum\{([^}]+)\}\{([^}]+)\}/g, '$\\sum_{$1}^{$2}$')
+      .replace(/\\int\{([^}]+)\}\{([^}]+)\}/g, '$\\int_{$1}^{$2}$')
       // Fix other LaTeX commands
       .replace(/\\boxed\{([^}]+)\}/g, '$\\boxed{$1}$')
       .replace(/\\displaystyle/g, '') // Remove displaystyle
@@ -53,10 +53,10 @@ const ChatMessages = ({
       .replace(/\\qquad/g, ' ') // Fix spacing
       .replace(/\\,/g, ',') // Fix commas
       // Fix complex LaTeX expressions with spaces and newlines
-      .replace(/begin\s*\{\s*aligned\s*\}/g, '\\begin{aligned}')
-      .replace(/end\s*\{\s*aligned\s*\}/g, '\\end{aligned}')
+      .replace(/sum\s+k=\s*0\s*\^\s*{([^}]+)}/g, '$\\sum_{k=0}^{$1}$')
+      .replace(/begin\{aligned\}([\s\S]*?)end\{aligned\}/g, '$\\begin{aligned}$1$\\end{aligned}$')
       .replace(/quad/g, '\\quad')
-      .replace(/text\s*\{\s*([^}]+)\s*\}/g, '\\text{$1}')
+      .replace(/text\{([^}]+)\}/g, '\\text{$1}')
       .replace(/ll/g, '\\ll')
       .replace(/≈/g, '\\approx')
       .replace(/quad/g, '\\quad'); // Fix spacing
