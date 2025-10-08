@@ -5,7 +5,6 @@ import remarkMath from 'remark-math';
 import remarkRehype from 'remark-rehype';
 import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
-import { VFile } from 'vfile';
 
 interface MarkdownProcessorProps {
   content: string;
@@ -13,13 +12,10 @@ interface MarkdownProcessorProps {
 
 const MarkdownProcessor = ({ content }: MarkdownProcessorProps) => {
   // Process the content through a unified pipeline
-  const processMarkdown = async (text: string): Promise<string> => {
+  const processMarkdown = (text: string): string => {
     try {
-      // Create a virtual file with the content
-      const file = new VFile(text);
-      
-      // Process through remark plugins
-      const result = await unified()
+      // Create processor with proper typing
+      const processor = unified()
         .use(remarkParse)
         .use(remarkGfm)
         .use(remarkMath)
@@ -28,7 +24,7 @@ const MarkdownProcessor = ({ content }: MarkdownProcessorProps) => {
           return (tree: any) => {
             // Remove thinking nodes from the AST
             const removeThinking = (node: any) => {
-              if (node.type === 'html' && node.value.includes('<thinking>')) {
+              if (node.type === 'html' && node.value?.includes('<thinking>')) {
                 return null;
               }
               if (node.children) {
@@ -42,11 +38,12 @@ const MarkdownProcessor = ({ content }: MarkdownProcessorProps) => {
             return removeThinking(tree);
           };
         })
-        .use(remarkRehype as any)
-        .use(rehypeKatex as any)
-        .use(rehypeStringify)
-        .process(file);
+        .use(remarkRehype)
+        .use(rehypeKatex)
+        .use(rehypeStringify);
       
+      // Process the content
+      const result = processor.processSync(text);
       return String(result);
     } catch (error) {
       console.error('Error processing markdown:', error);
