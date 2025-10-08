@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import Particles from 'react-tsparticles';
 import { loadFull } from 'tsparticles';
-import type { Engine } from 'tsparticles-engine';
 
 interface LiquidEtherProps {
   colors: string[];
@@ -38,7 +37,7 @@ const LiquidEther: React.FC<LiquidEtherProps> = ({
   autoResumeDelay = 3000,
   autoRampDuration = 0.6,
 }) => {
-  const particlesInit = useCallback(async (engine: Engine) => {
+  const particlesInit = useCallback(async (engine: any) => {
     try {
       await loadFull(engine);
     } catch (error) {
