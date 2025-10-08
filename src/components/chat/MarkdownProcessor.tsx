@@ -42,8 +42,8 @@ const MarkdownProcessor = ({ content }: MarkdownProcessorProps) => {
             return removeThinking(tree);
           };
         })
-        .use(remarkRehype())   // <-- call the plugin
-        .use(rehypeKatex())    // <-- call the plugin
+        .use(remarkRehype({}))   // <-- pass empty options
+        .use(rehypeKatex({}))    // <-- pass empty options
         .use(rehypeStringify)
         .process(file);
       
