@@ -29,36 +29,22 @@ const ChatMessages = ({
   const processMessageContent = (content: string) => {
     // Remove thinking tags
     let processedContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
-    
-    // Fix common markdown formatting issues
-    processedContent = processedContent
-      .replace(/\\boxed\{([^}]+)\}/g, '$1') // Remove \boxed wrapper
-      .replace(/\\,/g, ',') // Fix escaped commas
-      .replace(/\\cdot/g, '·') // Fix multiplication dots
-      .replace(/\\qquad/g, ' ') // Fix spacing
-      .replace(/\\displaystyle/g, '') // Remove displaystyle
-      .replace(/\\left\(/g, '(') // Fix left parentheses
-      .replace(/\\right\)/g, ')') // Fix right parentheses
-      .replace(/\\,/g, ',') // Fix commas
-      .replace(/\\s/g, ' ') // Fix escaped spaces
-      .replace(/\\text\{([^}]+)\}/g, '$1') // Remove \text wrapper
-      .replace(/\\leftrightarrow/g, '↔') // Fix bidirectional arrow
-      .replace(/\\bigl\(/g, '(') // Fix big left parentheses
-      .replace(/\\bigr\)/g, ')') // Fix big right parentheses
-      .replace(/\\mathbb\{([^}]+)\}/g, '$1') // Remove \mathbb wrapper
-      .replace(/\\partial_t/g, '∂ₜ') // Fix partial derivative notation
-      .replace(/\\nabla/g, '∇') // Fix nabla operator
-      .replace(/\\Delta/g, 'Δ') // Fix Delta operator
-      .replace(/\\mu/g, 'μ') // Fix mu symbol
-      .replace(/\\rho/g, 'ρ') // Fix rho symbol
-      .replace(/\\mathbf\{([^}]+)\}/g, '$1') // Remove \mathbf wrapper
-      .replace(/\\bigr\)/g, ')') // Fix big right parentheses
-      .replace(/\\bigl\(/g, '(') // Fix big left parentheses
-      .replace(/\\le/g, '≤') // Fix less than or equal
-      .replace(/\\quad/g, ' ') // Fix quad spacing
-      .replace(/\\sum_{([^}]+)}^{([^}]+)}/g, '$1=$2') // Fix sum notation
-      .replace(/\\sum_{([^}]+)}^{([^}]+)}/g, '$1=$2'); // Fix sum notation
-    
+
+    // Remove \boxed{...} wrapper
+    processedContent = processedContent.replace(/\\boxed\{([^}]+)\}/g, '$1');
+
+    // Wrap parentheses that contain LaTeX commands with inline math delimiters
+    processedContent = processedContent.replace(
+      /\(([^)]+\\[^)]+)\)/g,
+      (_, inner) => `$${inner}$`
+    );
+
+    // Ensure that standalone LaTeX expressions are wrapped in $...$ if not already
+    processedContent = processedContent.replace(
+      /(?<!\$)(\\[a-zA-Z]+(?:\{[^}]*\})*)(?!\$)/g,
+      (_, expr) => `$${expr}$`
+    );
+
     // Render markdown with math support
     return (
       <div className="prose prose-invert max-w-none">
