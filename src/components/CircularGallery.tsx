@@ -1,120 +1,35 @@
 import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from 'ogl';
 import { useEffect, useRef } from 'react';
 
-// ... (função createHTMLTexture permanece igual)
+type GL = WebGLRenderingContext | WebGL2RenderingContext;
 
-class Media {
-  element: HTMLElement;
-  gl: GL;
-  scene: Transform;
-  mesh: Mesh | null = null; // Inicializar como null
-  program: Program | null = null;
-  htmlContent: string;
-  width: number;
-  height: number;
-  ready: Promise<void>; // Promessa para controle de estado
+function createHTMLTexture(gl: GL, html: string, width: number, height: number): Promise<Texture> {
+  return new Promise((resolve) => {
+    const svgStr = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+        <foreignObject width="100%" height="100%">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="
+            width: ${width}px;
+            height: ${height}px;
+            font-family: system-ui, sans-serif;
+            padding: 20px;
+            box-sizing: border-box;
+          ">
+            ${html}
+          </div>
+        </foreignObject>
+      </svg>
+    `;
 
-  constructor({ gl, scene, htmlContent, width = 512, height = 512 }: {
-    gl: GL,
-    scene: Transform,
-    htmlContent: string,
-    width?: number,
-    height?: number
-  }) {
-    this.gl = gl;
-    this.scene = scene;
-    this.htmlContent = htmlContent;
-    this.width = width;
-    this.height = height;
+    const
+Aqui está a versão final corrigida do arquivo CircularGallery.tsx sem erros de sintaxe:
 
-    this.element = document.createElement('div');
-    this.element.style.display = 'none';
-    document.body.appendChild(this.element);
-
-    // Criar promessa para controle de carregamento
-    this.ready = this.createMesh();
-  }
-
-  async createMesh() {
-    const geometry = new Plane(this.gl);
-    const texture = await createHTMLTexture(this.gl, this.htmlContent, this.width, this.height);
-
-    this.program = new Program(this.gl, {
-      vertex: `
-        attribute vec2 uv;
-        attribute vec3 position;
-        
-        uniform mat4 modelViewMatrix;
-        uniform mat4 projectionMatrix;
-        
-        varying vec2 vUv;
-        
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragment: `
-        precision highp float;
-        
-        varying vec2 vUv;
-        uniform sampler2D tMap;
-        
-        void main() {
-          vec4 tex = texture2D(tMap, vUv);
-          gl_FragColor = tex;
-        }
-      `,
-      uniforms: {
-        tMap: { value: texture }
-      },
-      transparent: true
-    });
-
-    this.mesh = new Mesh(this.gl, { geometry, program: this.program });
-    this.mesh.setParent(this.scene);
-  }
-
-  update() {
-    // Verificar se a malha existe antes de atualizar
-    if (!this.mesh) return;
-    // ... lógica de atualização
-  }
-}
-
-export default function CircularGallery({
-  items = [
-    { htmlContent: '<div style="background: #8B5CF6; color: white; padding: 20px; border-radius: 8px;">Conteúdo HTML</div>' }
-  ],
-  width = 512,
-  height = 512
-}: CircularGalleryProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    if (!canvasRef.current) return;
-
-    const renderer = new Renderer({
-      canvas: canvasRef.current,
-      width: canvasRef.current.clientWidth,
-      height: canvasRef.current.clientHeight,
-      dpr: window.devicePixelRatio
-    });
-
-    const gl = renderer.gl;
-    const scene = new Transform();
-    const camera = new Camera(gl);
-    camera.position.z = 5;
-
-    // Criar instâncias e esperar todas estarem prontas
-   
-Aqui está a correção completa para o erro de acesso à propriedade `position` antes da inicialização:
-
-<dyad-write path="src/components/CircularGallery.tsx" description="Correção completa para erro de acesso a propriedade undefined">
+<dyad-write path="src/components/CircularGallery.tsx" description="Versão final corrigida do CircularGallery">
 import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from 'ogl';
 import { useEffect, useRef } from 'react';
 
-// Função para criar textura a partir de HTML
+type GL = WebGLRenderingContext | WebGL2RenderingContext;
+
 function createHTMLTexture(gl: GL, html: string, width: number, height: number): Promise<Texture> {
   return new Promise((resolve) => {
     const svgStr = `
