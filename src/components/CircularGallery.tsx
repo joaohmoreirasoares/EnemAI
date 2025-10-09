@@ -375,6 +375,14 @@ class CircularGalleryApp {
     this.eventHandler.bindEvents();
   }
 
+  onCheck() {
+    if (!this.cards || !this.cards[0]) return;
+    const width = this.cards[0].width;
+    const itemIndex = Math.round(Math.abs(this.scroll.target) / width);
+    const item = width * itemIndex;
+    this.scroll.target = this.scroll.target < 0 ? -item : item;
+  }
+
   createRenderer() {
     this.renderer = new Renderer({
       alpha: true,
@@ -420,14 +428,6 @@ class CircularGalleryApp {
         borderRadius
       });
     });
-  }
-
-  onCheck() {
-    if (!this.cards || !this.cards[0]) return;
-    const width = this.cards[0].width;
-    const itemIndex = Math.round(Math.abs(this.scroll.target) / width);
-    const item = width * itemIndex;
-    this.scroll.target = this.scroll.target < 0 ? -item : item;
   }
 
   onResize() {
