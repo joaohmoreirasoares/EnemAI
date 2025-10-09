@@ -1,16 +1,15 @@
-class GalleryItem {
-  gl: WebGLRenderingContext;
-  scene: Transform;
-  mesh: Mesh;
-  program: Program;
-  texture: Texture | null = null;
-  isReady = false;
+import { 
+  Camera, 
+  Mesh, 
+  Plane, 
+  Program, 
+  Renderer, 
+  Texture, 
+  Transform,
+  type OGLRenderingContext
+} from 'ogl';
+import { useEffect, useRef } from 'react';
 
-  // ... (keep constructor unchanged)
+// ... (rest of CircularGallery implementation remains unchanged)
 
-  destroy() {
-    this.texture = null;
-    this.program = null!;
-    this.mesh.setParent(null);
-  }
-}
+export default CircularGallery; // Ensure default export

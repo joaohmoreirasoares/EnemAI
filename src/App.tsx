@@ -1,3 +1,2 @@
-// Keep other imports
-import Index from "./pages/Index"; // Now correctly imported
-// ... rest of App.tsx remains unchanged
+// Add this at the end of App.tsx if missing
+export default App;
