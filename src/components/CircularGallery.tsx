@@ -1,86 +1,182 @@
 import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from 'ogl';
 import { useEffect, useRef } from 'react';
 
-// ... (funções auxiliares permanecem as mesmas)
+// Função para criar textura a partir de HTML
+function createHTMLTexture(gl: GL, html: string, width: number, height: number): Promise<Texture> {
+  return new Promise((resolve) => {
+    const svgStr = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+        <foreignObject width="100%" height="100%">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="
+            width: ${width}px;
+            height: ${height}px;
+            font-family: system-ui, sans-serif;
+            padding: 20px;
+            box-sizing: border-box;
+          ">
+            ${html}
+          </div>
+        </foreignObject>
+      </svg>
+    `;
 
-function createHTMLTexture(
-  gl: GL,
-  html: string,
-  width: number,
-  height: number
-): Texture {
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext('2d');
-  
-  if (!context) throw new Error('Could not get 2d context');
-  
-  // Renderizar HTML no canvas
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = html;
-  tempDiv.style.position = 'absolute';
-  tempDiv.style.width = `${width}px`;
-  tempDiv.style.height = `${height}px`;
-  document.body.appendChild(tempDiv);
-  
-  context.fillStyle = 'white';
-  context.fillRect(0, 0, width, height);
-  context.font = '30px Arial';
-  context.fillStyle = 'black';
-  
-  // Capturar o conteúdo como imagem (simplificado)
-  // Em produção, use bibliotecas como html2canvas
-  context.fillText(tempDiv.textContent || '', 10, 50);
-  
-  document.body.removeChild(tempDiv);
-  
-  const texture = new Texture(gl, { generateMipmaps: false });
-  texture.image = canvas;
-  return texture;
-}
-
-interface MediaProps {
-  // ... (outras props)
-  htmlContent: string; // Nova prop para conteúdo HTML
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0);
+      
+      const texture = new Texture(gl, { generateMipmaps: false });
+      texture.image = canvas;
+      resolve(texture);
+    };
+    
+    img.src = 'data:image/svg+xml,' + encodeURIComponent(svgStr);
+  });
 }
 
 class Media {
-  // ... (código existente)
+  element: HTMLElement;
+  gl: GL;
+  scene: Transform;
+  mesh: Mesh;
+  program: Program;
+  htmlContent: string;
+  width: number;
+  height: number;
 
-  createShader() {
-    const texture = createHTMLTexture(
-      this.gl,
-      this.htmlContent, // Usar conteúdo HTML
-      800, // Largura fixa para exemplo
-      600  // Altura fixa para exemplo
-    );
+  constructor({ gl, scene, htmlContent, width = 512, height = 512 }: {
+    gl: GL,
+    scene: Transform,
+    htmlContent: string,
+    width?: number,
+    height?: number
+  }) {
+    this.gl = gl;
+    this.scene = scene;
+    this.htmlContent = htmlContent;
+    this.width = width;
+    this.height = height;
 
-    this.program = new Program(this.gl, {
-      // ... (restante do código do shader permanece igual)
-      uniforms: {
-        tMap: { value: texture },
-        // ... (outros uniforms)
-      }
-    });
+    this.element = document.createElement('div');
+    this.element.style.display = 'none';
+    document.body.appendChild(this.element);
+
+    this.createMesh();
   }
 
-  // ... (métodos restantes)
+  async createMesh() {
+    const geometry = new Plane(this.gl);
+    const texture = await createHTMLTexture(this.gl, this.htmlContent, this.width, this.height);
+
+    this.program = new Program(this.gl, {
+      vertex: `
+        attribute vec2 uv;
+        attribute vec3 position;
+        
+        uniform mat4 modelViewMatrix;
+        uniform mat4 projectionMatrix;
+        
+        varying vec2 vUv;
+        
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragment: `
+        precision highp float;
+        
+        varying vec2 vUv;
+        uniform sampler2D tMap;
+        
+        void main() {
+          vec4 tex = texture2D(tMap, vUv);
+          gl_FragColor = tex;
+        }
+      `,
+      uniforms: {
+        tMap: { value: texture }
+      },
+      transparent: true
+    });
+
+    this.mesh = new Mesh(this.gl, { geometry, program: this.program });
+    this.mesh.setParent(this.scene);
+  }
+
+  update() {
+    // Atualizações necessárias
+  }
 }
 
 interface CircularGalleryProps {
-  items?: { htmlContent: string; text: string }[]; // Nova estrutura
-  // ... (outras props)
+  items?: { htmlContent: string }[];
+  width?: number;
+  height?: number;
 }
 
 export default function CircularGallery({
   items = [
-    {
-      htmlContent: '&lt;div style="background: #8B5CF6; padding: 20px; border-radius: 10px;"&gt;Conteúdo HTML&lt;/div&gt;',
-      text: 'Div Example'
-    }
+    { htmlContent: '<div style="background: #8B5CF6; color: white; padding: 20px; border-radius: 8px;">Conteúdo HTML</div>' },
+    { htmlContent: '<div style="background: #10B981; color: white; padding: 20px; border-radius: 8px;">Outro Item</div>' }
   ],
-  // ... (outras props)
+  width = 512,
+  height = 512
 }: CircularGalleryProps) {
-  // ... (código do componente permanece igual)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const renderer = new Renderer({
+      canvas: canvasRef.current,
+      width: canvasRef.current.clientWidth,
+      height: canvasRef.current.clientHeight,
+      dpr: window.devicePixelRatio
+    });
+
+    const gl = renderer.gl;
+    const scene = new Transform();
+    const camera = new Camera(gl);
+    camera.position.z = 5;
+
+    // Posiciona os elementos em círculo
+    const mediaInstances = items.map((item, i) => {
+      const media = new Media({
+        gl,
+        scene,
+        htmlContent: item.htmlContent,
+        width,
+        height
+      });
+      
+      const angle = (i / items.length) * Math.PI * 2;
+      media.mesh.position.set(Math.cos(angle) * 2, Math.sin(angle) * 2, 0);
+      return media;
+    });
+
+    function update() {
+      requestAnimationFrame(update);
+      renderer.render({ scene, camera });
+    }
+
+    update();
+
+    return () => {
+      mediaInstances.forEach(media => {
+        media.mesh.setParent(null);
+        media.element.remove();
+      });
+    };
+  }, [items, width, height]);
+
+  return (
+    <canvas 
+      ref={canvasRef} 
+      style={{ width: '100%', height: '500px' }}
+    />
+  );
 }
