@@ -386,7 +386,10 @@ class CircularGalleryApp {
     this.container = container;
     this.scrollSpeed = scrollSpeed;
     this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
+    
+    // Define onCheckDebounce before using it
     this.onCheckDebounce = debounce(this.onCheck.bind(this), 200);
+    
     this.createRenderer();
     this.createCamera();
     this.createScene();
@@ -394,6 +397,8 @@ class CircularGalleryApp {
     this.createGeometry();
     this.createCards(bend, borderRadius);
     this.update();
+    
+    // Create event handler after onCheckDebounce is defined
     this.eventHandler = new EventHandler(
       this.scroll,
       this.scrollSpeed,
