@@ -26,7 +26,7 @@ function autoBind(instance: any): void {
 }
 
 function getFontSize(font: string): number {
-  const match = font.match(/(\d+)px/);
+  const match = /(\d+)px/.exec(font || '');
   return match ? parseInt(match[1], 10) : 30;
 }
 
@@ -125,7 +125,8 @@ class Title {
     const textHeightScaled = this.plane.scale.y * 0.15;
     const textWidthScaled = textHeightScaled * aspect;
     this.mesh.scale.set(textWidthScaled, textHeightScaled, 1);
-    this.mesh.position.y = -this.plane.scale.y * 0.5 - textHeightScaled * 0.5 - 0.05;
+    this.mesh.position.y = 0; // Centralizado no cartão
+    this.mesh.position.z = 0.1; // Levemente à frente do fundo
     this.mesh.setParent(this.plane);
   }
 }
@@ -658,7 +659,7 @@ export default function CircularGallery({
   bend = 3,
   textColor = '#ffffff',
   borderRadius = 0.05,
-  font = 'bold 30px Figtree',
+  font = 'bold 24px Figtree',
   scrollSpeed = 2,
   scrollEase = 0.05
 }: CircularGalleryProps) {
