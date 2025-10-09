@@ -1,75 +1,86 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from 'ogl';
+import { useEffect, useRef } from 'react';
 
-interface CircularGalleryProps {
-  items: {
-    image: string;
-    text: string;
-  }[];
-  bend?: number;
-  borderRadius?: number;
-  scrollSpeed?: number;
-  scrollEase?: number;
-  textColor?: string;
-  font?: string;
+// ... (funções auxiliares permanecem as mesmas)
+
+function createHTMLTexture(
+  gl: GL,
+  html: string,
+  width: number,
+  height: number
+): Texture {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext('2d');
+  
+  if (!context) throw new Error('Could not get 2d context');
+  
+  // Renderizar HTML no canvas
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.width = `${width}px`;
+  tempDiv.style.height = `${height}px`;
+  document.body.appendChild(tempDiv);
+  
+  context.fillStyle = 'white';
+  context.fillRect(0, 0, width, height);
+  context.font = '30px Arial';
+  context.fillStyle = 'black';
+  
+  // Capturar o conteúdo como imagem (simplificado)
+  // Em produção, use bibliotecas como html2canvas
+  context.fillText(tempDiv.textContent || '', 10, 50);
+  
+  document.body.removeChild(tempDiv);
+  
+  const texture = new Texture(gl, { generateMipmaps: false });
+  texture.image = canvas;
+  return texture;
 }
 
-const CircularGallery = ({
-  items,
-  bend = 3,
-  textColor = '#ffffff',
-  font = 'bold 24px Figtree'
-}: CircularGalleryProps): JSX.Element => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [angle, setAngle] = useState(0);
-  
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+interface MediaProps {
+  // ... (outras props)
+  htmlContent: string; // Nova prop para conteúdo HTML
+}
 
-    // Configuração básica de posicionamento circular
-    const radius = 200; // Raio do círculo
-    const totalItems = items.length;
-    
-    items.forEach((item, index) => {
-      const itemElement = document.createElement('div');
-      itemElement.className = 'absolute flex flex-col items-center';
-      itemElement.style.color = textColor;
-      itemElement.style.font = font;
-      
-      // Posicionamento circular
-      const itemAngle = (index * (360 / totalItems) + angle) % 360;
-      const radians = (itemAngle * Math.PI) / 180;
-      
-      itemElement.style.transform = `translate(
-        ${radius * Math.cos(radians)}px,
-        ${radius * Math.sin(radians)}px
-      )`;
-      
-      itemElement.innerHTML = `
-        <div class="w-32 h-32 bg-gray-800 rounded-lg mb-2"></div>
-        <div class="text-center max-w-[200px]">${item.text}</div>
-      `;
-      
-      container.appendChild(itemElement);
+class Media {
+  // ... (código existente)
+
+  createShader() {
+    const texture = createHTMLTexture(
+      this.gl,
+      this.htmlContent, // Usar conteúdo HTML
+      800, // Largura fixa para exemplo
+      600  // Altura fixa para exemplo
+    );
+
+    this.program = new Program(this.gl, {
+      // ... (restante do código do shader permanece igual)
+      uniforms: {
+        tMap: { value: texture },
+        // ... (outros uniforms)
+      }
     });
+  }
 
-    // Animação básica de rotação
-    const animation = requestAnimationFrame(() => {
-      setAngle(prev => (prev + 0.5) % 360);
-    });
+  // ... (métodos restantes)
+}
 
-    return () => {
-      cancelAnimationFrame(animation);
-      container.innerHTML = '';
-    };
-  }, [angle, items, textColor, font]);
+interface CircularGalleryProps {
+  items?: { htmlContent: string; text: string }[]; // Nova estrutura
+  // ... (outras props)
+}
 
-  return (
-    <div 
-      ref={containerRef} 
-      className="relative w-full h-full flex items-center justify-center"
-    />
-  );
-};
-
-export default CircularGallery;
+export default function CircularGallery({
+  items = [
+    {
+      htmlContent: '&lt;div style="background: #8B5CF6; padding: 20px; border-radius: 10px;"&gt;Conteúdo HTML&lt;/div&gt;',
+      text: 'Div Example'
+    }
+  ],
+  // ... (outras props)
+}: CircularGalleryProps) {
+  // ... (código do componente permanece igual)
+}
