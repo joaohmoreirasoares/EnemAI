@@ -72,7 +72,7 @@ export default function Index() {
             <CircularGallery
               items={[
                 {
-                  image: 'placeholder',
+                  image: <div><p>fdsijdfsjnfd</p></div> ,
                   text: '"O chat da IA me ajudou a entender conceitos difíceis de Matemática que eu nunca tinha conseguido antes. Minha nota melhorou 200 pontos em 3 meses!" - Ana Silva'
                 },
                 {
