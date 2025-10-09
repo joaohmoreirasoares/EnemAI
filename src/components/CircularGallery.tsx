@@ -1,4 +1,15 @@
-// Mover a definição da classe Card para antes de CircularGalleryApp
-class Card {
-  // ... implementação completa da classe Card
+// ... (código anterior)
+
+// Alterar de:
+// export function CircularGallery(...) {...}
+
+// Para:
+export default function CircularGallery({
+  items,
+  bend = 3,
+  borderRadius = 0.05,
+  scrollSpeed = 2,
+  scrollEase = 0.05
+}: CircularGalleryProps) {
+  // ... (implementação permanece igual)
 }
