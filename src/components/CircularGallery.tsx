@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 
 type GL = WebGLRenderingContext | WebGL2RenderingContext;
 
-function createHTMLTexture(gl: GL, html: string, width: number, height: number): Promise<Texture> {
+async function createHTMLTexture(gl: GL, html: string, width: number, height: number): Promise<Texture> {
   return new Promise((resolve) => {
     const svgStr = `
       <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
@@ -14,33 +14,9 @@ function createHTMLTexture(gl: GL, html: string, width: number, height: number):
             font-family: system-ui, sans-serif;
             padding: 20px;
             box-sizing: border-box;
-          ">
-            ${html}
-          </div>
-        </foreignObject>
-      </svg>
-    `;
-
-    const
-Aqui está a versão final corrigida do arquivo CircularGallery.tsx sem erros de sintaxe:
-
-<dyad-write path="src/components/CircularGallery.tsx" description="Versão final corrigida do CircularGallery">
-import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from 'ogl';
-import { useEffect, useRef } from 'react';
-
-type GL = WebGLRenderingContext | WebGL2RenderingContext;
-
-function createHTMLTexture(gl: GL, html: string, width: number, height: number): Promise<Texture> {
-  return new Promise((resolve) => {
-    const svgStr = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-        <foreignObject width="100%" height="100%">
-          <div xmlns="http://www.w3.org/1999/xhtml" style="
-            width: ${width}px;
-            height: ${height}px;
-            font-family: system-ui, sans-serif;
-            padding: 20px;
-            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
           ">
             ${html}
           </div>
@@ -56,8 +32,10 @@ function createHTMLTexture(gl: GL, html: string, width: number, height: number):
       const ctx = canvas.getContext('2d')!;
       ctx.drawImage(img, 0, 0);
       
-      const texture = new Texture(gl, { generateMipmaps: false });
-      texture.image = canvas;
+      const texture = new Texture(gl, { 
+        generateMipmaps: false,
+        image: canvas
+      });
       resolve(texture);
     };
     
@@ -65,37 +43,29 @@ function createHTMLTexture(gl: GL, html: string, width: number, height: number):
   });
 }
 
-class Media {
+class GalleryItem {
   gl: GL;
   scene: Transform;
-  mesh: Mesh | null = null;
-  program: Program | null = null;
-  htmlContent: string;
+  mesh: Mesh;
+  program: Program;
+  element: HTMLDivElement;
   width: number;
   height: number;
-  ready: Promise<void>;
 
-  constructor({ gl, scene, htmlContent, width = 512, height = 512 }: {
-    gl: GL,
-    scene: Transform,
-    htmlContent: string,
-    width?: number,
-    height?: number
+  constructor({ gl, scene, html, width = 512, height = 512 }: {
+    gl: GL;
+    scene: Transform;
+    html: string;
+    width?: number;
+    height?: number;
   }) {
     this.gl = gl;
     this.scene = scene;
-    this.htmlContent = htmlContent;
     this.width = width;
     this.height = height;
 
-    this.ready = this.createMesh();
-  }
-
-  async createMesh() {
-    const geometry = new Plane(this.gl);
-    const texture = await createHTMLTexture(this.gl, this.htmlContent, this.width, this.height);
-
-    this.program = new Program(this.gl, {
+    const geometry = new Plane(gl);
+    const program = new Program(gl, {
       vertex: `
         attribute vec2 uv;
         attribute vec3 position;
@@ -121,99 +91,147 @@ class Media {
           gl_FragColor = tex;
         }
       `,
-      uniforms: {
-        tMap: { value: texture }
-      },
+      uniforms: { tMap: { value: null } },
       transparent: true
     });
 
-    this.mesh = new Mesh(this.gl, { geometry, program: this.program });
-    this.mesh.setParent(this.scene);
+    this.mesh = new Mesh(gl, { geometry, program });
+    this.mesh.setParent(scene);
+    this.program = program;
+
+    this.loadTexture(html);
+  }
+
+  async loadTexture(html: string) {
+    const texture = await createHTMLTexture(this.gl, html, this.width, this.height);
+    this.program.uniforms.tMap.value = texture;
+    this.program.needsUpdate = true;
   }
 
   setPosition(x: number, y: number, z: number) {
-    if (this.mesh) {
-      this.mesh.position.set(x, y, z);
-    }
+    this.mesh.position.set(x, y, z);
+  }
+
+  setRotation(angle: number) {
+    this.mesh.rotation.z = angle;
   }
 }
 
 interface CircularGalleryProps {
-  items?: { htmlContent: string }[];
+  items?: Array<{ html: string }>;
+  radius?: number;
   width?: number;
   height?: number;
 }
 
 export default function CircularGallery({
   items = [
-    { htmlContent: '<div style="background: #8B5CF6; color: white; padding: 20px; border-radius: 8px;">Conteúdo HTML</div>' },
-    { htmlContent: '<div style="background: #10B981; color: white; padding: 20px; border-radius: 8px;">Outro Item</div>' }
+    { html: '<div style="color: #333; font-size: 24px; text-align: center;">Item 1</div>' },
+    { html: '<div style="color: #333; font-size: 24px; text-align: center;">Item 2</div>' },
+    { html: '<div style="color: #333; font-size: 24px; text-align: center;">Item 3</div>' }
   ],
+  radius = 3,
   width = 512,
   height = 512
 }: CircularGalleryProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const itemsRef = useRef<GalleryItem[]>([]);
+  const animationRef = useRef<number>();
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
+    // Initialize renderer
     const renderer = new Renderer({
       canvas: canvasRef.current,
       width: canvasRef.current.clientWidth,
       height: canvasRef.current.clientHeight,
-      dpr: window.devicePixelRatio
+      dpr: Math.min(window.devicePixelRatio, 2)
     });
 
     const gl = renderer.gl;
+    gl.clearColor(0, 0, 0, 0);
+
+    // Create scene graph
     const scene = new Transform();
     const camera = new Camera(gl);
     camera.position.z = 5;
+    camera.fov = 45;
 
-    // Criar instâncias e esperar todas estarem prontas
-    const mediaPromises = items.map((item, i) => {
-      const media = new Media({
+    // Create gallery items
+    itemsRef.current = items.map((item, i) => {
+      const angle = (i / items.length) * Math.PI * 2;
+      const galleryItem = new GalleryItem({
         gl,
         scene,
-        htmlContent: item.htmlContent,
+        html: item.html,
         width,
         height
       });
-      
-      return media.ready.then(() => {
-        const angle = (i / items.length) * Math.PI * 2;
-        media.setPosition(Math.cos(angle) * 2, Math.sin(angle) * 2, 0);
-        return media;
-      });
+
+      galleryItem.setPosition(
+        Math.cos(angle) * radius,
+        Math.sin(angle) * radius,
+        0
+      );
+
+      return galleryItem;
     });
 
-    let animationId: number;
-    let mediaInstances: Media[] = [];
-
-    Promise.all(mediaPromises).then((instances) => {
-      mediaInstances = instances;
-
-      function update() {
-        requestAnimationFrame(update);
-        renderer.render({ scene, camera });
-      }
-
-      update();
-    });
-
-    return () => {
-      if (animationId) cancelAnimationFrame(animationId);
-      mediaInstances.forEach(media => {
-        if (media.mesh) {
-          media.mesh.setParent(null);
-        }
+    // Handle resize
+    const handleResize = () => {
+      if (!canvasRef.current) return;
+      renderer.setSize(
+        canvasRef.current.clientWidth,
+        canvasRef.current.clientHeight
+      );
+      camera.perspective({
+        aspect: canvasRef.current.clientWidth / canvasRef.current.clientHeight
       });
     };
-  }, [items, width, height]);
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    // Animation loop
+    const animate = () => {
+      animationRef.current = requestAnimationFrame(animate);
+
+      // Rotate items
+      itemsRef.current.forEach((item, i) => {
+        const time = performance.now() * 0.001;
+        const baseAngle = (i / itemsRef.current.length) * Math.PI * 2;
+        item.setPosition(
+          Math.cos(baseAngle + time * 0.2) * radius,
+          Math.sin(baseAngle + time * 0.2) * radius,
+          0
+        );
+        item.setRotation(-time * 0.5);
+      });
+
+      renderer.render({ scene, camera });
+    };
+    animate();
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      itemsRef.current.forEach(item => {
+        item.mesh.setParent(null);
+        item.mesh.geometry.dispose();
+        item.program.dispose();
+      });
+    };
+  }, [items, radius, width, height]);
 
   return (
     <canvas 
       ref={canvasRef} 
-      style={{ width: '100%', height: '500px' }}
+      style={{
+        width: '100%',
+        height: '500px',
+        background: 'linear-gradient(45deg, #1a1a1a, #2d2d2d)'
+      }}
     />
   );
 }
