@@ -2,77 +2,73 @@ import React, { useRef, useEffect, useState } from 'react';
 
 interface CircularGalleryProps {
   items: {
+    image: string;
     text: string;
   }[];
   bend?: number;
+  borderRadius?: number;
+  scrollSpeed?: number;
+  scrollEase?: number;
   textColor?: string;
   font?: string;
 }
 
 const CircularGallery = ({
   items,
-  bend = 200,
+  bend = 3,
   textColor = '#ffffff',
-  font = 'bold 16px Figtree'
+  font = 'bold 24px Figtree'
 }: CircularGalleryProps): JSX.Element => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [angle, setAngle] = useState(0);
   
   useEffect(() => {
-    const animate = () => {
-      setAngle(prev => (prev + 0.3) % 360);
-      requestAnimationFrame(animate);
-    };
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Configuração básica de posicionamento circular
+    const radius = 200; // Raio do círculo
+    const totalItems = items.length;
     
-    const animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
-  }, []);
+    items.forEach((item, index) => {
+      const itemElement = document.createElement('div');
+      itemElement.className = 'absolute flex flex-col items-center';
+      itemElement.style.color = textColor;
+      itemElement.style.font = font;
+      
+      // Posicionamento circular
+      const itemAngle = (index * (360 / totalItems) + angle) % 360;
+      const radians = (itemAngle * Math.PI) / 180;
+      
+      itemElement.style.transform = `translate(
+        ${radius * Math.cos(radians)}px,
+        ${radius * Math.sin(radians)}px
+      )`;
+      
+      itemElement.innerHTML = `
+        <div class="w-32 h-32 bg-gray-800 rounded-lg mb-2"></div>
+        <div class="text-center max-w-[200px]">${item.text}</div>
+      `;
+      
+      container.appendChild(itemElement);
+    });
+
+    // Animação básica de rotação
+    const animation = requestAnimationFrame(() => {
+      setAngle(prev => (prev + 0.5) % 360);
+    });
+
+    return () => {
+      cancelAnimationFrame(animation);
+      container.innerHTML = '';
+    };
+  }, [angle, items, textColor, font]);
 
   return (
     <div 
       ref={containerRef} 
-      className="relative w-full h-[400px] flex items-center justify-center"
-    >
-      {items.map((item, index) => {
-        const total = items.length;
-        const itemAngle = (index * (360 / total) + angle) % 360;
-        const radians = (itemAngle * Math.PI) / 180;
-        const radius = bend;
-        
-        const style = {
-          transform: `translate(
-            ${radius * Math.cos(radians)}px,
-            ${radius * Math.sin(radians)}px
-          )`,
-          color: textColor,
-          font: font,
-          opacity: 1 - Math.abs(radians % (Math.PI * 2) - Math.PI) * 0.3
-        };
-
-        return (
-          <div
-            key={index}
-            className="absolute bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl max-w-[300px] transition-all duration-300 hover:scale-105 hover:bg-gray-800 hover:shadow-lg border border-gray-700"
-            style={style}
-          >
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center mr-3">
-                <span className="text-white">👤</span>
-              </div>
-              <div>
-                <div className="flex text-yellow-400">
-                  {'★'.repeat(5)}
-                </div>
-              </div>
-            </div>
-            <p className="text-gray-300 italic mb-4">"{item.text}"</p>
-            <div className="text-right text-sm text-gray-400">
-              - Usuário {index + 1}
-            </div>
-          </div>
-        );
-      })}
-    </div>
+      className="relative w-full h-full flex items-center justify-center"
+    />
   );
 };
 
