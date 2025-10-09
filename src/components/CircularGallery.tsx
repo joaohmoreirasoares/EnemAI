@@ -1,14 +1,16 @@
 class GalleryItem {
-  // ... (other properties)
+  gl: WebGLRenderingContext;
+  scene: Transform;
+  mesh: Mesh;
+  program: Program;
+  texture: Texture | null = null;
+  isReady = false;
+
+  // ... (keep constructor unchanged)
 
   destroy() {
-    // Remove texture reference without calling destroy()
     this.texture = null;
-    
-    // Remove program reference
     this.program = null!;
-    
-    // Remove mesh from parent
     this.mesh.setParent(null);
   }
 }
