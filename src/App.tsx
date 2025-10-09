@@ -1,40 +1,69 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import DashboardLayout from "@/components/layout/DashboardLayout";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Chat from "./pages/Chat";
-import Notes from "./pages/Notes";
-import Community from "./pages/Community";
-import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
+import DashboardLayout from "./components/layout/DashboardLayout";
+import ChatPage from "./pages/Chat";
+import NotesPage from "./pages/Notes";
+import CommunityPage from "./pages/Community";
 
 const queryClient = new QueryClient();
 
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Public routes */}
+          <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
           {/* Protected routes */}
-          <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-            <Route path="/" element={<Index />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/notes" element={<Notes />} />
-            <Route path="/community" element={<Community />} />
-          </Route>
+          <Route 
+            path="/chat" 
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <ChatPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/notes" 
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <NotesPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/community" 
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <CommunityPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            } 
+          />
           
-          {/* 404 route */}
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-    </QueryClientProvider>
-  );
-}
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
