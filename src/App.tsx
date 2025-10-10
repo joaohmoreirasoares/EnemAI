@@ -1,3 +1,4 @@
-// ... outros imports ...
-import ChatPage from '@/pages/Chat'; // Deve ser import default
-// ... resto do código ...
+// Certifique-se que está importando assim:
+import CommunityPage from '@/pages/Community';
+// E não assim:
+// import { CommunityPage } from '@/pages/Community';
