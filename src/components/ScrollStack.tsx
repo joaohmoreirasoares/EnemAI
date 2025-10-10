@@ -28,16 +28,12 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     const cards = containerRef.current.querySelectorAll('.scroll-stack-card');
     const container = containerRef.current;
     
-    // Calcular posições de travamento
+    // Calcular posições de travamento - cada elemento tem uma posição diferente
     const lockPositions: number[] = [];
-    const cardHeights: number[] = [];
     
     cards.forEach((card, index) => {
-      const rect = card.getBoundingClientRect();
-      cardHeights[index] = rect.height;
-      
-      // Posição onde o cartão deve travar (cada um um pouco mais abaixo)
-      const lockPosition = window.innerHeight * 0.7 + (index * 100);
+      // Posição onde o cartão deve travar (cada um em uma posição diferente)
+      const lockPosition = window.innerHeight * 0.7 + (index * 200); // Aumentei o espaçamento
       lockPositions[index] = lockPosition;
     });
 
@@ -56,17 +52,23 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
         if (relativeScroll < lockPosition - sectionTop) {
           // Cartão ainda não chegou à posição de travamento
           const progress = Math.min(relativeScroll / (lockPosition - sectionTop), 1);
-          const translateY = progress * (lockPosition - sectionTop - relativeScroll);
-          const scale = 1 - (index * 0.05) - (progress * 0.1);
-          const opacity = 1 - (index * 0.2) - (progress * 0.1);
+          
+          // Animação de escala: começa em 1 e vai para 0.9
+          const scale = 1 - (progress * 0.1);
+          
+          // Animação de opacidade: começa em 1 e vai para 0.7
+          const opacity = 1 - (progress * 0.3);
+          
+          // Animação de posição: o elemento sobe um pouco
+          const translateY = progress * -50; // Sobe 50px no máximo
           
           cardElement.style.transform = `translateY(${translateY}px) scale(${scale})`;
           cardElement.style.opacity = opacity;
           cardElement.style.zIndex = cards.length - index;
         } else {
-          // Cartão travado na posição - não deve mais se mover
-          cardElement.style.transform = `translateY(0px) scale(${1 - (index * 0.05) - 0.1})`;
-          cardElement.style.opacity = 1 - (index * 0.2) - 0.1;
+          // Cartão travado na posição final
+          cardElement.style.transform = `translateY(-50px) scale(0.9)`;
+          cardElement.style.opacity = 0.7;
           cardElement.style.zIndex = cards.length - index;
         }
       });
