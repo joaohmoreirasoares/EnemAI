@@ -1,47 +1,29 @@
 import { useState, useEffect } from 'react';
-import { Plus, MessageSquare, Heart, User, Send, Loader2 } from 'lucide-react';
+import { Send, MessageCircle, Heart, User, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { showError, showSuccess } from '@/utils/toast';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const CommunityPage = () => {
-  const [newPost, setNewPost] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('geral');
-  const [isCreatingPost, setIsCreatingPost] = useState(false);
+  const [newPostTitle, setNewPostTitle] = useState('');
+  const [newPostContent, setNewPostContent] = useState('');
+  const [showNewPostForm, setShowNewPostForm] = useState(false);
+  const [newComment, setNewComment] = useState<{[key: string]: string}>({});
   const queryClient = useQueryClient();
 
-  // Fetch user profile
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  // Fetch posts
-  const { data: posts = [], isLoading } = useQuery({
+  // Fetch posts with user profiles
+  const { data: posts = [] } = useQuery({
     queryKey: ['community-posts'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('community_posts')
         .select(`
           *,
-          profiles(first_name, last_name, avatar_url)
+          profiles (first_name, last_name, avatar_url)
         `)
         .order('created_at', { ascending: false });
 
@@ -50,83 +32,71 @@ const CommunityPage = () => {
     }
   });
 
-  // Create new post
-  const handleCreatePost = async () => {
-    if (!newPost.trim()) return;
-
-    setIsCreatingPost(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Usuário não autenticado');
-
-      const { error } = await supabase
-        .from('community_posts')
-        .insert({
-          user_id: user.id,
-          title: `Post sobre ${selectedSubject}`,
-          content: newPost,
-          subject: selectedSubject
-        });
+  // Fetch comments for all posts
+  const { data: comments = [] } = useQuery({
+    queryKey: ['community-comments'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('comments')
+        .select(`
+          *,
+          profiles (first_name, last_name, avatar_url)
+        `)
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
-
-      setNewPost('');
-      showSuccess('Post criado com sucesso!');
-      queryClient.invalidateQueries({ queryKey: ['community-posts'] });
-    } catch (error: any) {
-      showError(error.message || 'Erro ao criar post');
-    } finally {
-      setIsCreatingPost(false);
+      return data;
     }
+  });
+
+  // Create new post
+  const createPost = async () => {
+    if (!newPostTitle.trim() || !newPostContent.trim()) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('community_posts')
+      .insert({
+        user_id: user.id,
+        title: newPostTitle,
+        content: newPostContent
+      });
+
+    if (error) throw error;
+
+    setNewPostTitle('');
+    setNewPostContent('');
+    setShowNewPostForm(false);
+    queryClient.invalidateQueries({ queryKey: ['community-posts'] });
   };
 
-  // Toggle like
-  const handleToggleLike = async (postId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Usuário não autenticado');
+  // Add comment to post
+  const addComment = async (postId: string) => {
+    const content = newComment[postId];
+    if (!content?.trim()) return;
 
-      // Check if user already liked this post
-      const { data: existingLike } = await supabase
-        .from('post_likes')
-        .select('id')
-        .eq('post_id', postId)
-        .eq('user_id', user.id)
-        .single();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-      if (existingLike) {
-        // Remove like
-        const { error } = await supabase
-          .from('post_likes')
-          .delete()
-          .eq('id', existingLike.id);
+    const { error } = await supabase
+      .from('comments')
+      .insert({
+        post_id: postId,
+        user_id: user.id,
+        content: content
+      });
 
-        if (error) throw error;
-      } else {
-        // Add like
-        const { error } = await supabase
-          .from('post_likes')
-          .insert({
-            post_id: postId,
-            user_id: user.id
-          });
+    if (error) throw error;
 
-        if (error) throw error;
-      }
-
-      queryClient.invalidateQueries({ queryKey: ['community-posts'] });
-    } catch (error: any) {
-      showError(error.message || 'Erro ao curtir post');
-    }
+    setNewComment(prev => ({ ...prev, [postId]: '' }));
+    queryClient.invalidateQueries({ queryKey: ['community-comments'] });
   };
 
-  // Check if user liked a post
-  const hasUserLiked = (postId: string) => {
-    const { data: { user } } = supabase.auth.getUser();
-    if (!user) return false;
-
-    // This would be implemented with a proper check in a real app
-    return false;
+  // Get comments for a specific post
+  const getCommentsForPost = (postId: string) => {
+    return comments.filter((comment: any) => comment.post_id === postId);
   };
 
   return (
@@ -136,129 +106,161 @@ const CommunityPage = () => {
         <p className="text-gray-400">Conecte-se com outros estudantes e professores</p>
       </div>
 
-      {/* Create post card */}
-      <Card className="bg-gray-800 border-gray-700 mb-6">
-        <CardHeader>
-          <CardTitle className="text-white">Criar novo post</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="subject" className="text-gray-300">Matéria</Label>
-              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="geral">Geral</SelectItem>
-                  <SelectItem value="matematica">Matemática</SelectItem>
-                  <SelectItem value="linguagens">Linguagens</SelectItem>
-                  <SelectItem value="ciencias-natureza">Ciências da Natureza</SelectItem>
-                  <SelectItem value="ciencias-humanas">Ciências Humanas</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="content" className="text-gray-300">Conteúdo</Label>
-              <textarea
-                id="content"
-                value={newPost}
-                onChange={(e) => setNewPost(e.target.value)}
-                placeholder="Compartilhe suas dúvidas, ideias ou ajude outros estudantes..."
-                className="w-full h-32 p-3 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-            
-            <div className="flex justify-end">
-              <Button 
-                onClick={handleCreatePost}
-                disabled={!newPost.trim() || isCreatingPost}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                {isCreatingPost ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Criando...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Criar Post
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Posts list */}
-      <div className="flex-1">
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
-          </div>
-        ) : posts.length === 0 ? (
+      <div className="mb-6">
+        {showNewPostForm ? (
           <Card className="bg-gray-800 border-gray-700">
-            <CardContent className="p-8 text-center">
-              <MessageSquare className="h-16 w-16 text-purple-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">Nenhum post ainda</h3>
-              <p className="text-gray-400">
-                Seja o primeiro a compartilhar algo com a comunidade!
-              </p>
+            <CardContent className="p-4">
+              <Input
+                placeholder="Título do tópico"
+                value={newPostTitle}
+                onChange={(e) => setNewPostTitle(e.target.value)}
+                className="mb-3 bg-gray-700 border-gray-600 text-white"
+              />
+              <Textarea
+                placeholder="Conteúdo do tópico"
+                value={newPostContent}
+                onChange={(e) => setNewPostContent(e.target.value)}
+                className="mb-3 bg-gray-700 border-gray-600 text-white"
+                rows={4}
+              />
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowNewPostForm(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={createPost}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  Publicar
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {posts.map((post: any) => (
-              <Card key={post.id} className="bg-gray-800 border-gray-700 community-post">
-                <CardContent className="p-4">
-                  <div className="flex items-start">
-                    <div className="bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
-                      <User className="h-5 w-5 text-gray-400" />
+          <Button
+            onClick={() => setShowNewPostForm(true)}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Tópico
+          </Button>
+        )}
+      </div>
+
+      <ScrollArea className="flex-1">
+        <div className="space-y-6">
+          {posts.map((post: any) => {
+            const postComments = getCommentsForPost(post.id);
+            return (
+              <Card key={post.id} className="bg-gray-800 border-gray-700">
+                <CardContent className="p-6">
+                  <div className="flex items-start mb-4">
+                    <div className="bg-gray-700 rounded-full p-2 mr-3">
+                      <User className="h-6 w-6 text-gray-300" />
                     </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-semibold text-white">
-                            {post.profiles?.first_name} {post.profiles?.last_name}
-                          </h3>
-                          <p className="text-xs text-gray-400">
-                            {new Date(post.created_at).toLocaleDateString('pt-BR')} • {post.subject}
-                          </p>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">{post.title}</h3>
+                      <p className="text-sm text-gray-400">
+                        por {post.profiles?.first_name} {post.profiles?.last_name} •{' '}
+                        {new Date(post.created_at).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-300 mb-4 whitespace-pre-wrap">{post.content}</p>
+                  
+                  <div className="flex items-center text-sm text-gray-400 mb-4">
+                    <Heart className="h-4 w-4 mr-1" />
+                    <span className="mr-4">{post.likes || 0} curtidas</span>
+                    <MessageCircle className="h-4 w-4 mr-1" />
+                    <span>{postComments.length} comentários</span>
+                  </div>
+                  
+                  <div className="border-t border-gray-700 pt-4">
+                    <h4 className="text-md font-medium text-white mb-3">Comentários</h4>
+                    
+                    <div className="space-y-4 mb-4">
+                      {postComments.map((comment: any) => (
+                        <div key={comment.id} className="flex items-start">
+                          <div className="bg-gray-700 rounded-full p-1.5 mr-3">
+                            <User className="h-4 w-4 text-gray-300" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="bg-gray-700 rounded-lg p-3">
+                              <p className="text-sm font-medium text-white">
+                                {comment.profiles?.first_name} {comment.profiles?.last_name}
+                              </p>
+                              <p className="text-gray-300 text-sm mt-1">{comment.content}</p>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(comment.created_at).toLocaleDateString('pt-BR')}
+                            </p>
+                          </div>
                         </div>
-                        <span className="bg-purple-900 text-purple-300 text-xs px-2 py-1 rounded-full">
-                          {post.subject}
-                        </span>
-                      </div>
+                      ))}
                       
-                      <div className="mt-3">
-                        <p className="text-gray-300 whitespace-pre-wrap">{post.content}</p>
+                      {postComments.length === 0 && (
+                        <p className="text-gray-500 text-sm text-center py-2">
+                          Nenhum comentário ainda. Seja o primeiro a comentar!
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-start">
+                      <div className="bg-gray-700 rounded-full p-1.5 mr-3">
+                        <User className="h-4 w-4 text-gray-300" />
                       </div>
-                      
-                      <div className="flex items-center mt-4">
+                      <div className="flex-1 flex">
+                        <Input
+                          placeholder="Escreva um comentário..."
+                          value={newComment[post.id] || ''}
+                          onChange={(e) => setNewComment(prev => ({ ...prev, [post.id]: e.target.value }))}
+                          className="bg-gray-700 border-gray-600 text-white flex-1 mr-2"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              addComment(post.id);
+                            }
+                          }}
+                        />
                         <Button
-                          variant="ghost"
+                          onClick={() => addComment(post.id)}
                           size="sm"
-                          onClick={() => handleToggleLike(post.id)}
-                          className={`like-button ${hasUserLiked(post.id) ? 'text-red-500 active' : 'text-gray-400 hover:text-red-500'}`}
+                          className="bg-purple-600 hover:bg-purple-700"
                         >
-                          <Heart className="h-4 w-4 mr-1" />
-                          Curtir
+                          <Send className="h-4 w-4" />
                         </Button>
-                        <span className="text-xs text-gray-400 ml-2">
-                          {post.likes || 0} {post.likes === 1 ? 'curtida' : 'curtidas'}
-                        </span>
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        )}
-      </div>
+            );
+          })}
+          
+          {posts.length === 0 && (
+            <Card className="bg-gray-800 border-gray-700">
+              <CardContent className="p-8 text-center">
+                <MessageCircle className="h-16 w-16 text-purple-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Nenhum tópico ainda</h3>
+                <p className="text-gray-400 mb-4">
+                  Seja o primeiro a iniciar uma discussão na comunidade!
+                </p>
+                <Button
+                  onClick={() => setShowNewPostForm(true)}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  Criar Primeiro Tópico
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </ScrollArea>
     </div>
   );
 };
