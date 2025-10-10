@@ -72,30 +72,30 @@ export default function Index() {
             <CircularGallery
               items={[
                 {
-                  image: 'https://placehold.co/800x600/8B5CF6/FFFFFF?text=Ana+Silva',
-                  text: '"O chat da IA me ajudou a entender conceitos difíceis de Matemática que eu nunca tinha conseguido antes. Minha nota melhorou 200 pontos em 3 meses!" - Ana Silva'
+                  image: 'https://placehold.co/1200x800/8B5CF6/FFFFFF?text=Ana+Silva',
+                  text: 'Ana Silva - "O chat da IA me ajudou a entender conceitos difíceis de Matemática que eu nunca tinha conseguido antes. Minha nota melhorou 200 pontos em 3 meses!"'
                 },
                 {
-                  image: 'https://placehold.co/800x600/A855F7/FFFFFF?text=Carlos+Mendes',
-                  text: '"As anotações inteligentes organizam meu estudo de forma incrível. Consigo encontrar qualquer conteúdo rapidamente e exportar resumos perfeitos para revisão." - Carlos Mendes'
+                  image: 'https://placehold.co/1200x800/A855F7/FFFFFF?text=Carlos+Mendes',
+                  text: 'Carlos Mendes - "As anotações inteligentes organizam meu estudo de forma incrível. Consigo encontrar qualquer conteúdo rapidamente e exportar resumos perfeitos para revisão."'
                 },
                 {
-                  image: 'https://placehold.co/800x600/C084FC/FFFFFF?text=Maria+Santos',
-                  text: '"A plataforma é fantástica para meus alunos. Eles têm acesso a explicações 24/7 e a comunidade ajuda muito no aprendizado colaborativo." - Prof. Maria Santos'
+                  image: 'https://placehold.co/1200x800/C084FC/FFFFFF?text=Maria+Santos',
+                  text: 'Prof. Maria Santos - "A plataforma é fantástica para meus alunos. Eles têm acesso a explicações 24/7 e a comunidade ajuda muito no aprendizado colaborativo."'
                 },
                 {
-                  image: 'https://placehold.co/800x600/7C3AED/FFFFFF?text=Pedro+Oliveira',
-                  text: '"Finalmente consegui entender Redação! A IA me dá feedbacks detalhados que meus professores não tinham tempo para dar." - Pedro Oliveira'
+                  image: 'https://placehold.co/1200x800/7C3AED/FFFFFF?text=Pedro+Oliveira',
+                  text: 'Pedro Oliveira - "Finalmente consegui entender Redação! A IA me dá feedbacks detalhados que meus professores não tinham tempo para dar."'
                 },
                 {
-                  image: 'https://placehold.co/800x600/6D28D9/FFFFFF?text=Juliana+Costa',
-                  text: '"O sistema de simulados personalizados me ajudou a identificar minhas fraquezas e focar no que realmente importava para o ENEM." - Juliana Costa'
+                  image: 'https://placehold.co/1200x800/6D28D9/FFFFFF?text=Juliana+Costa',
+                  text: 'Juliana Costa - "O sistema de simulados personalizados me ajudou a identificar minhas fraquezas e focar no que realmente importava para o ENEM."'
                 }
               ]}
               bend={3}
               textColor="#ffffff"
               borderRadius={0.05}
-              font="bold 24px Figtree"
+              font="bold 18px Figtree"
               scrollSpeed={2}
               scrollEase={0.05}
             />
