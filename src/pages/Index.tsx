@@ -96,7 +96,7 @@ export default function Index() {
         <div className="mt-20 bg-gray-800/50 backdrop-blur-sm rounded-xl p-8 border border-gray-700">
           <h2 className="text-3xl font-bold text-white mb-6 text-center">Entre em contato</h2>
           <p className="text-gray-300 mb-8 text-center max-w-2xl mx-auto">
-              Tem dúvidas, sugestões ou quer contribuir com o projeto? Fale conosco!
+            Tem dúvidas, sugestões ou quer contribuir com o projeto? Fale conosco!
           </p>
           <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
             <div className="flex items-center text-gray-300">
