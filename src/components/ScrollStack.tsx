@@ -28,15 +28,6 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     const cards = containerRef.current.querySelectorAll('.scroll-stack-card');
     const container = containerRef.current;
     
-    // Calcular posições de travamento - cada elemento tem uma posição diferente
-    const lockPositions: number[] = [];
-    
-    cards.forEach((card, index) => {
-      // Posição onde o cartão deve travar (cada um em uma posição diferente)
-      const lockPosition = window.innerHeight * 0.7 + (index * 200); // Aumentei o espaçamento
-      lockPositions[index] = lockPosition;
-    });
-
     // Posição inicial da seção
     const sectionTop = container.getBoundingClientRect().top + window.scrollY;
 
@@ -47,29 +38,63 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 
       cards.forEach((card, index) => {
         const cardElement = card as HTMLElement;
-        const lockPosition = lockPositions[index];
         
-        if (relativeScroll < lockPosition - sectionTop) {
-          // Cartão ainda não chegou à posição de travamento
-          const progress = Math.min(relativeScroll / (lockPosition - sectionTop), 1);
+        // Posição onde este elemento deve começar a aparecer
+        const appearPosition = index * window.innerHeight * 0.8;
+        
+        // Posição onde este elemento deve parar
+        const stopPosition = appearPosition + window.innerHeight * 0.6;
+        
+        if (relativeScroll < appearPosition) {
+          // Elemento ainda não apareceu
+          cardElement.style.transform = 'translateY(100px) scale(0.8)';
+          cardElement.style.opacity = '0';
+          cardElement.style.zIndex = 1;
+        } else if (relativeScroll < stopPosition) {
+          // Elemento aparecendo
+          const progress = (relativeScroll - appearPosition) / (stopPosition - appearPosition);
           
-          // Animação de escala: começa em 1 e vai para 0.9
-          const scale = 1 - (progress * 0.1);
-          
-          // Animação de opacidade: começa em 1 e vai para 0.7
-          const opacity = 1 - (progress * 0.3);
-          
-          // Animação de posição: o elemento sobe um pouco
-          const translateY = progress * -50; // Sobe 50px no máximo
+          // Animação de entrada
+          const translateY = 100 * (1 - progress);
+          const scale = 0.8 + (0.2 * progress);
+          const opacity = progress;
           
           cardElement.style.transform = `translateY(${translateY}px) scale(${scale})`;
           cardElement.style.opacity = opacity;
           cardElement.style.zIndex = cards.length - index;
         } else {
-          // Cartão travado na posição final
-          cardElement.style.transform = `translateY(-50px) scale(0.9)`;
-          cardElement.style.opacity = 0.7;
-          cardElement.style.zIndex = cards.length - index;
+          // Elemento parado - verificar se elementos posteriores estão aparecendo
+          let shouldScaleDown = false;
+          let shouldFade = false;
+          
+          // Verificar se algum elemento posterior está aparecendo
+          for (let i = index + 1; i < cards.length; i++) {
+            const nextCard = cards[i] as HTMLElement;
+            const nextAppearPosition = i * window.innerHeight * 0.8;
+            
+            if (relativeScroll >= nextAppearPosition) {
+              shouldScaleDown = true;
+              shouldFade = true;
+              break;
+            }
+          }
+          
+          if (shouldScaleDown && shouldFade) {
+            // Diminuir e ficar mais transparente quando elementos posteriores aparecem
+            const scale = 0.9 - (index * 0.1);
+            const opacity = 0.8 - (index * 0.2);
+            const translateY = -50 - (index * 20);
+            
+            cardElement.style.transform = `translateY(${translateY}px) scale(${scale})`;
+            cardElement.style.opacity = opacity;
+            cardElement.style.zIndex = cards.length - index;
+          } else {
+            // Elemento parado normal
+            const translateY = -50 - (index * 20);
+            cardElement.style.transform = `translateY(${translateY}px) scale(1)`;
+            cardElement.style.opacity = 1;
+            cardElement.style.zIndex = cards.length - index;
+          }
         }
       });
     };
