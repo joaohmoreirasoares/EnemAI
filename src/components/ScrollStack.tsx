@@ -87,7 +87,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
           cardElement.style.zIndex = 1;
         } else if (relativeScroll < stopPosition) {
           // Elemento aparecendo
-          const progress = (relativeScroll - appearPosition) / (stopPosition - appearPosition);
+          const progress = (relativeScroll - appearScroll) / (stopPosition - appearPosition);
           
           // Animação de entrada
           const translateY = 100 * (1 - progress);
