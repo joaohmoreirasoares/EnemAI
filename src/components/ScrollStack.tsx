@@ -1,4 +1,5 @@
 import React, { ReactNode, useEffect, useRef } from 'react';
+import Lenis from 'lenis';
 
 export interface ScrollStackItemProps {
   itemClassName?: string;
@@ -26,43 +27,98 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     if (!containerRef.current) return;
 
     const cards = containerRef.current.querySelectorAll('.scroll-stack-card');
+    const container = containerRef.current;
     
-    // Reset all cards
+    // Configurar Lenis para scroll suave
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      direction: 'vertical',
+      gestureDirection: 'vertical',
+      smooth: true,
+      mouseMultiplier: 1,
+      smoothTouch: false,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    // Função de animação
+    const animate = () => {
+      lenis.raf();
+      requestAnimationFrame(animate);
+    };
+    animate();
+
+    // Calcular posições de travamento
+    const lockPositions: number[] = [];
+    const cardHeights: number[] = [];
+    
     cards.forEach((card, index) => {
-      (card as HTMLElement).style.transform = `translateY(${index * 20}px) scale(${1 - index * 0.05})`;
-      (card as HTMLElement).style.opacity = `${1 - index * 0.2}`;
-      (card as HTMLElement).style.zIndex = `${cards.length - index}`;
+      const rect = card.getBoundingClientRect();
+      cardHeights[index] = rect.height;
+      
+      // Posição onde o cartão deve travar (cada um um pouco mais abaixo)
+      const lockPosition = window.innerHeight * 0.7 + (index * 100);
+      lockPositions[index] = lockPosition;
     });
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const card = entry.target as HTMLElement;
-          const index = Array.from(cards).indexOf(card);
+    // Posição inicial da seção
+    const sectionTop = container.getBoundingClientRect().top + window.scrollY;
+
+    // Função para atualizar os cartões
+    const updateCards = () => {
+      const scrollY = window.scrollY;
+      const relativeScroll = scrollY - sectionTop;
+
+      cards.forEach((card, index) => {
+        const cardElement = card as HTMLElement;
+        const lockPosition = lockPositions[index];
+        const cardHeight = cardHeights[index];
+        
+        if (relativeScroll < lockPosition - sectionTop) {
+          // Cartão ainda não chegou à posição de travamento
+          const progress = Math.min(relativeScroll / (lockPosition - sectionTop), 1);
+          const translateY = progress * (lockPosition - sectionTop - relativeScroll);
+          const scale = 1 - (index * 0.05) - (progress * 0.1);
+          const opacity = 1 - (index * 0.2) - (progress * 0.1);
           
-          if (entry.isIntersecting) {
-            // Animate to stacked position
-            card.style.transform = `translateY(${index * 20}px) scale(${1 - index * 0.05})`;
-            card.style.opacity = `${1 - index * 0.2}`;
-          } else {
-            // Reset to normal position when out of view
-            card.style.transform = 'translateY(0) scale(1)';
-            card.style.opacity = '1';
-          }
+          cardElement.style.transform = `translateY(${translateY}px) scale(${scale})`;
+          cardElement.style.opacity = opacity;
+          cardElement.style.zIndex = cards.length - index;
+        } else {
+          // Cartão travado na posição
+          const translateY = lockPosition - sectionTop - relativeScroll;
+          const scale = 1 - (index * 0.05) - 0.1;
+          const opacity = 1 - (index * 0.2) - 0.1;
+          
+          cardElement.style.transform = `translateY(${translateY}px) scale(${scale})`;
+          cardElement.style.opacity = opacity;
+          cardElement.style.zIndex = cards.length - index;
+        }
+      });
+    };
+
+    // Atualizar nos eventos de scroll
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          updateCards();
+          ticking = false;
         });
-      },
-      {
-        threshold: [0, 0.25, 0.5, 0.75, 1],
-        rootMargin: '0px 0px -10% 0px'
+        ticking = true;
       }
-    );
+    };
 
-    cards.forEach((card) => {
-      observer.observe(card);
-    });
+    // Inicializar e adicionar listeners
+    updateCards();
+    window.addEventListener('scroll', onScroll);
+    lenis.on('scroll', updateCards);
 
+    // Cleanup
     return () => {
-      observer.disconnect();
+      window.removeEventListener('scroll', onScroll);
+      lenis.destroy();
     };
   }, []);
 
