@@ -1,17 +1,21 @@
-// Na renderização do autor do post:
-<div className="flex items-start">
-  {post.profiles?.avatar_url ? (
-    <img 
-      src={post.profiles.avatar_url} 
-      alt={`${post.profiles.first_name} ${post.profiles.last_name}`}
-      className="w-10 h-10 rounded-full mr-3 object-cover"
-    />
-  ) : (
-    <div className="bg-gray-700 rounded-full p-2 mr-3">
-      <User className="h-6 w-6 text-gray-300" />
-    </div>
-  )}
-  {/* ... restante */}
-</div>
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Plus, MessageSquare, Heart, User, Send, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { showError, showSuccess } from '@/utils/toast';
 
-// Repetir lógica similar para os comentários
+const CommunityPage = () => {
+  // ... todo o código do componente aqui ...
+
+  return (
+    // ... JSX do componente ...
+  );
+};
+
+// Adicione esta linha de exportação
+export default CommunityPage;
