@@ -36,11 +36,13 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     // Função para bloquear/desbloquear scroll
     const blockScroll = () => {
       if (!isScrollBlocked) {
-        // Salva a posição atual do scroll
-        setScrollPosition(window.scrollY);
+        // Salva a posição atual do scroll ANTES de bloquear
+        const currentScrollY = window.scrollY;
+        setScrollPosition(currentScrollY);
+        
         document.body.style.overflow = 'hidden';
         document.body.style.position = 'fixed';
-        document.body.style.top = `-${window.scrollY}px`;
+        document.body.style.top = `-${currentScrollY}px`;
         document.body.style.width = '100%';
         setIsScrollBlocked(true);
       }
