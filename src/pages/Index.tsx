@@ -87,9 +87,7 @@ export default function Index() {
       image: 'https://placehold.co/1200x800/6D28D9/FFFFFF?text=Juliana+Costa+-+"O+sistema+de+simulados+personalizados+me+ajudou+a+identificar+minhas+fraquezas+e+focar+no+que+realmente+importava+para+o+ENEM."'
     }
   ]}
-/>
 
-              ]}
               bend={3}
               textColor="#ffffff"
               borderRadius={0.05}
