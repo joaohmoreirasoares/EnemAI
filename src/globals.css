@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @layer components {
   .community-post {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -26,3 +30,5 @@
     100% { transform: scale(1); }
   }
 }
+
+/* Seu CSS existente abaixo */
