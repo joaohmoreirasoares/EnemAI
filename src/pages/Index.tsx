@@ -65,12 +65,6 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Testimonials Section with Circular Gallery */}
-        <div className="mt-20">
-          <h2 className="text-4xl font-bold text-white mb-12 text-center">O que nossos alunos dizem</h2>
-          <div className="h-96">
-            <CircularGallery
-  
 
         {/* Contact Section */}
         <div className="mt-20 bg-gray-800/50 backdrop-blur-sm rounded-xl p-8 border border-gray-700">
