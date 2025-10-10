@@ -21,7 +21,6 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
   children
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isScrollBlocked, setIsScrollBlocked] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
 
   useEffect(() => {
@@ -32,39 +31,6 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     
     // Posição inicial da seção
     const sectionTop = container.getBoundingClientRect().top + window.scrollY;
-
-    // Função para bloquear/desbloquear scroll
-    const blockScroll = () => {
-      if (!isScrollBlocked) {
-        // Salva a posição atual do scroll ANTES de bloquear
-        const currentScrollY = window.scrollY;
-        setScrollPosition(currentScrollY);
-        
-        document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${currentScrollY}px`;
-        document.body.style.width = '100%';
-        setIsScrollBlocked(true);
-      }
-    };
-
-    const unblockScroll = () => {
-      if (isScrollBlocked) {
-        // Restaura o scroll para a posição exata onde estava
-        document.body.style.overflow = '';
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        
-        // Usa requestAnimationFrame para garantir que a restauração aconteça
-        // depois que o browser processou todas as mudanças de estilo
-        requestAnimationFrame(() => {
-          window.scrollTo(0, scrollPosition);
-        });
-        
-        setIsScrollBlocked(false);
-      }
-    };
 
     // Função para atualizar os cartões
     const updateCards = () => {
@@ -97,11 +63,6 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
           cardElement.style.transform = `translateY(${translateY}px) scale(${scale})`;
           cardElement.style.opacity = opacity.toString();
           cardElement.style.zIndex = (cards.length - index).toString();
-          
-          // Bloquear scroll enquanto o primeiro elemento está aparecendo
-          if (index === 0 && progress < 1) {
-            blockScroll();
-          }
         } else {
           // Elemento parado - verificar se elementos posteriores estão aparecendo
           let shouldScaleDown = false;
@@ -137,18 +98,6 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
           }
         }
       });
-      
-      // Desbloquear scroll quando todos os elementos estiverem parados
-      const allStopped = cards.length > 0 && Array.from(cards).every((card, index) => {
-        const cardElement = card as HTMLElement;
-        const appearPosition = index * window.innerHeight * 0.8;
-        const stopPosition = appearPosition + window.innerHeight * 0.6;
-        return relativeScroll >= stopPosition;
-      });
-      
-      if (allStopped) {
-        unblockScroll();
-      }
     };
 
     // Atualizar nos eventos de scroll
@@ -170,13 +119,12 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     // Cleanup
     return () => {
       window.removeEventListener('scroll', onScroll);
-      unblockScroll();
     };
-  }, [isScrollBlocked, scrollPosition]);
+  }, []);
 
   return (
     <div ref={containerRef} className={`relative w-full ${className}`.trim()}>
-      <div className="py-16">
+      <div className="py-16" style={{ minHeight: `${(React.Children.count(children) + 1) * 100}px` }}>
         {children}
       </div>
     </div>
