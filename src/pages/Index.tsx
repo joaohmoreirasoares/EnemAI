@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import ScrollStack, { ScrollStackItem } from './ScrollStack'
+import ScrollStack, { ScrollStackItem } from 'src/components/ScrollStack.tsx'
 
 export default function Index() {
   return (
