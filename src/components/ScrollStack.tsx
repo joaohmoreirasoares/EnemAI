@@ -1,5 +1,4 @@
 import React, { ReactNode, useEffect, useRef } from 'react';
-import Lenis from 'lenis';
 
 export interface ScrollStackItemProps {
   itemClassName?: string;
@@ -29,26 +28,6 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     const cards = containerRef.current.querySelectorAll('.scroll-stack-card');
     const container = containerRef.current;
     
-    // Configurar Lenis apenas para o scroll dentro desta seção
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      direction: 'vertical',
-      gestureDirection: 'vertical',
-      smooth: true,
-      mouseMultiplier: 1,
-      smoothTouch: false,
-      touchMultiplier: 2,
-      infinite: false,
-    });
-
-    // Função de animação
-    const animate = () => {
-      lenis.raf();
-      requestAnimationFrame(animate);
-    };
-    animate();
-
     // Calcular posições de travamento
     const lockPositions: number[] = [];
     const cardHeights: number[] = [];
@@ -113,12 +92,10 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     // Inicializar e adicionar listeners
     updateCards();
     window.addEventListener('scroll', onScroll);
-    lenis.on('scroll', updateCards);
 
     // Cleanup
     return () => {
       window.removeEventListener('scroll', onScroll);
-      lenis.destroy();
     };
   }, []);
 
