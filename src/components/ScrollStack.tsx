@@ -84,7 +84,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
           // Elemento ainda não apareceu
           cardElement.style.transform = 'translateY(100px) scale(0.8)';
           cardElement.style.opacity = '0';
-          cardElement.style.zIndex = 1;
+          cardElement.style.zIndex = (cards.length - index).toString();
         } else if (relativeScroll < stopPosition) {
           // Elemento aparecendo
           const progress = (relativeScroll - appearPosition) / (stopPosition - appearPosition);
@@ -95,8 +95,8 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
           const opacity = progress;
           
           cardElement.style.transform = `translateY(${translateY}px) scale(${scale})`;
-          cardElement.style.opacity = opacity;
-          cardElement.style.zIndex = cards.length - index;
+          cardElement.style.opacity = opacity.toString();
+          cardElement.style.zIndex = (cards.length - index).toString();
           
           // Bloquear scroll enquanto o primeiro elemento está aparecendo
           if (index === 0 && progress < 1) {
@@ -126,14 +126,14 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
             const translateY = -50 - (index * 20);
             
             cardElement.style.transform = `translateY(${translateY}px) scale(${scale})`;
-            cardElement.style.opacity = opacity;
-            cardElement.style.zIndex = cards.length - index;
+            cardElement.style.opacity = opacity.toString();
+            cardElement.style.zIndex = (cards.length - index).toString();
           } else {
             // Elemento parado normal
             const translateY = -50 - (index * 20);
             cardElement.style.transform = `translateY(${translateY}px) scale(1)`;
-            cardElement.style.opacity = 1;
-            cardElement.style.zIndex = cards.length - index;
+            cardElement.style.opacity = '1';
+            cardElement.style.zIndex = (cards.length - index).toString();
           }
         }
       });
