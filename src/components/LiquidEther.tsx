@@ -2,20 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 interface LiquidEtherProps {
   colors: string[];
-  mouseForce?: number;
-  cursorSize?: number;
-  isViscous?: boolean;
-  viscous?: number;
-  iterationsViscous?: number;
-  iterationsPoisson?: number;
-  resolution?: number;
-  isBounce?: boolean;
   autoDemo?: boolean;
-  autoSpeed?: number;
-  autoIntensity?: number;
-  takeoverDuration?: number;
-  autoResumeDelay?: number;
-  autoRampDuration?: number;
 }
 
 const LiquidEther: React.FC<LiquidEtherProps> = ({
@@ -131,7 +118,7 @@ const LiquidEther: React.FC<LiquidEtherProps> = ({
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 pointer-events-none"
+      className="fixed inset-0 pointer-events-none"
       style={{ zIndex: 0 }}
     />
   );
