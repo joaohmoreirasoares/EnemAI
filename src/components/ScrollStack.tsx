@@ -314,6 +314,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       if (lenisRef.current) {
         lenisRef.current.destroy();
       }
+      // Resetar todos os estados importantes
       stackCompletedRef.current = false;
       cardsRef.current = [];
       transformsCache.clear();
