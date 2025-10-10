@@ -90,7 +90,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
             cardElement.style.opacity = opacity.toString();
             cardElement.style.zIndex = (cards.length - index).toString();
           } else {
-            // Elemento parado normal
+            // Elemento parado normal - fixado em posição final
             const translateY = -50 - (index * 20);
             cardElement.style.transform = `translateY(${translateY}px) scale(1)`;
             cardElement.style.opacity = '1';
@@ -124,7 +124,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 
   return (
     <div ref={containerRef} className={`relative w-full ${className}`.trim()}>
-      <div className="py-16" style={{ minHeight: `${(React.Children.count(children) + 1) * 100}px` }}>
+      <div className="py-16" style={{ minHeight: `${(React.Children.count(children) + 1) * 120}px` }}>
         {children}
       </div>
     </div>
