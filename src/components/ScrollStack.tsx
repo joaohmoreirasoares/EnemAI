@@ -22,7 +22,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isScrollBlocked, setIsScrollBlocked] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -36,7 +36,8 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     // Função para bloquear/desbloquear scroll
     const blockScroll = () => {
       if (!isScrollBlocked) {
-        setLastScrollY(window.scrollY);
+        // Salva a posição atual do scroll
+        setScrollPosition(window.scrollY);
         document.body.style.overflow = 'hidden';
         document.body.style.position = 'fixed';
         document.body.style.top = `-${window.scrollY}px`;
@@ -47,11 +48,18 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 
     const unblockScroll = () => {
       if (isScrollBlocked) {
+        // Restaura o scroll para a posição exata onde estava
         document.body.style.overflow = '';
         document.body.style.position = '';
         document.body.style.top = '';
         document.body.style.width = '';
-        window.scrollTo(0, lastScrollY);
+        
+        // Usa requestAnimationFrame para garantir que a restauração aconteça
+        // depois que o browser processou todas as mudanças de estilo
+        requestAnimationFrame(() => {
+          window.scrollTo(0, scrollPosition);
+        });
+        
         setIsScrollBlocked(false);
       }
     };
@@ -162,7 +170,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       window.removeEventListener('scroll', onScroll);
       unblockScroll();
     };
-  }, [isScrollBlocked, lastScrollY]);
+  }, [isScrollBlocked, scrollPosition]);
 
   return (
     <div ref={containerRef} className={`relative w-full ${className}`.trim()}>
