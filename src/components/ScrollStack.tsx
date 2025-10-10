@@ -52,7 +52,6 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       cards.forEach((card, index) => {
         const cardElement = card as HTMLElement;
         const lockPosition = lockPositions[index];
-        const cardHeight = cardHeights[index];
         
         if (relativeScroll < lockPosition - sectionTop) {
           // Cartão ainda não chegou à posição de travamento
@@ -65,13 +64,9 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
           cardElement.style.opacity = opacity;
           cardElement.style.zIndex = cards.length - index;
         } else {
-          // Cartão travado na posição
-          const translateY = lockPosition - sectionTop - relativeScroll;
-          const scale = 1 - (index * 0.05) - 0.1;
-          const opacity = 1 - (index * 0.2) - 0.1;
-          
-          cardElement.style.transform = `translateY(${translateY}px) scale(${scale})`;
-          cardElement.style.opacity = opacity;
+          // Cartão travado na posição - não deve mais se mover
+          cardElement.style.transform = `translateY(0px) scale(${1 - (index * 0.05) - 0.1})`;
+          cardElement.style.opacity = 1 - (index * 0.2) - 0.1;
           cardElement.style.zIndex = cards.length - index;
         }
       });
