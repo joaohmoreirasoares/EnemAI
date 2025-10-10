@@ -29,7 +29,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     const cards = containerRef.current.querySelectorAll('.scroll-stack-card');
     const container = containerRef.current;
     
-    // Configurar Lenis para scroll suave
+    // Configurar Lenis apenas para o scroll dentro desta seção
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
