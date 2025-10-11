@@ -174,27 +174,27 @@ const NotesPage = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Título (opcional)"
-                  className="flex-1 bg-transparent text-white placeholder-gray-400 px-3 py-2 rounded border-transparent"
+                  className="flex-1 bg-transparent text-gray-200 placeholder-gray-400 px-3 py-2 rounded border-transparent"
                 />
                 <div className="flex gap-2">
                   <Button
                     onClick={() => setShowAllNotes(true)}
                     size="sm"
-                    className="bg-white text-gray-800 hover:bg-white"
+                    className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:brightness-110"
                   >
                     <List className="h-4 w-4" />
                   </Button>
                   <Button
                     onClick={saveNote}
                     size="sm"
-                    className="bg-white text-gray-800 hover:bg-white"
+                    className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:brightness-110"
                   >
                     <Save className="h-4 w-4" />
                   </Button>
                   <Button
                     onClick={exportNote}
                     size="sm"
-                    className="bg-white text-gray-800 hover:bg-white"
+                    className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:brightness-110"
                   >
                     <Download className="h-4 w-4" />
                   </Button>
