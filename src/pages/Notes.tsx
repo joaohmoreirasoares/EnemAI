@@ -162,11 +162,6 @@ const NotesPage = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white">Anotações</h1>
-        <p className="text-gray-400">Crie e organize suas anotações de estudo</p>
-      </div>
-
       <div className="flex flex-col md:flex-row gap-6 flex-1">
         {/* Notes sidebar */}
         <div className="w-full md:w-80 flex-shrink-0">
