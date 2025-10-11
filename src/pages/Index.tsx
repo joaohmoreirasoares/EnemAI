@@ -1,11 +1,65 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { MessageSquare, FileText, Users } from 'lucide-react';
+import { MessageSquare, FileText, Users, Star, Award, BookOpen, Target } from 'lucide-react';
 import LiquidEther from '@/components/LiquidEther';
-import ScrollStack from '@/components/ScrollStack';
-import { ScrollStackItem } from '@/components/ScrollStack';
+import { StickyScroll } from '@/components/ui/sticky-scroll-reveal';
 
 export default function Index() {
+  const content = [
+    {
+      title: "Chat com IA Especializada",
+      description: "Converse com agentes inteligentes especializados em cada área do ENEM. Obtenha explicações detalhadas, resolução de exercícios e simulados personalizados com feedback instantâneo. Nossos modelos de IA foram treinados especificamente para o contexto do ENEM, garantindo respostas precisas e relevantes para sua preparação.",
+      content: (
+        <div className="h-full w-full bg-[linear-gradient(to_bottom_right,var(--cyan-500),var(--emerald-500))] flex flex-col items-center justify-center text-white p-6">
+          <div className="text-center">
+            <MessageSquare className="h-16 w-16 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold mb-2">Inteligência Artificial</h3>
+            <p className="text-lg">Especializada em ENEM</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Anotações Inteligentes",
+      description: "Crie anotações organizadas com tags, exporte para PDF, e utilize ferramentas de edição avançadas. Sistema de salvamento automático e busca inteligente. Suas anotações são sincronizadas em tempo real e podem ser acessadas de qualquer dispositivo, permitindo que você continue seus estudos onde parou.",
+      content: (
+        <div className="h-full w-full bg-[linear-gradient(to_bottom_right,var(--pink-500),var(--indigo-500))] flex flex-col items-center justify-center text-white p-6">
+          <div className="text-center">
+            <FileText className="h-16 w-16 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold mb-2">Anotações</h3>
+            <p className="text-lg">Inteligentes e Organizadas</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Comunidade de Estudos",
+      description: "Conecte-se com estudantes e professores. Partilhe materiais, participe de discussões e construa uma rede de apoio para sua jornada de estudos. Troque experiências, resolva dúvidas coletivas e encontre parceiros de estudo para alcançar seus objetivos juntos.",
+      content: (
+        <div className="h-full w-full bg-[linear-gradient(to_bottom_right,var(--orange-500),var(--yellow-500))] flex flex-col items-center justify-center text-white p-6">
+          <div className="text-center">
+            <Users className="h-16 w-16 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold mb-2">Comunidade</h3>
+            <p className="text-lg">Conecte-se e Aprenda</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Plataforma Completa",
+      description: "Tudo o que você precisa para se preparar para o ENEM em um único lugar. Desde o chat com IA até anotações inteligentes e comunidade, nossa plataforma oferece uma experiência integrada que acompanha sua jornada de estudos do início ao fim.",
+      content: (
+        <div className="h-full w-full bg-[linear-gradient(to_bottom_right,var(--purple-500),var(--violet-500))] flex flex-col items-center justify-center text-white p-6">
+          <div className="text-center">
+            <Award className="h-16 w-16 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold mb-2">Solução Completa</h3>
+            <p className="text-lg">Para seu Sucesso no ENEM</p>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 p-4">
       <LiquidEther colors={['#8B5CF6', '#A855F7', '#C084FC']} />
@@ -70,20 +124,10 @@ export default function Index() {
           </div>
         </div>
 
-<ScrollStack>
-  <ScrollStackItem>
-    <h2>Card 1</h2>
-    <p>This is the first card in the stack</p>
-  </ScrollStackItem>
-  <ScrollStackItem>
-    <h2>Card 2</h2>
-    <p>This is the second card in the stack</p>
-  </ScrollStackItem>
-  <ScrollStackItem>
-    <h2>Card 3</h2>
-    <p>This is the third card in the stack</p>
-  </ScrollStackItem>
-</ScrollStack>
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">Conheça Nossas Funcionalidades</h2>
+          <StickyScroll content={content} />
+        </div>
 
         {/* Contact Section */}
         <div className="mt-20 bg-gray-800/50 backdrop-blur-sm rounded-xl p-8 border border-gray-700 mb-16">
