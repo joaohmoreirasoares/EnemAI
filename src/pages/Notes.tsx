@@ -213,9 +213,7 @@ const NotesPage = () => {
               <div className="flex-1 min-h-0 overflow-hidden">
                 <ReactQuill
                   theme="snow"
-                  .ql-editor {
-                              color: #ffffff !important;
-                              }
+
                   value={content}
                   onChange={setContent}
                   className="h-full"
