@@ -1,111 +1,109 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { useMotionValueEvent, useScroll } from "framer-motion";
-import { motion } from "framer-motion";
+
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
-export const StickyScroll = ({
-  content,
-  contentClassName,
-}: {
+interface StickyScrollRevealProps {
   content: {
     title: string;
     description: string;
-    content?: React.ReactNode | any;
+    content: React.ReactNode;
   }[];
-  contentClassName?: string;
+  className?: string;
+}
+
+export const StickyScrollReveal: React.FC<StickyScrollRevealProps> = ({
+  content,
+  className,
 }) => {
-  const [activeCard, setActiveCard] = React.useState(0);
-  const ref = useRef<any>(null);
-  const { scrollYProgress } = useScroll({
-    container: ref,
-    offset: ["start start", "end start"],
-  });
-  const cardLength = content.length;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const cardsBreakpoints = content.map((_, index) => index / cardLength);
-    const closestBreakpointIndex = cardsBreakpoints.reduce(
-      (acc, breakpoint, index) => {
-        const distance = Math.abs(latest - breakpoint);
-        if (distance < Math.abs(latest - cardsBreakpoints[acc])) {
-          return index;
-        }
-        return acc;
-      },
-      0
-    );
-    setActiveCard(closestBreakpointIndex);
-  });
-
-  const backgroundColors = [
-    "rgb(15 23 42)", // slate-900
-    "rgb(0 0 0)", // black
-    "rgb(23 23 23)", // neutral-900
-  ];
-
-  const linearGradients = [
-    "linear-gradient(to bottom right, rgb(6 182 212), rgb(16 185 129))", // cyan-500 to emerald-500
-    "linear-gradient(to bottom right, rgb(236 72 153), rgb(99 102 241))", // pink-500 to indigo-500
-    "linear-gradient(to bottom right, rgb(249 115 22), rgb(234 179 8))", // orange-500 to yellow-500
-  ];
-
-  const [backgroundGradient, setBackgroundGradient] = useState(
-    linearGradients[0]
-  );
-
+  // Setup Intersection Observer
   useEffect(() => {
-    setBackgroundGradient(linearGradients[activeCard % linearGradients.length]);
-  }, [activeCard]);
+    if (!containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = contentRefs.current.indexOf(entry.target);
+            if (index !== -1) {
+              setActiveIndex(index);
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.5,
+        rootMargin: "-10% 0px -10% 0px",
+      }
+    );
+
+    contentRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    observerRef.current = observer;
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  const scrollToContent = useCallback((index: number) => {
+    if (contentRefs.current[index]) {
+      contentRefs.current[index]?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, []);
 
   return (
-    <motion.div
-      animate={{
-        backgroundColor: backgroundColors[activeCard % backgroundColors.length],
-      }}
-      className="h-[30rem] overflow-y-auto flex justify-center relative space-x-10 rounded-md p-10"
-      ref={ref}
-    >
-      <div className="div relative flex items-start px-4">
-        <div className="max-w-2xl">
-          {content.map((item, index) => (
-            <div key={item.title + index} className="my-20">
-              <motion.h2
-                initial={{
-                  opacity: 0,
-                }}
-                animate={{
-                  opacity: activeCard === index ? 1 : 0.3,
-                }}
-                className="text-2xl font-bold text-slate-100"
-              >
-                {item.title}
-              </motion.h2>
-              <motion.p
-                initial={{
-                  opacity: 0,
-                }}
-                animate={{
-                  opacity: activeCard === index ? 1 : 0.3,
-                }}
-                className="text-kg text-slate-300 max-w-sm mt-10"
-              >
-                {item.description}
-              </motion.p>
+    <div className={cn("relative w-full", className)} ref={containerRef}>
+      {/* Navigation dots */}
+      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-50 flex flex-col gap-3">
+        {content.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => scrollToContent(index)}
+            className={cn(
+              "w-3 h-3 rounded-full transition-all duration-300",
+              index === activeIndex
+                ? "bg-purple-600 scale-125"
+                : "bg-gray-600 hover:bg-gray-500"
+            )}
+            aria-label={`Go to section ${index + 1}`}
+          />
+        ))}
+      </div>
+
+      {/* Content sections */}
+      <div className="space-y-20">
+        {content.map((section, index) => (
+          <div
+            key={index}
+            ref={(el) => (contentRefs.current[index] = el)}
+            className={cn(
+              "min-h-screen flex items-center justify-center p-8",
+              index % 2 === 0 ? "flex-row" : "flex-row-reverse"
+            )}
+          >
+            <div className="flex-1 max-w-2xl">
+              <h2 className="text-4xl font-bold text-white mb-6">{section.title}</h2>
+              <p className="text-xl text-gray-300 leading-relaxed">
+                {section.description}
+              </p>
             </div>
-          ))}
-          <div className="h-40" />
-        </div>
+            <div className="flex-1 max-w-2xl">
+              {section.content}
+            </div>
+          </div>
+        ))}
       </div>
-      <div
-        style={{ background: backgroundGradient }}
-        className={cn(
-          "hidden lg:block h-60 w-80 rounded-md bg-white sticky top-10 overflow-hidden",
-          contentClassName
-        )}
-      >
-        {content[activeCard].content ?? null}
-      </div>
-    </motion.div>
+    </div>
   );
 };
