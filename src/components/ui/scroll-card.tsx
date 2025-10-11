@@ -36,7 +36,7 @@ const articleCardsData: ArticleCardData[] = [
     rotation: '-rotate-6',
   },
   {
-    title: 'Animated Globe',
+    title: 'Rafael Almeida, 19 anos',
     description:
       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius consequatur explicabo assumenda odit necessitatibus possimus ducimus aliquam. Ullam dignissimos animi officiis, in sequi et inventore harum ipsam sed.',
     link: 'https://ui-layout.com/components/globe',
