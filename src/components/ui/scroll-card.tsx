@@ -20,7 +20,7 @@ const articleCardsData: ArticleCardData[] = [
     rotation: 'rotate-6',
   },
   {
-    title: 'Progressive Carousel',
+    title: 'Gustavo Ramos, 18 anos',
     description:
       'Finalmente uma plataforma que une professores e alunos de verdade. As comunidades deixam o estudo muito mais dinâmico.',
     link: 'https://ui-layout.com/components/progressive-carousel',
