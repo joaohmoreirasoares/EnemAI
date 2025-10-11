@@ -94,10 +94,10 @@ const Component = forwardRef<HTMLElement>((props, ref) => {
           <div className='max-w-6xl mx-auto px-16'>
             <h2 className='text-4xl font-bold text-center mb-12'>O que nossos usuários dizem</h2>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
-              <UserReview />
-              <UserReview />
-              <UserReview />
-              <UserReview />
+              <UserReview review={userReviews[0]} />
+              <UserReview review={userReviews[1]} />
+              <UserReview review={userReviews[2]} />
+              <UserReview review={userReviews[3]} />
             </div>
           </div>
         </section>
