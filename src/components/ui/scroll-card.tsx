@@ -16,7 +16,7 @@ const articleCardsData: ArticleCardData[] = [
     description:
       "O chat da Enem AI é simplesmente genial. A IA explica os assuntos do ENEM de um jeito fácil de entender e sem enrolação.",
     link: 'https://ui-layout.com/components/image-mousetrail',
-    color: '#E0E0E0', // Light Gray
+    color: '#C0C0C0', // Medium Gray
     rotation: 'rotate-6',
   },
   {
@@ -83,7 +83,7 @@ const Component = forwardRef<HTMLElement>((props, ref) => {
             </div>
             <div className='sticky top-0 h-screen grid place-content-center'>
               <h1 className='text-4xl px-8 font-medium text-center tracking-tight leading-[120%]'>
-                What We <br /> Have Now😎
+                O que os nossos <br /> usuários falam
               </h1>
             </div>
           </div>
