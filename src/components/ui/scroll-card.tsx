@@ -22,7 +22,7 @@ const articleCardsData: ArticleCardData[] = [
   {
     title: 'Progressive Carousel',
     description:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius consequatur explicabo assumenda odit necessitatibus possimus ducimus aliquam. Ullam dignissimos animi officiis, in sequi et inventore harum ipsam sed.',
+      'Finalmente uma plataforma que une professores e alunos de verdade. As comunidades deixam o estudo muito mais dinâmico.',
     link: 'https://ui-layout.com/components/progressive-carousel',
     color: '#C0C0C0', // Medium Gray
     rotation: 'rotate-0',
