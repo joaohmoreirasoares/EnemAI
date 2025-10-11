@@ -245,7 +245,7 @@ const NotesPage = () => {
                 <p className="text-gray-400 mb-4">
                   Selecione uma anotação existente ou crie uma nova para começar.
                 </p>
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-center">
                   <Button onClick={() => setShowAllNotes(true)} className="bg-purple-600 hover:bg-purple-700">
                     <List className="h-4 w-4 mr-2" />
                     Ver Todas
