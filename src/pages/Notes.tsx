@@ -237,8 +237,10 @@ const NotesPage = () => {
             </div>
           ) : (
             <Card className="bg-gray-800 border-gray-700 flex-1 flex flex-col items-center justify-center">
-              <CardContent className="p-8 text-center">
-                <Edit3 className="h-16 w-16 text-purple-500 mb-4" />
+              <CardContent className="p-12 text-center">
+                <div className="flex justify-center mb-6">
+                  <Edit3 className="h-20 w-20 text-purple-500" />
+                </div>
                 <h3 className="text-xl font-semibold mb-2">Nenhuma anotação selecionada</h3>
                 <p className="text-gray-400 mb-4">
                   Selecione uma anotação existente ou crie uma nova para começar.
