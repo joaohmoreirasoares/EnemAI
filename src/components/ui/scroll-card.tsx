@@ -30,7 +30,7 @@ const articleCardsData: ArticleCardData[] = [
   {
     title: 'Mariana Torres, 16 anos',
     description:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius consequatur explicabo assumenda odit necessitatibus possimus ducimus aliquam. Ullam dignissimos animi officiis, in sequi et inventore harum ipsam sed.',
+      'As anotações inteligentes são o diferencial. A IA lembra do que eu escrevi e usa isso pra me ajudar melhor depois.',
     link: 'https://ui-layout.com/components/drawer',
     color: '#A0A0A0', // Darker Gray
     rotation: '-rotate-6',
