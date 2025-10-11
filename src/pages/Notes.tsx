@@ -129,6 +129,25 @@ const NotesPage = () => {
     queryClient.invalidateQueries({ queryKey: ['notes'] });
   };
 
+  // Delete note from list
+  const deleteNoteFromList = async (noteId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Impede que o clique no botão de exclusão acione o clique no item da lista
+    
+    const { error } = await supabase
+      .from('notes')
+      .delete()
+      .eq('id', noteId);
+
+    if (error) throw error;
+    
+    // Se a nota excluída era a ativa, limpa o editor
+    if (activeNote?.id === noteId) {
+      setActiveNote(null);
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['notes'] });
+  };
+
   // Export note as HTML
   const exportNote = () => {
     if (!activeNote) return;
@@ -298,15 +317,27 @@ const NotesPage = () => {
                         setShowAllNotes(false);
                       }}
                     >
-                      <p className="font-medium text-gray-200 truncate">{note.title}</p>
-                      <p className="text-xs text-gray-400 truncate">
-                        {new Date(note.updated_at).toLocaleDateString('pt-BR')}
-                      </p>
-                      {note.content && (
-                        <p className="text-sm text-gray-300 mt-2 line-clamp-2">
-                          {note.content.substring(0, 100)}...
-                        </p>
-                      )}
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-200 truncate">{note.title}</p>
+                          <p className="text-xs text-gray-400 truncate">
+                            {new Date(note.updated_at).toLocaleDateString('pt-BR')}
+                          </p>
+                          {note.content && (
+                            <p className="text-sm text-gray-300 mt-2 line-clamp-2">
+                              {note.content.substring(0, 100)}...
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          onClick={(e) => deleteNoteFromList(note.id, e)}
+                          size="sm"
+                          variant="ghost"
+                          className="ml-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 p-1 h-8 w-8"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                   
