@@ -28,7 +28,7 @@ const articleCardsData: ArticleCardData[] = [
     rotation: 'rotate-0',
   },
   {
-    title: 'Responsive Drawer',
+    title: 'Mariana Torres, 16 anos',
     description:
       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius consequatur explicabo assumenda odit necessitatibus possimus ducimus aliquam. Ullam dignissimos animi officiis, in sequi et inventore harum ipsam sed.',
     link: 'https://ui-layout.com/components/drawer',
