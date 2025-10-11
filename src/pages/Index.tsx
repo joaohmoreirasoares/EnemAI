@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { MessageSquare, FileText, Users, Star, Award, BookOpen, Target } from 'lucide-react';
 import LiquidEther from '@/components/LiquidEther';
-import { StickyScroll } from '@/components/ui/sticky-scroll-reveal';
+import { StickyScrollReveal } from '@/components/ui/sticky-scroll-reveal';
 
 export default function Index() {
   const content = [
@@ -125,9 +125,9 @@ export default function Index() {
         </div>
 
         {/* Full screen sticky scroll section - agora usando o scroll principal */}
-        <div className="min-h-[0vh]">
+        <div className="min-h-[200vh]">
           <h2 className="text-3xl font-bold text-white mb-8 text-center">Conheça Nossas Funcionalidades</h2>
-          <StickyScroll content={content} />
+          <StickyScrollReveal content={content} />
         </div>
 
         {/* Contact Section */}
