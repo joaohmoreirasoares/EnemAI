@@ -18,8 +18,8 @@ export const StickyScroll = ({
   const [activeCard, setActiveCard] = React.useState(0);
   const ref = useRef<any>(null);
   const { scrollYProgress } = useScroll({
-    container: ref,
-    offset: ["start start", "end start"],
+    target: ref,
+    offset: ["start start", "end end"],
   });
   const cardLength = content.length;
 
@@ -60,13 +60,13 @@ export const StickyScroll = ({
 
   return (
     <motion.div
+      ref={ref}
       animate={{
         backgroundColor: backgroundColors[activeCard % backgroundColors.length],
       }}
-      className="h-[30rem] overflow-y-auto flex justify-center relative space-x-10 rounded-md p-10"
-      ref={ref}
+      className="w-full h-[100vh] overflow-y-auto flex justify-center relative space-x-10 rounded-none p-10"
     >
-      <div className="div relative flex items-start px-4">
+      <div className="div relative flex items-start px-4 w-full">
         <div className="max-w-2xl">
           {content.map((item, index) => (
             <div key={item.title + index} className="my-20">
