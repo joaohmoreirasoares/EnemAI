@@ -327,7 +327,7 @@ const ChatPage = () => {
       <div className="flex flex-col md:flex-row gap-6 flex-1">
         {/* Chat area */}
         <div className="flex-1 flex flex-col">
-          <Card className="bg-gradient-to-b from-gray-900 to-gray-950 flex-1 flex flex-col">
+          <div className="bg-gradient-to-b from-gray-900 to-gray-950 flex-1 flex flex-col">
             <CardContent className="p-0 flex-1 flex flex-col">
               {/* Agent selector */}
               <AgentSelector 
@@ -369,7 +369,7 @@ const ChatPage = () => {
                 hasActiveConversation={!!activeConversation}
               />
             </CardContent>
-          </Card>
+          </div>
         </div>
       </div>
 
