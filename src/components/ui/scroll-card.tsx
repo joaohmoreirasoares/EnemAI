@@ -38,7 +38,7 @@ const articleCardsData: ArticleCardData[] = [
   {
     title: 'Rafael Almeida, 19 anos',
     description:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius consequatur explicabo assumenda odit necessitatibus possimus ducimus aliquam. Ullam dignissimos animi officiis, in sequi et inventore harum ipsam sed.',
+      'Estudar com a Enem AI é como ter um tutor pessoal 24h por dia. Tudo é direto, prático e feito pra quem quer aprender de verdade.',
     link: 'https://ui-layout.com/components/globe',
     color: '#808080', // Even Darker Gray
     rotation: 'rotate-0',
