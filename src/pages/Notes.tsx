@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Save, Download, Trash2, Edit3 } from 'lucide-react';
+import { Plus, Search, Save, Download, Trash2, Edit3, List } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -36,6 +36,7 @@ const NotesPage = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [showToolbar, setShowToolbar] = useState(false);
+  const [showAllNotes, setShowAllNotes] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch user's notes
@@ -165,17 +166,26 @@ const NotesPage = () => {
       <div className="flex flex-col md:flex-row gap-6 flex-1">
         {/* Notes sidebar */}
         <div className="w-full md:w-80 flex-shrink-0">
-          <Card className="bg-gray-800 border-gray-700 h-full flex flex-col">
-            <CardContent className="p-4 flex-1 flex flex-col">
+          <div className="bg-gray-800 border border-gray-700 rounded-lg h-full flex flex-col">
+            <div className="p-4 flex-1 flex flex-col">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold">Minhas Anotações</h2>
-                <Button 
-                  size="sm" 
-                  onClick={createNote}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm" 
+                    onClick={() => setShowAllNotes(true)}
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    onClick={createNote}
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               
               <div className="mb-4">
@@ -216,8 +226,8 @@ const NotesPage = () => {
                   )}
                 </div>
               </ScrollArea>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Editor area */}
@@ -233,6 +243,13 @@ const NotesPage = () => {
                   className="flex-1 bg-transparent text-gray-200 placeholder-gray-400 px-3 py-2 rounded border-transparent"
                 />
                 <div className="flex gap-2">
+                  <Button
+                    onClick={() => setShowAllNotes(true)}
+                    size="sm"
+                    className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:brightness-110"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
                   <Button
                     onClick={saveNote}
                     size="sm"
@@ -292,15 +309,81 @@ const NotesPage = () => {
                 <p className="text-gray-400 mb-4">
                   Selecione uma anotação existente ou crie uma nova para começar.
                 </p>
-                <Button onClick={createNote} className="bg-purple-600 hover:bg-purple-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Criar Nova Anotação
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={() => setShowAllNotes(true)} className="bg-purple-600 hover:bg-purple-700">
+                    <List className="h-4 w-4 mr-2" />
+                    Ver Todas
+                  </Button>
+                  <Button onClick={createNote} className="bg-purple-600 hover:bg-purple-700">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Criar Nova Anotação
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}
         </div>
       </div>
+
+      {/* Modal para todas as anotações */}
+      {showAllNotes && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 border border-gray-700 rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col">
+            <div className="p-4 border-b border-gray-700 flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Todas as Anotações</h3>
+              <Button 
+                size="sm" 
+                onClick={() => setShowAllNotes(false)}
+                className="bg-gray-700 hover:bg-gray-600"
+              >
+                ✕
+              </Button>
+            </div>
+            <div className="p-4">
+              <Input
+                placeholder="Buscar anotações..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full mb-4 bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500"
+              />
+              <ScrollArea className="h-[60vh]">
+                <div className="space-y-2">
+                  {notes.map((note: any) => (
+                    <div
+                      key={note.id}
+                      className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                        activeNote?.id === note.id
+                          ? 'bg-purple-900'
+                          : 'bg-gray-700 hover:bg-gray-600'
+                      }`}
+                      onClick={() => {
+                        setActiveNote(note);
+                        setShowAllNotes(false);
+                      }}
+                    >
+                      <p className="font-medium text-gray-200 truncate">{note.title}</p>
+                      <p className="text-xs text-gray-400 truncate">
+                        {new Date(note.updated_at).toLocaleDateString('pt-BR')}
+                      </p>
+                      {note.content && (
+                        <p className="text-sm text-gray-300 mt-2 line-clamp-2">
+                          {note.content.substring(0, 100)}...
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                  
+                  {notes.length === 0 && (
+                    <p className="text-gray-400 text-sm text-center py-4">
+                      Nenhuma anotação encontrada
+                    </p>
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
