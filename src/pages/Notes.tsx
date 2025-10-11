@@ -241,7 +241,7 @@ const NotesPage = () => {
                 <div className="flex justify-center mb-6">
                   <Edit3 className="h-20 w-20 text-purple-500" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Nenhuma anotação selecionada</h3>
+                <h3 className="text-xl font-semibold mb-2 text-white">Nenhuma anotação selecionada</h3>
                 <p className="text-gray-400 mb-4">
                   Selecione uma anotação existente ou crie uma nova para começar.
                 </p>
