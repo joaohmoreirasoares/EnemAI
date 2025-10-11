@@ -1,7 +1,8 @@
 'use client';
 import { ReactLenis } from 'lenis/react';
 import React, { useRef, forwardRef } from 'react';
-import UserReview, { userReviews } from './user-review';
+import UserReview from './user-review';
+import userReviews from './user-review';
 
 interface ArticleCardData {
   title: string;
