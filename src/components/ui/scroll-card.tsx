@@ -67,7 +67,16 @@ const Component = forwardRef<HTMLElement>((props, ref) => {
                   <article
                     className={`${card.color} h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
                     style={{ backgroundColor: card.color }}
-
+                  >
+                    <h1 className='text-2xl font-semibold'>{card.title}</h1>
+                    <p>{card.description}</p>
+                    <a
+                      href={card.link}
+                      target='_blank'
+                      className='w-fit bg-black p-3 rounded-md cursor-pointer text-white'
+                    >
+                      Click to View
+                    </a>
                   </article>
                 </figure>
               ))}
@@ -77,15 +86,6 @@ const Component = forwardRef<HTMLElement>((props, ref) => {
                 O que os nossos <br /> usuários falam
               </h1>
             </div>
-                    <h1 className='text-2xl font-semibold'>{card.title}</h1>
-                    <p>{card.description}</p>
-                    <a
-                      href='login.tsx'
-                      target='_blank'
-                      className='w-fit bg-black p-3 rounded-md cursor-pointer text-white'
-                    >
-                      Click to View
-                    </a>
           </div>
         </section>
 
