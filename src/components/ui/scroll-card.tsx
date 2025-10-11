@@ -77,6 +77,15 @@ const Component = forwardRef<HTMLElement>((props, ref) => {
                 O que os nossos <br /> usuários falam
               </h1>
             </div>
+                    <h1 className='text-2xl font-semibold'>{card.title}</h1>
+                    <p>{card.description}</p>
+                    <a
+                      href='login.tsx'
+                      target='_blank'
+                      className='w-fit bg-black p-3 rounded-md cursor-pointer text-white'
+                    >
+                      Click to View
+                    </a>
           </div>
         </section>
 
