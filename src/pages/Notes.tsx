@@ -35,6 +35,7 @@ const NotesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [showToolbar, setShowToolbar] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch user's notes
@@ -189,7 +190,7 @@ const NotesPage = () => {
                     placeholder="Buscar anotações..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-gray-700 border-gray-600 text-white"
+                    className="pl-10 bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500"
                   />
                 </div>
               </div>
@@ -206,7 +207,7 @@ const NotesPage = () => {
                       }`}
                       onClick={() => setActiveNote(note)}
                     >
-                      <p className="font-medium truncate">{note.title}</p>
+                      <p className="font-medium text-gray-200 truncate">{note.title}</p>
                       <p className="text-xs text-gray-400 truncate">
                         {new Date(note.updated_at).toLocaleDateString('pt-BR')}
                       </p>
@@ -227,66 +228,67 @@ const NotesPage = () => {
         {/* Editor area */}
         <div className="flex-1 flex flex-col">
           {activeNote ? (
-            <Card className="bg-gray-800 border-gray-700 flex-1 flex flex-col">
-              <CardContent className="p-0 flex-1 flex flex-col">
-                {/* Toolbar */}
-                <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-                  <Input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Título da anotação"
-                    className="bg-gray-700 border-gray-600 text-white flex-1 mr-4"
-                  />
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={saveNote}
-                      variant="outline"
-                      size="sm"
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                    >
-                      <Save className="h-4 w-4 mr-2" />
-                      Salvar
-                    </Button>
-                    <Button
-                      onClick={exportNote}
-                      variant="outline"
-                      size="sm"
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Exportar
-                    </Button>
-                    <Button
-                      onClick={deleteNote}
-                      variant="outline"
-                      size="sm"
-                      className="border-red-600 text-red-400 hover:bg-red-900"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+            <div className="flex flex-col h-full min-h-0 bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+              {/* Compact header */}
+              <div className="flex items-center gap-2 px-2 py-2 h-10 border-b border-gray-700">
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Título (opcional)"
+                  className="flex-1 bg-transparent text-gray-200 placeholder-gray-400 px-3 py-2 rounded border-transparent"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    onClick={saveNote}
+                    size="sm"
+                    className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:brightness-110"
+                  >
+                    <Save className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={exportNote}
+                    size="sm"
+                    className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:brightness-110"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={deleteNote}
+                    size="sm"
+                    variant="destructive"
+                    className="bg-red-600 hover:bg-red-700 text-white shadow-md hover:brightness-110"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
+              </div>
 
-                {/* Editor */}
-                <div className="flex-1">
-                  <ReactQuill
-                    theme="snow"
-                    value={content}
-                    onChange={setContent}
-                    className="h-full"
-                    modules={{
-                      toolbar: [
-                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        ['link', 'image'],
-                        ['clean']
-                      ]
-                    }}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+              {/* Editor that takes full space */}
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <ReactQuill
+                  theme="snow"
+                  value={content}
+                  onChange={setContent}
+                  className="h-full"
+                  modules={{
+                    toolbar: [
+                      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                      ['bold', 'italic', 'underline', 'strike'],
+                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                      ['link', 'image'],
+                      ['clean']
+                    ]
+                  }}
+                  formats={[
+                    'header',
+                    'bold', 'italic', 'underline', 'strike',
+                    'list', 'bullet',
+                    'link', 'image'
+                  ]}
+                  style={{ height: '100%' }}
+                />
+              </div>
+            </div>
           ) : (
             <Card className="bg-gray-800 border-gray-700 flex-1 flex flex-col items-center justify-center">
               <CardContent className="p-8 text-center">

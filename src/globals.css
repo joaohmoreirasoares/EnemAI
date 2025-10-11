@@ -99,3 +99,65 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Forçar texto branco no editor de anotações */
+.ql-editor {
+  color: #ffffff !important;
+}
+
+.ql-editor p {
+  color: #ffffff !important;
+}
+
+.ql-editor h1,
+.ql-editor h2,
+.ql-editor h3,
+.ql-editor h4,
+.ql-editor h5,
+.ql-editor h6 {
+  color: #ffffff !important;
+}
+
+.ql-editor ul,
+.ql-editor ol {
+  color: #ffffff !important;
+}
+
+.ql-editor li {
+  color: #ffffff !important;
+}
+
+.ql-editor blockquote {
+  color: #ffffff !important;
+}
+
+.ql-editor a {
+  color: #a78bfa !important;
+}
+
+.ql-editor code {
+  color: #ffffff !important;
+}
+
+.ql-editor pre {
+  color: #ffffff !important;
+}
+
+/* Scrollbar mais visível */
+.ql-editor::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ql-editor::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.ql-editor::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.ql-editor::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
