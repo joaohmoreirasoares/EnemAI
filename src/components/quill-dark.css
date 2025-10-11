@@ -1,0 +1,50 @@
+/* Fundo e borda do container principal */
+.dark-quill .ql-container.ql-snow {
+  background-color: #121212 !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+/* Área onde o usuário escreve */
+.dark-quill .ql-editor {
+  color: #ffffff !important;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Placeholder (texto de dica) */
+.dark-quill .ql-editor.ql-blank::before {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Toolbar: fundo escuro */
+.dark-quill .ql-toolbar.ql-snow {
+  background-color: #1e1e1e !important;
+  border: none !important;
+}
+
+/* Ícones da toolbar (negrito, lista, etc.) */
+.dark-quill .ql-toolbar .ql-stroke {
+  stroke: #ffffff !important;
+}
+
+.dark-quill .ql-toolbar .ql-fill {
+  fill: #ffffff !important;
+}
+
+/* Ícones ativos ou selecionados */
+.dark-quill .ql-toolbar button.ql-active .ql-stroke,
+.dark-quill .ql-toolbar button:hover .ql-stroke {
+  stroke: #00d1b2 !important; /* cor destaque (verde-água) */
+}
+
+/* Botões ao passar o mouse */
+.dark-quill .ql-toolbar button:hover {
+  background-color: #2a2a2a !important;
+  border-radius: 6px;
+}
+
+/* Remover borda inferior da toolbar */
+.dark-quill .ql-toolbar.ql-snow + .ql-container.ql-snow {
+  border-top: none !important;
+}

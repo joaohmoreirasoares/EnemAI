@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import './quill-dark.css'; // Importar o tema escuro customizado
 
 // Função para exportar anotações como contexto
 export const getUserNotes = async () => {
@@ -213,10 +214,9 @@ const NotesPage = () => {
               <div className="flex-1 min-h-0 overflow-hidden">
                 <ReactQuill
                   theme="snow"
-
                   value={content}
                   onChange={setContent}
-                  className="h-full"
+                  className="h-full dark-quill" // Adicionar a classe dark-quill aqui
                   modules={{
                     toolbar: [
                       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
