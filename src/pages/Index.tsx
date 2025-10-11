@@ -124,9 +124,12 @@ export default function Index() {
           </div>
         </div>
 
-        <div className="mb-16">
+        {/* Full screen sticky scroll section */}
+        <div className="min-h-screen">
           <h2 className="text-3xl font-bold text-white mb-8 text-center">Conheça Nossas Funcionalidades</h2>
-          <StickyScroll content={content} />
+          <div className="h-[100vh]">
+            <StickyScroll content={content} />
+          </div>
         </div>
 
         {/* Contact Section */}
