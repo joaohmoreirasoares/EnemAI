@@ -1,26 +1,53 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import CircularGallery from '../CircularGallery';
 
 interface ScrollCardProps {
-  card: {
-    title: string;
-    description: string;
-    link: string;
-    linkText: string;
-  };
+  items?: { image: string; text: string }[];
+  bend?: number;
+  textColor?: string;
+  borderRadius?: number;
+  font?: string;
+  scrollSpeed?: number;
+  scrollEase?: number;
 }
 
-const ScrollCard: React.FC<ScrollCardProps> = ({ card }) => {
+const ScrollCard: React.FC<ScrollCardProps> = ({
+  items,
+  bend = 3,
+  textColor = '#ffffff',
+  borderRadius = 0.05,
+  font = 'bold 30px Figtree',
+  scrollSpeed = 2,
+  scrollEase = 0.05
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const handleResize = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.clientWidth;
+        containerRef.current.style.height = `${width * 0.6}px`;
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
-      <h3 className="text-xl font-semibold text-white mb-2">{card.title}</h3>
-      <p className="text-center">{card.description}</p>
-      <a
-        href={card.link}
-        target="_blank"
-        className="w-fit bg-black p-3 rounded-md cursor-pointer text-white mx-auto block text-center"
-      >
-        {card.linkText}
-      </a>
+    <div className="w-full" ref={containerRef}>
+      <CircularGallery
+        items={items}
+        bend={bend}
+        textColor={textColor}
+        borderRadius={borderRadius}
+        font={font}
+        scrollSpeed={scrollSpeed}
+        scrollEase={scrollEase}
+      />
     </div>
   );
 };
