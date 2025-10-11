@@ -29,7 +29,7 @@ export const StickyScrollReveal: React.FC<StickyScrollRevealProps> = ({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const index = contentRefs.current.indexOf(entry.target);
+            const index = contentRefs.current.indexOf(entry.target as HTMLDivElement);
             if (index !== -1) {
               setActiveIndex(index);
             }
