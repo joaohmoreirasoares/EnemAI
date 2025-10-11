@@ -14,7 +14,7 @@ const articleCardsData: ArticleCardData[] = [
   {
     title: 'Image MouseTrail',
     description:
-      "An Mouse who is running with couple of images and the best part is you can hide all the images when you don't move your mouse. I hope you'll love it",
+      "5,0 — Ana Luiza, 17 anos                                          O chat da Enem AI é simplesmente genial. A IA explica os assuntos do ENEM de um jeito fácil de entender e sem enrolação.",
     link: 'https://ui-layout.com/components/image-mousetrail',
     color: '#E0E0E0', // Light Gray
     rotation: 'rotate-6',
