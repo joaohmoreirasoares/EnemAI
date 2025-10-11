@@ -35,32 +35,31 @@ const Sidebar = () => {
   };
 
   const navItems = [
-    { name: 'Início', href: '/', icon: Home },
     { name: 'Chat IA', href: '/chat', icon: MessageSquare },
     { name: 'Anotações', href: '/notes', icon: FileText },
     { name: 'Comunidade', href: '/community', icon: Users },
   ];
 
   return (
-    <div className="flex flex-col h-full bg-gray-900 text-white w-64 border-r border-gray-800">
-      <div className="p-4 border-b border-gray-800">
+    <div className="flex flex-col h-full bg-gray-900 text-white w-48 border-r border-gray-800">
+      <div className="p-3 border-b border-gray-800">
         <div className="flex items-center">
           <img 
             src="/logo.png" 
             alt="Enem AI" 
-            className="w-10 h-10 rounded-lg mr-3"
+            className="w-8 h-8 rounded-lg mr-2"
           />
-          <h1 className="text-2xl font-bold text-purple-400">Enem AI</h1>
+          <h1 className="text-lg font-bold text-purple-400">Enem AI</h1>
         </div>
         {profile && (
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-xs text-gray-400 mt-1">
             {profile.first_name} {profile.last_name}
           </p>
         )}
       </div>
       
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
+      <nav className="flex-1 p-2">
+        <ul className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.href;
@@ -68,14 +67,14 @@ const Sidebar = () => {
               <li key={item.name}>
                 <Link
                   to={item.href}
-                  className={`flex items-center p-3 rounded-lg transition-colors ${
+                  className={`flex items-center p-2 rounded-lg transition-colors ${
                     isActive 
                       ? 'bg-purple-900 text-white' 
                       : 'text-gray-300 hover:bg-gray-800'
                   }`}
                 >
-                  <Icon className="h-5 w-5 mr-3" />
-                  {item.name}
+                  <Icon className="h-4 w-4 mr-2" />
+                  <span className="text-sm">{item.name}</span>
                 </Link>
               </li>
             );
@@ -83,14 +82,14 @@ const Sidebar = () => {
         </ul>
       </nav>
       
-      <div className="p-4 border-t border-gray-800">
+      <div className="p-3 border-t border-gray-800">
         <Button
           variant="ghost"
           className="w-full justify-start text-gray-300 hover:text-white hover:bg-gray-800"
           onClick={handleLogout}
         >
-          <LogOut className="h-5 w-5 mr-3" />
-          Sair
+          <LogOut className="h-4 w-4 mr-2" />
+          <span className="text-sm">Sair</span>
         </Button>
       </div>
     </div>

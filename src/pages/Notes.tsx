@@ -9,6 +9,27 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
+// Função para exportar anotações como contexto
+export const getUserNotes = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return '';
+
+  const { data, error } = await supabase
+    .from('notes')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('updated_at', { ascending: false })
+    .limit(3);
+
+  if (error) throw error;
+
+  if (data.length === 0) return '';
+
+  return data.map(note => 
+    `Nota: ${note.title}\nConteúdo: ${note.content || ''}\n`
+  ).join('\n');
+};
+
 const NotesPage = () => {
   const [activeNote, setActiveNote] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');

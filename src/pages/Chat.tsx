@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { showError, showSuccess } from '@/utils/toast';
+import { getUserNotes } from '@/pages/Notes';
 import AgentSelector from '@/components/chat/AgentSelector';
 import ChatMessages from '@/components/chat/ChatMessages';
 import ChatInput from '@/components/chat/ChatInput';
@@ -13,7 +14,6 @@ import WelcomeMessage from '@/components/chat/WelcomeMessage';
 
 const ChatPage = () => {
   const [message, setMessage] = useState('');
-  const [selectedAgent, setSelectedAgent] = useState('Matemática');
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showConversations, setShowConversations] = useState(false);
@@ -24,13 +24,6 @@ const ChatPage = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const agents = [
-    'Linguagens',
-    'Matemática',
-    'Ciências da Natureza',
-    'Ciências Humanas'
-  ];
 
   // Clear interval on unmount
   useEffect(() => {
@@ -109,12 +102,12 @@ const ChatPage = () => {
       minute: '2-digit'
     });
     
-    const newTitle = `Chat sobre ${selectedAgent} - ${timestamp}`;
+    const newTitle = `Chat com Tutor ENEM AI - ${timestamp}`;
     const { data, error } = await supabase
       .from('chat_conversations')
       .insert({
         user_id: user.id,
-        agent: selectedAgent,
+        agent: 'Tutor ENEM AI',
         title: newTitle,
         messages: []
       })
@@ -150,7 +143,7 @@ const ChatPage = () => {
   };
 
   // Call Groq API to get AI response
-  const getAIResponse = async (userMessage: string) => {
+  const getAIResponse = async (userMessage: string, context: string) => {
     if (!apiKey) {
       setError('Chave da API não configurada');
       return null;
@@ -168,7 +161,7 @@ const ChatPage = () => {
           messages: [
             {
               role: 'system',
-              content: `Você é um assistente especializado em ${selectedAgent} para o ENEM. Responda de forma clara e didática. Use markdown para formatar suas respostas. Se precisar pensar, coloque seu raciocínio entre <thinking> e </thinking>, mas mantenha-o com no máximo 200 caracteres.`
+              content: `Você é o Tutor ENEM AI, um assistente especializado em todas as áreas do ENEM. Use as anotações do usuário como referência para personalizar suas respostas e facilitar o aprendizado. Seja claro, direto e ensine de forma simples e prática. Contexto das anotações do usuário: ${context}`
             },
             {
               role: 'user',
@@ -196,8 +189,8 @@ const ChatPage = () => {
   };
 
   // Send message to AI
-  const sendMessage = async () => {
-    if (!message.trim() || !activeConversation || isLoading || !apiKey) return;
+  const sendMessage = async (userMessage: string, context: string) => {
+    if (!userMessage.trim() || !activeConversation || isLoading || !apiKey) return;
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -214,15 +207,15 @@ const ChatPage = () => {
     setError(null);
 
     // Add user message to conversation
-    const userMessage = {
+    const userMsg = {
       id: Date.now().toString(),
       role: 'user',
-      content: message,
+      content: userMessage,
       timestamp: new Date().toISOString()
     };
 
     // Update conversation with user message
-    const updatedMessages = [...messages, userMessage];
+    const updatedMessages = [...messages, userMsg];
     
     const { error: updateError } = await supabase
       .from('chat_conversations')
@@ -243,7 +236,7 @@ const ChatPage = () => {
     refetchConversations();
 
     // Get AI response
-    const aiResponse = await getAIResponse(message);
+    const aiResponse = await getAIResponse(userMessage, context);
     
     if (aiResponse) {
       // Start generating animation
@@ -271,14 +264,14 @@ const ChatPage = () => {
           setIsGenerating(false);
           
           // Save final response to database
-          const aiMessage = {
+          const aiMsg = {
             id: (Date.now() + 1).toString(),
             role: 'assistant',
             content: aiResponse,
             timestamp: new Date().toISOString()
           };
 
-          const finalMessages = [...updatedMessages, aiMessage];
+          const finalMessages = [...updatedMessages, aiMsg];
           
           // Update database with final response
           supabase
@@ -328,28 +321,25 @@ const ChatPage = () => {
     <div className="flex flex-col h-full">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-white">Chat com IA</h1>
-        <p className="text-gray-400">Converse com agentes especializados nas competências do ENEM</p>
+        <p className="text-gray-400">Converse com o Tutor ENEM AI sobre todas as áreas do ENEM</p>
       </div>
 
       <div className="flex flex-col md:flex-row gap-6 flex-1">
         {/* Chat area */}
         <div className="flex-1 flex flex-col">
-          <Card className="bg-gray-900 border-gray-700 flex-1 flex flex-col">
+          <Card className="bg-gradient-to-b from-gray-900 to-gray-950 flex-1 flex flex-col">
             <CardContent className="p-0 flex-1 flex flex-col">
               {/* Agent selector */}
               <AgentSelector 
-                agents={agents}
-                selectedAgent={selectedAgent}
-                setSelectedAgent={setSelectedAgent}
                 onShowConversations={() => setShowConversations(true)}
               />
 
               {/* Messages area */}
-              <ScrollArea className="flex-1 p-4 bg-gray-900" ref={scrollAreaRef}>
+              <ScrollArea className="flex-1 p-4 bg-gradient-to-b from-gray-900 to-gray-950" ref={scrollAreaRef}>
                 {messages.length > 0 ? (
                   <ChatMessages 
                     messages={messages}
-                    selectedAgent={selectedAgent}
+                    selectedAgent="Tutor ENEM AI"
                     isGenerating={isGenerating}
                     generatedResponse={generatedResponse}
                   />
