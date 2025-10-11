@@ -125,7 +125,7 @@ export default function Index() {
         </div>
 
         {/* Full screen sticky scroll section - agora usando o scroll principal */}
-        <div className="min-h-[200vh]">
+        <div className="min-h-[2000vh]">
           <h2 className="text-3xl font-bold text-white mb-8 text-center">Conheça Nossas Funcionalidades</h2>
           <StickyScroll content={content} />
         </div>
