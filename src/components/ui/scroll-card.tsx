@@ -69,6 +69,7 @@ const Component = forwardRef<HTMLElement>((props, ref) => {
                     style={{ backgroundColor: card.color }}
                   >
                     <h1 className='text-2xl font-semibold'>{card.title}</h1>
+                    <p>{card.description}</p>
 
                   </article>
                 </figure>
