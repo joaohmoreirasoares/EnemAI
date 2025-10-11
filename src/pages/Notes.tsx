@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import './quill-dark.css'; // Importar o tema escuro customizado
+import '../components/quill-dark.css'; // Corrigindo o caminho para o tema escuro customizado
 
 // Função para exportar anotações como contexto
 export const getUserNotes = async () => {
