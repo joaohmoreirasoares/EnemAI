@@ -10,15 +10,6 @@ interface ArticleCardData {
   rotation: string;
 }
 
-interface Testimonial {
-  id: number;
-  name: string;
-  role: string;
-  avatar: string;
-  content: string;
-  rating: number;
-}
-
 const articleCardsData: ArticleCardData[] = [
   {
     title: 'Image MouseTrail',
@@ -53,61 +44,6 @@ const articleCardsData: ArticleCardData[] = [
     rotation: 'rotate-0',
   },
 ];
-
-const testimonials: Testimonial[] = [
-  {
-    id: 1,
-    name: 'Ana Silva',
-    role: 'Estudante de Ensino Médio',
-    avatar: '👩‍🎓',
-    content: 'O Enem AI mudou completamente minha forma de estudar! O chat com IA me ajudou a entender conceitos difíceis de matemática e as anotações inteligentes organizam todo meu material de estudo.',
-    rating: 5
-  },
-  {
-    id: 2,
-    name: 'Carlos Mendes',
-    role: 'Professor de Física',
-    avatar: '👨‍🏫',
-    content: 'Como professor, recomendo o Enem AI para meus alunos. A plataforma oferece recursos excelentes para aprendizado e a comunidade ajuda muito na troca de conhecimentos.',
-    rating: 5
-  },
-  {
-    id: 3,
-    name: 'Maria Oliveira',
-    role: 'Estudante de Ensino Médio',
-    avatar: '👩‍🎓',
-    content: 'Minhas notas no simulado melhoraram 30% depois que comecei a usar o Enem AI. O chat com agentes especializados é incrível e me dá respostas rápidas e precisas.',
-    rating: 5
-  },
-  {
-    id: 4,
-    name: 'Pedro Santos',
-    role: 'Estudante de Ensino Médio',
-    avatar: '👨‍🎓',
-    content: 'A melhor parte é a organização das anotações. Posso adicionar tags, exportar para PDF e o sistema de busca é muito eficiente. Recomendo para todos!',
-    rating: 4
-  },
-  {
-    id: 5,
-    name: 'Juliana Costa',
-    role: 'Estudante de Ensino Médio',
-    avatar: '👩‍🎓',
-    content: 'A comunidade do Enem AI é fantástica! Conheci outros estudantes e trocamos dicas de estudo. O chat com IA me ajudou a passar em vestibulares difíceis.',
-    rating: 5
-  }
-];
-
-const StarRating = ({ rating }: { rating: number }) => {
-  return (
-    <div className="flex gap-1">
-      {[...Array(5)].map((_, i) => (
-        <span key={i} className={i < rating ? 'text-yellow-400' : 'text-gray-400'}>
-          ⭐
-        </span>
-      ))}
-    </div>
-  );
-};
 
 const Component = forwardRef<HTMLElement>((props, ref) => {
   return (
@@ -149,28 +85,6 @@ const Component = forwardRef<HTMLElement>((props, ref) => {
               <h1 className='text-4xl px-8 font-medium text-center tracking-tight leading-[120%]'>
                 What We <br /> Have Now😎
               </h1>
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials Section */}
-        <section className='text-white w-full bg-slate-950 py-20'>
-          <div className='max-w-6xl mx-auto px-16'>
-            <h2 className='text-4xl font-bold text-center mb-12'>O que nossos usuários dizem</h2>
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-              {testimonials.map((testimonial) => (
-                <div key={testimonial.id} className='bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700'>
-                  <div className='flex items-center mb-4'>
-                    <div className='text-3xl mr-3'>{testimonial.avatar}</div>
-                    <div>
-                      <h3 className='font-semibold text-white'>{testimonial.name}</h3>
-                      <p className='text-sm text-gray-400'>{testimonial.role}</p>
-                    </div>
-                  </div>
-                  <StarRating rating={testimonial.rating} />
-                  <p className='text-gray-300 mt-4 italic'>"{testimonial.content}"</p>
-                </div>
-              ))}
             </div>
           </div>
         </section>
