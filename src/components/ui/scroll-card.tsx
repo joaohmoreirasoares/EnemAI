@@ -20,13 +20,13 @@ const ScrollCard: React.FC<ScrollCardProps> = ({ card }) => {
   const cardData = card || defaultCard;
 
   return (
-    <div className="bg-purple-900/80 backdrop-blur-sm rounded-xl p-6 border border-purple-700">
+    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
       <h3 className="text-xl font-semibold text-white mb-2">{cardData.title}</h3>
       <p className="text-center">{cardData.description}</p>
       <a
         href={cardData.link}
         target="_blank"
-        className="w-fit bg-purple-800 p-3 rounded-md cursor-pointer text-white mx-auto block text-center"
+        className="w-fit bg-black p-3 rounded-md cursor-pointer text-white mx-auto block text-center"
       >
         {cardData.linkText}
       </a>
