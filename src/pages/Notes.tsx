@@ -163,71 +163,7 @@ const NotesPage = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex flex-col md:flex-row gap-6 flex-1">
-        {/* Notes sidebar */}
-        <div className="w-full md:w-80 flex-shrink-0">
-          <div className="bg-gray-800 border border-gray-700 rounded-lg h-full flex flex-col p-4">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Minhas Anotações</h2>
-              <div className="flex gap-2">
-                <Button 
-                  size="sm" 
-                  onClick={() => setShowAllNotes(true)}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-                <Button 
-                  size="sm" 
-                  onClick={createNote}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            
-            <div className="mb-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Buscar anotações..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500"
-                />
-              </div>
-            </div>
-            
-            <ScrollArea className="flex-1">
-              <div className="space-y-2">
-                {filteredNotes.map((note: any) => (
-                  <div
-                    key={note.id}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      activeNote?.id === note.id
-                        ? 'bg-purple-900'
-                        : 'bg-gray-700 hover:bg-gray-600'
-                    }`}
-                    onClick={() => setActiveNote(note)}
-                  >
-                    <p className="font-medium text-gray-200 truncate">{note.title}</p>
-                    <p className="text-xs text-gray-400 truncate">
-                      {new Date(note.updated_at).toLocaleDateString('pt-BR')}
-                    </p>
-                  </div>
-                ))}
-                
-                {filteredNotes.length === 0 && (
-                  <p className="text-gray-400 text-sm text-center py-4">
-                    {searchTerm ? 'Nenhuma anotação encontrada' : 'Nenhuma anotação ainda'}
-                  </p>
-                )}
-              </div>
-            </ScrollArea>
-          </div>
-        </div>
-
+      <div className="flex flex-col gap-6 flex-1">
         {/* Editor area */}
         <div className="flex-1 flex flex-col">
           {activeNote ? (
