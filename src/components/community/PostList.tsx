@@ -6,13 +6,14 @@ import PostItem from './PostItem';
 
 interface PostListProps {
   currentUser?: any;
+  filterByTag?: string;
 }
 
-const PostList = ({ currentUser }: PostListProps) => {
+const PostList = ({ currentUser, filterByTag }: PostListProps) => {
   const { data: posts, isLoading } = useQuery({
-    queryKey: ['community-posts'],
+    queryKey: ['community-posts', filterByTag],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('posts')
         .select(`
           *,
@@ -21,6 +22,12 @@ const PostList = ({ currentUser }: PostListProps) => {
           tags (name)
         `)
         .order('created_at', { ascending: false });
+
+      if (filterByTag) {
+        query = query.contains('tags', [{ name: filterByTag }]);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       return data;
