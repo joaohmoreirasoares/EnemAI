@@ -15,9 +15,10 @@ import { supabase } from '@/integrations/supabase/client';
 interface PostModalProps {
   postId?: string;
   onClose: () => void;
+  onCreatePost?: (title: string, body: string, tags: string[]) => Promise<void>;
 }
 
-const PostModal = ({ postId, onClose }: PostModalProps) => {
+const PostModal = ({ postId, onClose, onCreatePost }: PostModalProps) => {
   const [post, setPost] = useState<any>(null);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);

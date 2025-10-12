@@ -44,7 +44,7 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <DashboardLayout>
-                  <DirectChat />
+                  <DirectChat conversationId="default-conversation-id" />
                 </DashboardLayout>
               </ProtectedRoute>
             } 
