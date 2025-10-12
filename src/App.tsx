@@ -12,6 +12,7 @@ import DashboardLayout from "./components/layout/DashboardLayout";
 import ChatPage from "./pages/Chat";
 import NotesPage from "./pages/Notes";
 import CommunityPage from "./pages/Community";
+import ProfilePage from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,16 @@ const App = () => (
             } 
           />
           <Route 
+            path="/chat/:conversationId" 
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <DirectChat />
+                </DashboardLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/notes" 
             element={
               <ProtectedRoute>
@@ -53,6 +64,16 @@ const App = () => (
               <ProtectedRoute>
                 <DashboardLayout>
                   <CommunityPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile/:id" 
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <ProfilePage />
                 </DashboardLayout>
               </ProtectedRoute>
             } 
