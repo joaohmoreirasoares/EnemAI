@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Search, Filter, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,6 +28,7 @@ const CommunityPage = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [discussions, setDiscussions] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   // Fetch current user
   useEffect(() => {
@@ -114,6 +116,10 @@ const CommunityPage = () => {
       console.error('Error deleting discussion:', error);
       alert('Erro ao excluir discussão. Tente novamente.');
     }
+  };
+
+  const handleDiscussionClick = (discussionId: string) => {
+    navigate(`/discussion/${discussionId}`);
   };
 
   const formatDate = (dateString: string) => {
@@ -214,8 +220,8 @@ const CommunityPage = () => {
                         author={discussion.profiles}
                         tag={discussion.tag}
                         created_at={discussion.created_at}
-                        onClick={() => console.log('Discussion clicked:', discussion.id)}
-                        onComment={() => console.log('Comment on:', discussion.id)}
+                        onClick={() => handleDiscussionClick(discussion.id)}
+                        onComment={() => handleDiscussionClick(discussion.id)}
                         onDelete={handleDeleteDiscussion}
                         isOwnDiscussion={currentUser?.id === discussion.author_id}
                       />

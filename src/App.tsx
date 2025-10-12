@@ -14,6 +14,7 @@ import NotesPage from "./pages/Notes";
 import CommunityPage from "./pages/Community";
 import ProfilePage from "./pages/Profile";
 import DirectChat from "./components/chat/DirectChat";
+import DiscussionDetail from "./pages/DiscussionDetail";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,16 @@ const App = () => (
               <ProtectedRoute>
                 <DashboardLayout>
                   <CommunityPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/discussion/:id" 
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <DiscussionDetail discussionId="default-discussion-id" />
                 </DashboardLayout>
               </ProtectedRoute>
             } 
