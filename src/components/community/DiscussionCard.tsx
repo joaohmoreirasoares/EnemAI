@@ -74,6 +74,14 @@ const DiscussionCard = ({
     }
   };
 
+  // Função para obter as iniciais do nome do autor com fallback
+  const getAuthorInitials = (name: string | undefined) => {
+    if (!name) return 'U';
+    const names = name.split(' ');
+    if (names.length === 1) return names[0].charAt(0).toUpperCase();
+    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+  };
+
   return (
     <Card 
       className="bg-gray-800 border-gray-700 hover:bg-gray-750 cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/10"
@@ -85,14 +93,14 @@ const DiscussionCard = ({
           <Avatar className="w-10 h-10 flex-shrink-0">
             <AvatarImage src={author.avatar_url} alt={author.name} />
             <AvatarFallback>
-              {author.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+              {getAuthorInitials(author.name)}
             </AvatarFallback>
           </Avatar>
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <span className="font-medium text-gray-200 truncate">
-                {author.name}
+                {author.name || 'Usuário'}
               </span>
               <span className="text-gray-500">•</span>
               <span className="text-xs text-gray-400 flex items-center gap-1">
