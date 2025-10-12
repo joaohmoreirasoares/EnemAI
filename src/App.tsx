@@ -75,7 +75,7 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <DashboardLayout>
-                  <DiscussionDetail discussionId="default-discussion-id" />
+                  <DiscussionDetail />
                 </DashboardLayout>
               </ProtectedRoute>
             } 
