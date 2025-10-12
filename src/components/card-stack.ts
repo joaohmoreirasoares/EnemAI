@@ -16,7 +16,7 @@ interface CardStackProps {
 export const CardStack: React.FC<CardStackProps> = ({ items, className, onCardClick }) => {
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [isAnimating, setIsAnimating] = React.useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   const handleCardClick = (index: number) => {
     if (isAnimating || index === activeIndex) return;
@@ -35,7 +35,7 @@ export const CardStack: React.FC<CardStackProps> = ({ items, className, onCardCl
   const handleNext = () => {
     if (isAnimating) return;
     setIsAnimating(true);
-    setActiveIndex((prev) => (prev === items.length - 1 ? 0 : prev - 1));
+    setActiveIndex((prev) => (prev === items.length - 1 ? 0 : prev + 1));
     setTimeout(() => setIsAnimating(false), 300);
   };
 
