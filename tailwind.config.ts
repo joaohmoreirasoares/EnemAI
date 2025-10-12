@@ -62,6 +62,20 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Custom colors for discussion tags
+        tag: {
+          mathematica: "#3B82F6",      // blue-600
+          portugues: "#EC4899",        // pink-600
+          historia: "#F59E0B",         // amber-600
+          geografia: "#10B981",        // emerald-600
+          fisica: "#8B5CF6",           // violet-600
+          quimica: "#F43F5E",          // rose-600
+          biologia: "#22C55E",         // green-600
+          redacao: "#EAB308",          // yellow-600
+          duvida: "#64748B",           // slate-600
+          estudo: "#0EA5E9",           // sky-600
+          geral: "#6B7280",            // gray-600
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

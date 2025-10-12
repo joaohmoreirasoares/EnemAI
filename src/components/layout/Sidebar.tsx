@@ -4,7 +4,8 @@ import {
   FileText, 
   Users, 
   LogOut,
-  Home
+  Home,
+  User
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
@@ -38,6 +39,7 @@ const Sidebar = () => {
     { name: 'Chat IA', href: '/chat', icon: MessageSquare },
     { name: 'Anotações', href: '/notes', icon: FileText },
     { name: 'Comunidade', href: '/community', icon: Users },
+    { name: 'Meu Perfil', href: '/profile', icon: User },
   ];
 
   return (
@@ -53,7 +55,7 @@ const Sidebar = () => {
         </div>
         {profile && (
           <p className="text-xs text-gray-400 mt-1">
-            {profile.first_name} {profile.last_name}
+            {profile.name || profile.first_name} {profile.last_name}
           </p>
         )}
       </div>
