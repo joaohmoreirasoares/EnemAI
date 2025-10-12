@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ProfileModal from '../components/community/ProfileModal';
 import CreateDiscussionModal from '../components/community/CreateDiscussionModal';
 import DiscussionCard from '../components/community/DiscussionCard';
+import TagSelector from '../components/community/TagSelector';
 
 const TAGS = [
   'Matemática', 'Português', 'História', 'Geografia', 
@@ -23,7 +24,7 @@ const CommunityPage = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTag, setSelectedTag] = useState<string>('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [discussions, setDiscussions] = useState<any[]>([]);
 
@@ -38,7 +39,7 @@ const CommunityPage = () => {
 
   // Fetch discussions
   const { data: discussionsData, isLoading, refetch } = useQuery({
-    queryKey: ['discussions', selectedTag, searchTerm],
+    queryKey: ['discussions', selectedTags, searchTerm],
     queryFn: async () => {
       let query = supabase
         .from('discussions')
@@ -51,9 +52,9 @@ const CommunityPage = () => {
         `)
         .order('created_at', { ascending: false });
 
-      // Filter by tag if selected
-      if (selectedTag) {
-        query = query.eq('tag', selectedTag);
+      // Filter by tags if any selected
+      if (selectedTags.length > 0) {
+        query = query.in('tag', selectedTags);
       }
 
       // Filter by search term
@@ -82,8 +83,12 @@ const CommunityPage = () => {
     refetch();
   };
 
-  const handleTagFilter = (tag: string) => {
-    setSelectedTag(tag === selectedTag ? '' : tag);
+  const handleTagToggle = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag) 
+        : [...prev, tag]
+    );
   };
 
   const handleProfileClick = () => {
@@ -152,27 +157,11 @@ const CommunityPage = () => {
           <Filter className="h-4 w-4 text-gray-400" />
           <span className="text-sm font-medium text-gray-300">Filtrar por:</span>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={selectedTag === '' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleTagFilter('')}
-            className={selectedTag === '' ? 'bg-purple-600' : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'}
-          >
-            Todas
-          </Button>
-          {TAGS.map((tag) => (
-            <Button
-              key={tag}
-              variant={selectedTag === tag ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleTagFilter(tag)}
-              className={selectedTag === tag ? 'bg-purple-600' : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'}
-            >
-              {tag}
-            </Button>
-          ))}
-        </div>
+        <TagSelector 
+          tags={TAGS} 
+          selectedTags={selectedTags} 
+          onTagToggle={handleTagToggle} 
+        />
       </div>
 
       {/* Discussions List */}
@@ -190,7 +179,7 @@ const CommunityPage = () => {
                   <div className="text-center py-12 text-gray-400">
                     <p>Nenhuma discussão encontrada</p>
                     <p className="text-sm mt-2">
-                      {selectedTag ? `Tente outra tag ou crie uma nova discussão sobre ${selectedTag}` : 'Seja o primeiro a criar um novo tópico!'}
+                      {selectedTags.length > 0 ? `Tente outras tags ou crie uma nova discussão sobre ${selectedTags.join(', ')}` : 'Seja o primeiro a criar um novo tópico!'}
                     </p>
                   </div>
                 ) : (
