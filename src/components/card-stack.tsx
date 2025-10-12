@@ -39,10 +39,9 @@ export const CardStack: React.FC<CardStackProps> = ({ items, className, onCardCl
   };
 
   return (
-    <div className={cn('relative w-full h-full', className)}>
+    <div className={cn("relative w-full h-full", className)}>
       {/* Container principal */}
       <div className="relative w-full h-full bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 rounded-2xl overflow-hidden">
-        
         {/* Padrão SVG inline (aspas 100% escapadas) */}
         <div
           className="absolute inset-0 opacity-20"
@@ -59,10 +58,10 @@ export const CardStack: React.FC<CardStackProps> = ({ items, className, onCardCl
               <motion.div
                 key={item.id}
                 className={cn(
-                  'absolute inset-0 bg-gray-800/90 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 cursor-pointer',
-                  index === activeIndex && 'z-10',
-                  index < activeIndex && 'opacity-0 scale-95',
-                  index > activeIndex && 'opacity-0 scale-105'
+                  "absolute inset-0 bg-gray-800/90 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 cursor-pointer",
+                  index === activeIndex && "z-10",
+                  index < activeIndex && "opacity-0 scale-95",
+                  index > activeIndex && "opacity-0 scale-105"
                 )}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{
@@ -71,7 +70,7 @@ export const CardStack: React.FC<CardStackProps> = ({ items, className, onCardCl
                   y: index === activeIndex ? 0 : (index - activeIndex) * 20,
                 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
                 onClick={() => handleCardClick(index)}
               >
                 <div className="h-full flex flex-col">
