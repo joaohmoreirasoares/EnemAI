@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { Plus, Search, Filter } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -127,7 +129,7 @@ const CommunityPage = () => {
                       <p className="text-sm mt-2">Seja o primeiro a criar um novo tópico!</p>
                     </div>
                   ) : (
-                    <PostList />
+                    <PostList currentUser={currentUser} />
                   )}
                 </div>
               </ScrollArea>
@@ -139,6 +141,7 @@ const CommunityPage = () => {
       {/* New Post Modal */}
       {showNewPostModal && (
         <PostModal
+          isOpen={showNewPostModal}
           onClose={() => setShowNewPostModal(false)}
           onCreatePost={handleCreatePost}
         />

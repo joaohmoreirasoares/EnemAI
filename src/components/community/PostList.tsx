@@ -1,83 +1,58 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+"use client";
+
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import PostCard from './PostCard';
-import { getPosts } from '@/lib/social';
+import { supabase } from '@/integrations/supabase/client';
+import PostItem from './PostItem';
 
 interface PostListProps {
-  filterByTag?: string;
-  limit?: number;
+  currentUser?: any;
 }
 
-const PostList = ({ filterByTag, limit = 20 }: PostListProps) => {
-  const [offset, setOffset] = useState(0);
-  const [posts, setPosts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+const PostList = ({ currentUser }: PostListProps) => {
+  const { data: posts, isLoading } = useQuery({
+    queryKey: ['community-posts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          profiles (first_name, last_name, avatar_url),
+          post_tags (tag_id),
+          tags (name)
+        `)
+        .order('created_at', { ascending: false });
 
-  const { data: initialPosts } = useQuery({
-    queryKey: ['posts', filterByTag],
-    queryFn: () => getPosts(limit, 0),
+      if (error) throw error;
+      return data;
+    }
   });
 
-  useEffect(() => {
-    if (initialPosts) {
-      setPosts(initialPosts);
-      setOffset(limit);
-      setHasMore(initialPosts.length === limit);
-    }
-  }, [initialPosts, limit]);
+  if (isLoading) {
+    return (
+      <div className="text-center py-8 text-gray-400">
+        Carregando discussões...
+      </div>
+    );
+  }
 
-  const loadMore = async () => {
-    if (loading || !hasMore) return;
-
-    setLoading(true);
-    try {
-      const newPosts = await getPosts(limit, offset);
-      setPosts(prev => [...prev, ...newPosts]);
-      setOffset(prev => prev + limit);
-      setHasMore(newPosts.length === limit);
-    } catch (error) {
-      console.error('Error loading more posts:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePostClick = (post: any) => {
-    // Navigate to post detail or open modal
-    console.log('Post clicked:', post.id);
-  };
+  if (!posts || posts.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-400">
+        <p>Nenhuma discussão encontrada</p>
+        <p className="text-sm mt-2">Seja o primeiro a criar um novo tópico!</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <PostCard
+        <PostItem
           key={post.id}
           post={post}
-          onClick={() => handlePostClick(post)}
+          currentUser={currentUser}
         />
       ))}
-      
-      {posts.length === 0 && (
-        <div className="text-center py-8 text-gray-400">
-          Nenhuma postagem encontrada
-        </div>
-      )}
-      
-      {hasMore && (
-        <div className="text-center py-4">
-          <Button
-            onClick={loadMore}
-            disabled={loading}
-            variant="outline"
-            className="border-gray-600 text-gray-300 hover:bg-gray-700"
-          >
-            {loading ? 'Carregando...' : 'Carregar mais'}
-          </Button>
-        </div>
-      )}
     </div>
   );
 };
