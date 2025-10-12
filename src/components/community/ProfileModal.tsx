@@ -41,8 +41,15 @@ const ProfileModal = ({ isOpen, onClose, userId }: ProfileModalProps) => {
     setError(null);
     
     try {
-      const targetUserId = userId;
-      if (!targetUserId) return;
+      // Se userId não foi passado, obter o usuário atual
+      let targetUserId = userId;
+      if (!targetUserId) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error('Usuário não autenticado');
+        }
+        targetUserId = user.id;
+      }
 
       const { data, error } = await supabase
         .from('profiles')
@@ -64,7 +71,7 @@ const ProfileModal = ({ isOpen, onClose, userId }: ProfileModalProps) => {
           career_goal: ''
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching profile:', error);
       setError('Não foi possível carregar as informações do perfil');
     } finally {
@@ -82,25 +89,33 @@ const ProfileModal = ({ isOpen, onClose, userId }: ProfileModalProps) => {
     setError(null);
 
     try {
-      const targetUserId = userId;
-      if (!targetUserId) return;
+      // Obter o ID do usuário
+      let targetUserId = userId;
+      if (!targetUserId) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error('Usuário não autenticado');
+        }
+        targetUserId = user.id;
+      }
 
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: targetUserId,
-          user_id: targetUserId,
           name: profile.name.trim(),
           serie: profile.serie,
           subjects: selectedSubjects,
           career_goal: profile.career_goal?.trim() || '',
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'id'
         });
 
       if (error) throw error;
       
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving profile:', error);
       setError('Erro ao salvar perfil. Tente novamente.');
     } finally {
