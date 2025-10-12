@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { MessageCircle, Clock, User } from 'lucide-react';
+import { MessageCircle, Clock, User, MoreVertical, Trash2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +22,8 @@ interface DiscussionCardProps {
   created_at: string;
   onClick?: () => void;
   onComment?: () => void;
+  onDelete?: (id: string) => void;
+  isOwnDiscussion?: boolean;
 }
 
 const TAG_COLORS: Record<string, string> = {
@@ -46,9 +48,12 @@ const DiscussionCard = ({
   tag, 
   created_at, 
   onClick,
-  onComment 
+  onComment,
+  onDelete,
+  isOwnDiscussion = false
 }: DiscussionCardProps) => {
   const [showFullContent, setShowFullContent] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   const contentPreview = content ? 
     (content.length > 150 ? content.substring(0, 150) + '...' : content) : 
@@ -80,6 +85,17 @@ const DiscussionCard = ({
     const names = name.split(' ');
     if (names.length === 1) return names[0].charAt(0).toUpperCase();
     return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+  };
+
+  const handleMenuClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowMenu(!showMenu);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    onDelete?.(id);
   };
 
   return (
@@ -117,6 +133,34 @@ const DiscussionCard = ({
               {tag}
             </Badge>
           </div>
+
+          {/* Menu dropdown */}
+          {isOwnDiscussion && (
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleMenuClick}
+                className="text-gray-400 hover:text-white p-1 h-8 w-8"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+              
+              {showMenu && (
+                <div className="absolute right-0 top-8 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-10">
+                  <div className="py-1">
+                    <button
+                      onClick={handleDeleteClick}
+                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-900/20 flex items-center gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Title */}

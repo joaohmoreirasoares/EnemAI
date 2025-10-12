@@ -46,6 +46,7 @@ const CommunityPage = () => {
         .select(`
           *,
           profiles (
+            id,
             name,
             avatar_url
           )
@@ -93,6 +94,26 @@ const CommunityPage = () => {
 
   const handleProfileClick = () => {
     setShowProfileModal(true);
+  };
+
+  const handleDeleteDiscussion = async (discussionId: string) => {
+    try {
+      const { error } = await supabase
+        .from('discussions')
+        .delete()
+        .eq('id', discussionId);
+
+      if (error) throw error;
+
+      // Remove from local state
+      setDiscussions(prev => prev.filter(discussion => discussion.id !== discussionId));
+      
+      // Show success message
+      alert('Discussão excluída com sucesso!');
+    } catch (error: any) {
+      console.error('Error deleting discussion:', error);
+      alert('Erro ao excluir discussão. Tente novamente.');
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -195,6 +216,8 @@ const CommunityPage = () => {
                         created_at={discussion.created_at}
                         onClick={() => console.log('Discussion clicked:', discussion.id)}
                         onComment={() => console.log('Comment on:', discussion.id)}
+                        onDelete={handleDeleteDiscussion}
+                        isOwnDiscussion={currentUser?.id === discussion.author_id}
                       />
                     ))}
                   </div>
