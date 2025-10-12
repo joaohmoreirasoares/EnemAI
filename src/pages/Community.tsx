@@ -121,7 +121,7 @@ const CommunityPage = () => {
         <div className="flex-1">
           <Card className="bg-gray-800 border-gray-700 h-full">
             <CardContent className="p-0 h-full">
-              <ScrollArea className="h-full">
+              <ScrollArea className="h-[600px]">
                 <div className="p-4">
                   {filteredPosts.length === 0 ? (
                     <div className="text-center py-12 text-gray-400">
