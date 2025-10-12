@@ -224,15 +224,15 @@ const ProfileModal = ({ isOpen, onClose, userId }: ProfileModalProps) => {
               <CardContent className="p-4">
                 <h4 className="text-sm font-medium text-gray-300 mb-2">Pré-visualização</h4>
                 <div className="space-y-1 text-sm">
-                  <p><span className="text-gray-400">Nome:</span> {profile.name}</p>
+                  <p className="text-white"><span className="text-gray-400">Nome:</span> {profile.name}</p>
                   {profile.serie && (
-                    <p><span className="text-gray-400">Série:</span> {profile.serie}</p>
+                    <p className="text-white"><span className="text-gray-400">Série:</span> {profile.serie}</p>
                   )}
                   {selectedSubjects.length > 0 && (
-                    <p><span className="text-gray-400">Matérias:</span> {selectedSubjects.join(', ')}</p>
+                    <p className="text-white"><span className="text-gray-400">Matérias:</span> {selectedSubjects.join(', ')}</p>
                   )}
                   {profile.career_goal && (
-                    <p><span className="text-gray-400">Curso:</span> {profile.career_goal}</p>
+                    <p className="text-white"><span className="text-gray-400">Curso:</span> {profile.career_goal}</p>
                   )}
                 </div>
               </CardContent>
