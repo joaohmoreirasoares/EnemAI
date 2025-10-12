@@ -30,6 +30,7 @@ const DiscussionDetail = () => {
   const navigate = useNavigate();
   const [newComment, setNewComment] = useState('');
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   // Fetch current user
@@ -94,6 +95,8 @@ const DiscussionDetail = () => {
   const handleSubmitComment = async () => {
     if (!newComment.trim() || !currentUser || !discussionId) return;
 
+    setError(null);
+
     try {
       const { error } = await supabase
         .from('comments')
@@ -109,7 +112,7 @@ const DiscussionDetail = () => {
       queryClient.invalidateQueries({ queryKey: ['discussion-comments', discussionId] });
     } catch (error: any) {
       console.error('Error creating comment:', error);
-      alert('Erro ao criar comentário. Tente novamente.');
+      setError(error.message || 'Erro ao criar comentário. Tente novamente.');
     }
   };
 
@@ -233,6 +236,13 @@ const DiscussionDetail = () => {
             Comentários ({comments.length})
           </h3>
         </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-900/30 border border-red-700 rounded-lg">
+            <p className="text-red-400 text-sm">{error}</p>
+          </div>
+        )}
 
         {/* Add Comment */}
         {currentUser && (
