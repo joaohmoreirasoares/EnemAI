@@ -8,16 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
 import { getConversationById, sendMessage } from '@/lib/social';
-import ChatMessages from './ChatMessages';
-
-interface DirectChatProps {
-  conversationId: string;
-}
 
 interface Message {
   id: string;
   body: string;
   created_at: string;
+  sender_id: string;
   sender: {
     first_name: string;
     last_name: string;
@@ -25,7 +21,7 @@ interface Message {
   };
 }
 
-const DirectChat = ({ conversationId }: DirectChatProps) => {
+const DirectChat = ({ conversationId }: { conversationId: string }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);

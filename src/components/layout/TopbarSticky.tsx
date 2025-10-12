@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { ProfileButton } from '../profile/ProfileButton';
-import { ProfileModal } from '../profile/ProfileModal';
+import ProfileButton from '../profile/ProfileButton';
+import ProfileModal from '../profile/ProfileModal';
 
 const TopbarSticky = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);

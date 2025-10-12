@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
 import PostCard from './PostCard';
 import { getPosts } from '@/lib/social';
 

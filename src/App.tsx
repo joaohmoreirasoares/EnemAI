@@ -13,6 +13,7 @@ import ChatPage from "./pages/Chat";
 import NotesPage from "./pages/Notes";
 import CommunityPage from "./pages/Community";
 import ProfilePage from "./pages/Profile";
+import DirectChat from "./components/chat/DirectChat";
 
 const queryClient = new QueryClient();
 

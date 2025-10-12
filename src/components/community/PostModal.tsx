@@ -6,7 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CommentList } from './CommentList';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import CommentList from './CommentList';
 import { getPostById, createComment } from '@/lib/social';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -79,6 +81,7 @@ const PostModal = ({ postId, onClose }: PostModalProps) => {
                     {post.profiles?.first_name?.[0]}{post.profiles?.last_name?.[0]}
                   </AvatarFallback>
                 </Avatar>
+                
                 <div>
                   <p className="font-medium text-gray-200">
                     {post.profiles?.first_name} {post.profiles?.last_name}
