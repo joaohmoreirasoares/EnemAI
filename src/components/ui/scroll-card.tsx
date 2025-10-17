@@ -48,24 +48,22 @@ const articleCardsData: ArticleCardData[] = [
 const Component = forwardRef<HTMLElement>((props, ref) => {
   return (
     <ReactLenis root>
-      <main className='bg-black' ref={ref}>
-        <div className='wrapper'>
-          <section className='text-white h-screen w-full bg-slate-950 grid place-content-center sticky top-0'>
-            <div className='absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:54px_54px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]'></div>
-          </section>
-        </div>
+      <main className='bg-slate-950' ref={ref}>
+        <section className='text-white h-screen w-full bg-slate-950 grid place-content-center sticky top-0'>
+          <div className='absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:54px_54px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]'></div>
+        </section>
 
-        <section className='text-white w-full bg-slate-950'>
-          <div className='flex justify-between w-full px-8 md:px-16'>
+        <section className='text-white min-h-screen w-screen bg-slate-950'>
+          <div className='flex justify-between items-start max-w-7xl mx-auto px-8'>
             <div className='grid gap-2 flex-1'>
               {articleCardsData.map((card, i) => (
                 <figure key={i} className='sticky top-0 h-screen grid place-content-center'>
                   <article
-                    className={`h-72 w-full max-w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
+                    className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-6 grid place-content-center gap-4`}
                     style={{ backgroundColor: card.color }}
                   >
-                    <h1 className='text-2xl font-semibold'>{card.title}</h1>
-                    <p>{card.description}</p>
+                    <h1 className='text-2xl font-semibold text-black'>{card.title}</h1>
+                    <p className='text-black'>{card.description}</p>
                   </article>
                 </figure>
               ))}
