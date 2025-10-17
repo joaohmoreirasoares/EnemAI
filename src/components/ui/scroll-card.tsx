@@ -58,23 +58,23 @@ const Component = forwardRef<HTMLElement>((props, ref) => {
         </div>
 
         <section className='text-white w-full bg-slate-950'>
-          <div className='flex justify-between px-16'>
-            <div className='grid gap-2'>
+          <div className='flex justify-between px-8 max-w-[1800px] mx-auto'>
+            <div className='grid gap-2 flex-1'>
               {articleCardsData.map((card, i) => (
                 <figure key={i} className='sticky top-0 h-screen grid place-content-center'>
                   <article
-                    className={`${card.color} h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
+                    className={`${card.color} h-80 w-full max-w-[50rem] rounded-lg ${card.rotation} p-6 grid place-content-center gap-4`}
                     style={{ backgroundColor: card.color }}
                   >
-                    <h1 className='text-2xl font-semibold'>{card.title}</h1>
-                    <p>{card.description}</p>
+                    <h1 className='text-3xl font-semibold'>{card.title}</h1>
+                    <p className='text-lg'>{card.description}</p>
 
                   </article>
                 </figure>
               ))}
             </div>
-            <div className='sticky top-0 h-screen grid place-content-center'>
-              <h1 className='text-4xl px-8 font-medium text-center tracking-tight leading-[120%]'>
+            <div className='sticky top-0 h-screen grid place-content-center ml-12'>
+              <h1 className='text-5xl px-8 font-medium text-center tracking-tight leading-[120%]'>
                 O que os nossos <br /> usuários falam
               </h1>
             </div>
