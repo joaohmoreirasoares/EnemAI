@@ -46,54 +46,82 @@ const articleCardsData: ArticleCardData[] = [
 ];
 
 const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
+  // estilo para o padrão quadriculado (repeating lines)
+  const patternStyle: React.CSSProperties = {
+    backgroundImage:
+      'linear-gradient(to right, rgba(79,79,79,0.18) 0 1px, transparent 1px), linear-gradient(to bottom, rgba(79,79,79,0.18) 0 1px, transparent 1px)',
+    backgroundSize: '54px 54px, 54px 54px',
+    opacity: 0.9,
+  };
+
   return (
     <ReactLenis root>
-      <main className="bg-black" ref={ref}>
-        <div className="wrapper">
-          {/* HERO: fundo em tela cheia (pattern) */}
-          <section className="relative text-white h-screen w-full grid place-content-center sticky top-0">
-            {/* Full-viewport background — garante 100% da largura da viewport */}
-            <div
-              className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen pointer-events-none -z-10
-                bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)]
-                bg-[size:54px_54px]
-                [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]
-              "
-            />
-            {/* Conteúdo do hero (centralizado) */}
-            <div className="z-10"> {/* z-10 para garantir sobreposição do conteúdo */}
-              {/* Se quiser algo no hero, coloque aqui */}
+      {/* overflow-x-hidden para evitar micro-overflows horizontais */}
+      <main className="bg-black relative overflow-x-hidden" ref={ref}>
+        {/* ===== Background full-width (único, por toda a página) ===== */}
+        {/* Camada sólida base: garante cor uniforme */}
+        <div className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen -z-30 pointer-events-none bg-slate-950" />
+
+        {/* Camada de padrão (linhas) por cima da base */}
+        <div
+          className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen -z-20 pointer-events-none"
+          style={patternStyle}
+        />
+
+        {/* Blur suave no topo (extremidade superior) */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-screen h-36 -z-10 pointer-events-none"
+          style={{
+            background: 'linear-gradient(180deg, rgba(15,23,42,1), rgba(15,23,42,0))',
+            filter: 'blur(18px)',
+          }}
+        />
+
+        {/* Blur suave na base (extremidade inferior) */}
+        <div
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-screen h-36 -z-10 pointer-events-none"
+          style={{
+            background: 'linear-gradient(0deg, rgba(15,23,42,1), rgba(15,23,42,0))',
+            filter: 'blur(18px)',
+          }}
+        />
+
+        {/* Conteúdo — sempre acima das camadas de background */}
+        <div className="relative z-10">
+          <div className="wrapper">
+            {/* HERO: sem bg local — o background global responde por tudo */}
+            <section className="text-white h-screen w-full grid place-content-center sticky top-0">
+              <div className="z-10">
+                {/* conteúdo do hero (se precisar) */}
+              </div>
+            </section>
+          </div>
+
+          {/* SEÇÃO PRINCIPAL (transparente: deixa o background global aparecer) */}
+          <section className="text-white w-full">
+            <div className="flex justify-between px-16">
+              <div className="grid gap-2">
+                {articleCardsData.map((card, i) => (
+                  <figure key={i} className="sticky top-0 h-screen grid place-content-center">
+                    <article
+                      className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
+                      style={{ backgroundColor: card.color }}
+                    >
+                      <h1 className="text-2xl font-semibold">{card.title}</h1>
+                      <p>{card.description}</p>
+                    </article>
+                  </figure>
+                ))}
+              </div>
+
+              <div className="sticky top-0 h-screen grid place-content-center">
+                <h1 className="text-4xl px-8 font-medium text-center tracking-tight leading-[120%]">
+                  O que os nossos <br /> usuários falam
+                </h1>
+              </div>
             </div>
           </section>
         </div>
-
-        {/* SEÇÃO PRINCIPAL: background full-width aplicado por um absolute atrás do conteúdo */}
-        <section className="relative text-white w-full">
-          {/* background que ocupa toda a viewport (mesma técnica) */}
-          <div className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen -z-10 pointer-events-none bg-slate-950" />
-
-          <div className="flex justify-between px-16">
-            <div className="grid gap-2">
-              {articleCardsData.map((card, i) => (
-                <figure key={i} className="sticky top-0 h-screen grid place-content-center">
-                  <article
-                    className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
-                    style={{ backgroundColor: card.color }}
-                  >
-                    <h1 className="text-2xl font-semibold">{card.title}</h1>
-                    <p>{card.description}</p>
-                  </article>
-                </figure>
-              ))}
-            </div>
-
-            <div className="sticky top-0 h-screen grid place-content-center">
-              <h1 className="text-4xl px-8 font-medium text-center tracking-tight leading-[120%]">
-                O que os nossos <br /> usuários falam
-              </h1>
-            </div>
-          </div>
-        </section>
       </main>
     </ReactLenis>
   );
