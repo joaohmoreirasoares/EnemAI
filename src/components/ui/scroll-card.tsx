@@ -1,3 +1,4 @@
+'use client';
 import { ReactLenis } from 'lenis/react';
 import React, { useRef, forwardRef } from 'react';
 
