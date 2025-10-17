@@ -16,7 +16,7 @@ const articleCardsData: ArticleCardData[] = [
     description:
       'O chat da Enem AI é simplesmente genial. A IA explica os assuntos do ENEM de um jeito fácil de entender e sem enrolação.',
     link: 'https://ui-layout.com/components/image-mousetrail',
-    color: '#C0C0C0', // Medium Gray
+    color: '#C0C0C0',
     rotation: 'rotate-6',
   },
   {
@@ -24,7 +24,7 @@ const articleCardsData: ArticleCardData[] = [
     description:
       'Finalmente uma plataforma que une professores e alunos de verdade. As comunidades deixam o estudo muito mais dinâmico.',
     link: 'https://ui-layout.com/components/progressive-carousel',
-    color: '#C0C0C0', // Medium Gray
+    color: '#C0C0C0',
     rotation: 'rotate-0',
   },
   {
@@ -32,7 +32,7 @@ const articleCardsData: ArticleCardData[] = [
     description:
       'As anotações inteligentes são o diferencial. A IA lembra do que eu escrevi e usa isso pra me ajudar melhor depois.',
     link: 'https://ui-layout.com/components/drawer',
-    color: '#A0A0A0', // Darker Gray
+    color: '#A0A0A0',
     rotation: '-rotate-6',
   },
   {
@@ -40,7 +40,7 @@ const articleCardsData: ArticleCardData[] = [
     description:
       'Estudar com a Enem AI é como ter um tutor pessoal 24h por dia. Tudo é direto, prático e feito pra quem quer aprender de verdade.',
     link: 'https://ui-layout.com/components/globe',
-    color: '#808080', // Even Darker Gray
+    color: '#808080',
     rotation: 'rotate-0',
   },
 ];
@@ -48,20 +48,29 @@ const articleCardsData: ArticleCardData[] = [
 const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
   return (
     <ReactLenis root>
-      <main className="bg-black" ref={ref}>
-        <div className="wrapper">
-          <section className="text-white h-screen w-full bg-slate-950 grid place-content-center sticky top-0">
-            <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:54px_54px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-          </section>
+      <main className="relative bg-black min-h-screen overflow-hidden" ref={ref}>
+        {/* BACKGROUND FULL WIDTH */}
+        <div className="absolute inset-0 w-screen h-full bg-slate-950">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:54px_54px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
         </div>
 
-        <section className="text-white w-full bg-slate-950">
-          <div className="flex justify-between px-16">
-            <div className="grid gap-2">
+        {/* CONTEÚDO */}
+        <section className="relative text-white w-full min-h-screen flex items-center justify-center">
+          <h1 className="text-5xl font-bold text-center z-10">
+            O que os nossos usuários falam
+          </h1>
+        </section>
+
+        <section className="relative text-white w-full bg-slate-950">
+          <div className="flex justify-between px-16 max-w-none w-full">
+            <div className="grid gap-2 w-full">
               {articleCardsData.map((card, i) => (
-                <figure key={i} className="sticky top-0 h-screen grid place-content-center">
+                <figure
+                  key={i}
+                  className="sticky top-0 h-screen grid place-content-center w-full"
+                >
                   <article
-                    className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
+                    className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4 mx-auto`}
                     style={{ backgroundColor: card.color }}
                   >
                     <h1 className="text-2xl font-semibold">{card.title}</h1>
@@ -70,15 +79,14 @@ const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
                 </figure>
               ))}
             </div>
-            <div className="sticky top-0 h-screen grid place-content-center">
-              <h1 className="text-4xl px-8 font-medium text-center tracking-tight leading-[120%]">
+
+            <div className="sticky top-0 h-screen grid place-content-center px-8">
+              <h1 className="text-4xl font-medium text-center tracking-tight leading-[120%]">
                 O que os nossos <br /> usuários falam
               </h1>
             </div>
           </div>
         </section>
-
-
       </main>
     </ReactLenis>
   );
