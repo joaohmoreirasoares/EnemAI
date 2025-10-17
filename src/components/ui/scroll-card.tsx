@@ -1,6 +1,6 @@
 'use client';
 import { ReactLenis } from 'lenis/react';
-import React, { useRef, forwardRef } from 'react';
+import React, { forwardRef } from 'react';
 
 interface ArticleCardData {
   title: string;
@@ -14,7 +14,7 @@ const articleCardsData: ArticleCardData[] = [
   {
     title: 'Ana Luiza, 17 anos',
     description:
-      "O chat da Enem AI é simplesmente genial. A IA explica os assuntos do ENEM de um jeito fácil de entender e sem enrolação.",
+      'O chat da Enem AI é simplesmente genial. A IA explica os assuntos do ENEM de um jeito fácil de entender e sem enrolação.',
     link: 'https://ui-layout.com/components/image-mousetrail',
     color: '#C0C0C0', // Medium Gray
     rotation: 'rotate-6',
@@ -45,48 +45,55 @@ const articleCardsData: ArticleCardData[] = [
   },
 ];
 
-const Component = forwardRef<HTMLElement>((props, ref) => {
+const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
   return (
     <ReactLenis root>
-      <main className='bg-black' ref={ref}>
-        <div className='wrapper'>
-          <section className='text-white h-screen w-full bg-slate-950 grid place-content-center sticky top-0'>
-            <div className='absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:54px_54px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]'></div>
-
-
+      <main className="bg-black" ref={ref}>
+        <div className="wrapper">
+          {/* HERO: fundo em tela cheia (pattern) */}
+          <section className="relative text-white h-screen w-full grid place-content-center sticky top-0">
+            {/* Full-viewport background — garante 100% da largura da viewport */}
+            <div
+              className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen pointer-events-none -z-10
+                bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)]
+                bg-[size:54px_54px]
+                [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]
+              "
+            />
+            {/* Conteúdo do hero (centralizado) */}
+            <div className="z-10"> {/* z-10 para garantir sobreposição do conteúdo */}
+              {/* Se quiser algo no hero, coloque aqui */}
+            </div>
           </section>
         </div>
 
-        <section className='text-white w-full bg-slate-950'>
-          <div className='flex justify-between px-16'>
-            <div className='grid gap-2'>
+        {/* SEÇÃO PRINCIPAL: background full-width aplicado por um absolute atrás do conteúdo */}
+        <section className="relative text-white w-full">
+          {/* background que ocupa toda a viewport (mesma técnica) */}
+          <div className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen -z-10 pointer-events-none bg-slate-950" />
+
+          <div className="flex justify-between px-16">
+            <div className="grid gap-2">
               {articleCardsData.map((card, i) => (
-                <figure key={i} className='sticky top-0 h-screen grid place-content-center'>
+                <figure key={i} className="sticky top-0 h-screen grid place-content-center">
                   <article
-                    className={`${card.color} h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
+                    className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
                     style={{ backgroundColor: card.color }}
                   >
-                    <h1 className='text-2xl font-semibold'>{card.title}</h1>
+                    <h1 className="text-2xl font-semibold">{card.title}</h1>
                     <p>{card.description}</p>
-
                   </article>
                 </figure>
               ))}
             </div>
-            <div className='sticky top-0 h-screen grid place-content-center'>
-              <h1 className='text-4xl px-8 font-medium text-center tracking-tight leading-[120%]'>
+
+            <div className="sticky top-0 h-screen grid place-content-center">
+              <h1 className="text-4xl px-8 font-medium text-center tracking-tight leading-[120%]">
                 O que os nossos <br /> usuários falam
               </h1>
             </div>
           </div>
         </section>
-
-        <footer className='group bg-slate-950 '>
-          <h1 className='text-[16vw] translate-y-20 leading-[100%] uppercase font-semibold text-center bg-gradient-to-r from-gray-400 to-gray-800 bg-clip-text text-transparent transition-all ease-linear'>
-            ui-layout
-          </h1>
-          <div className='bg-black h-40 relative z-10 grid place-content-center text-2xl rounded-tr-full rounded-tl-full text-white'></div>
-        </footer>
       </main>
     </ReactLenis>
   );
