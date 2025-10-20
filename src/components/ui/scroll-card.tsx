@@ -51,20 +51,7 @@ const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
       <main className="bg-black" ref={ref}>
         <div className="wrapper">
           {/* HERO: fundo em tela cheia (pattern) */}
-          <section className="relative text-white h-screen w-full grid place-content-center sticky top-0">
-            {/* Full-viewport background — garante 100% da largura da viewport */}
-            <div
-              className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen pointer-events-none -z-10
-                bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)]
-                bg-[size:54px_54px]
-                [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]
-              "
-            />
-            {/* Conteúdo do hero (centralizado) */}
-            <div className="z-10"> {/* z-10 para garantir sobreposição do conteúdo */}
-              {/* Se quiser algo no hero, coloque aqui */}
-            </div>
-          </section>
+
         </div>
 
         {/* SEÇÃO PRINCIPAL: background full-width aplicado por um absolute atrás do conteúdo */}
