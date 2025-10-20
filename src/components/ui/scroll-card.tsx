@@ -51,7 +51,6 @@ const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
       <main className="bg-black" ref={ref}>
         <div className="wrapper">
           {/* HERO: fundo em tela cheia (pattern) */}
-
         </div>
 
         {/* SEÇÃO PRINCIPAL: background full-width aplicado por um absolute atrás do conteúdo */}
@@ -64,8 +63,10 @@ const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
               {articleCardsData.map((card, i) => (
                 <figure key={i} className="sticky top-0 h-screen grid place-content-center">
                   <article
-                    className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
-                    style={{ backgroundColor: card.color }}
+                    className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4 backdrop-blur-sm`}
+                    style={{
+                      backgroundColor: `${card.color}40`, // mesma cor com ~25% de opacidade
+                    }}
                   >
                     <h1 className="text-2xl font-semibold">{card.title}</h1>
                     <p>{card.description}</p>
