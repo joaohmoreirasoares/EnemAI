@@ -51,6 +51,7 @@ const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
       <main className="bg-black" ref={ref}>
         <div className="wrapper">
           {/* HERO: fundo em tela cheia (pattern) */}
+
         </div>
 
         {/* SEÇÃO PRINCIPAL: background full-width aplicado por um absolute atrás do conteúdo */}
@@ -58,18 +59,13 @@ const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
           {/* background que ocupa toda a viewport (mesma técnica) */}
           <div className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen -z-10 pointer-events-none bg-slate-950" />
 
-          {/* CONTAINER TRANSPARENTE */}
-          <div
-            className="flex justify-between px-16 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 shadow-lg"
-          >
+          <div className="flex justify-between px-16">
             <div className="grid gap-2">
               {articleCardsData.map((card, i) => (
                 <figure key={i} className="sticky top-0 h-screen grid place-content-center">
                   <article
-                    className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4 backdrop-blur-sm`}
-                    style={{
-                      backgroundColor: `${card.color}40`, // mesma cor com ~25% de opacidade
-                    }}
+                    className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
+                    style={{ backgroundColor: card.color }}
                   >
                     <h1 className="text-2xl font-semibold">{card.title}</h1>
                     <p>{card.description}</p>
