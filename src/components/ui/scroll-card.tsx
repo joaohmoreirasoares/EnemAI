@@ -89,15 +89,18 @@ const ScrollCard = () => {
       <div className="sticky top-0 h-screen flex items-center overflow-hidden">
         <div className="flex justify-between px-16 opacity-60">
           <div className="grid gap-2">
-            {articleCardsData.map((card, i) => (
-              <figure 
-                key={i} 
-                className="sticky top-0 h-screen grid place-content-center"
-                style={{ y: i === 0 ? x : i === 1 ? x2 : i === 2 ? x3 : x4 }}
-              >
-                <ArticleCard {...card} />
-              </figure>
-            ))}
+            {articleCardsData.map((card, i) => {
+              const yTransform = i === 0 ? x : i === 1 ? x2 : i === 2 ? x3 : x4;
+              return (
+                <motion.figure 
+                  key={i} 
+                  className="sticky top-0 h-screen grid place-content-center"
+                  style={{ y: yTransform }}
+                >
+                  <ArticleCard {...card} />
+                </motion.figure>
+              );
+            })}
           </div>
         </div>
       </div>
