@@ -58,7 +58,10 @@ const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
           {/* background que ocupa toda a viewport (mesma técnica) */}
           <div className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen -z-10 pointer-events-none bg-slate-950" />
 
-          <div className="flex justify-between px-16">
+          {/* CONTAINER TRANSPARENTE */}
+          <div
+            className="flex justify-between px-16 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 shadow-lg"
+          >
             <div className="grid gap-2">
               {articleCardsData.map((card, i) => (
                 <figure key={i} className="sticky top-0 h-screen grid place-content-center">
