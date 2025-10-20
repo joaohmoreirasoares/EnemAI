@@ -1,71 +1,104 @@
-"use client";
+'use client';
+import { ReactLenis } from 'lenis/react';
+import React, { forwardRef } from 'react';
 
-import React from 'react';
+interface ArticleCardData {
+  title: string;
+  description: string;
+  link: string;
+  color: string;
+  rotation: string;
+}
 
-const ScrollCard = () => {
+const articleCardsData: ArticleCardData[] = [
+  {
+    title: 'Ana Luiza, 17 anos',
+    description:
+      'O chat da Enem AI é simplesmente genial. A IA explica os assuntos do ENEM de um jeito fácil de entender e sem enrolação.',
+    link: 'https://ui-layout.com/components/image-mousetrail',
+    color: '#C0C0C0', // Medium Gray
+    rotation: 'rotate-6',
+  },
+  {
+    title: 'Gustavo Ramos, 18 anos',
+    description:
+      'Finalmente uma plataforma que une professores e alunos de verdade. As comunidades deixam o estudo muito mais dinâmico.',
+    link: 'https://ui-layout.com/components/progressive-carousel',
+    color: '#C0C0C0', // Medium Gray
+    rotation: 'rotate-0',
+  },
+  {
+    title: 'Mariana Torres, 16 anos',
+    description:
+      'As anotações inteligentes são o diferencial. A IA lembra do que eu escrevi e usa isso pra me ajudar melhor depois.',
+    link: 'https://ui-layout.com/components/drawer',
+    color: '#A0A0A0', // Darker Gray
+    rotation: '-rotate-6',
+  },
+  {
+    title: 'Rafael Almeida, 19 anos',
+    description:
+      'Estudar com a Enem AI é como ter um tutor pessoal 24h por dia. Tudo é direto, prático e feito pra quem quer aprender de verdade.',
+    link: 'https://ui-layout.com/components/globe',
+    color: '#808080', // Even Darker Gray
+    rotation: 'rotate-0',
+  },
+];
+
+const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
   return (
-    <div className="relative">
-      {/* HERO: fundo em tela cheia (pattern) */}
-      <section className="relative text-white h-0 w-full grid place-content-center sticky top-0">
-        {/* Full-viewport background — garante 100% da largura da viewport */}
-        <div
-          className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen pointer-events-none -z-10"
-        >
-          {/* Pattern de fundo com gradiente e blur */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-pink-800 opacity-70" />
-          
-          {/* Camada de blur para suavizar o padrão */}
-          <div className="absolute inset-0 backdrop-blur-[2px]" />
+    <ReactLenis root>
+      <main className="bg-black" ref={ref}>
+        <div className="wrapper">
+          {/* HERO: fundo em tela cheia (pattern) */}
+          <section className="relative text-white h-screen w-full grid place-content-center sticky top-0">
+            {/* Full-viewport background — garante 100% da largura da viewport */}
+            <div
+              className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen pointer-events-none -z-10
+                bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)]
+                bg-[size:54px_54px]
+                [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]
+              "
+            />
+            {/* Conteúdo do hero (centralizado) */}
+            <div className="z-10"> {/* z-10 para garantir sobreposição do conteúdo */}
+              {/* Se quiser algo no hero, coloque aqui */}
+            </div>
+          </section>
         </div>
 
-        {/* Conteúdo principal do hero */}
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Transforme sua <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">aprendizagem</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
-            Plataforma educacional interativa para estudantes de engenharia
-          </p>
-        </div>
-      </section>
+        {/* SEÇÃO PRINCIPAL: background full-width aplicado por um absolute atrás do conteúdo */}
+        <section className="relative text-white w-full">
+          {/* background que ocupa toda a viewport (mesma técnica) */}
+          <div className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen -z-10 pointer-events-none bg-slate-950" />
 
-      {/* Conteúdo principal */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <div>
-            <h2 className="text-3xl font-bold mb-4">Recursos Principais</h2>
-            <ul className="space-y-4 text-gray-700">
-              <li className="flex items-center">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                Aulas interativas e dinâmicas
-              </li>
-              <li className="flex items-center">
-                <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
-                Material de estudo personalizado
-              </li>
-              <li className="flex items-center">
-                <div className="w-2 h-2 bg-pink-500 rounded-full mr-3"></div>
-                Comunidade de estudantes engajada
-              </li>
-            </ul>
-          </div>
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-xl font-semibold mb-4">Próximos Eventos</h3>
-            <div className="space-y-3">
-              <div className="border-l-4 border-blue-500 pl-4">
-                <h4 className="font-medium">Seminário de Machine Learning</h4>
-                <p className="text-sm text-gray-600">15 de março, 14:00</p>
-              </div>
-              <div className="border-l-4 border-purple-500 pl-4">
-                <h4 className="font-medium">Workshop de Robótica</h4>
-                <p className="text-sm text-gray-600">22 de março, 10:00</p>
-              </div>
+          <div className="flex justify-between px-16">
+            <div className="grid gap-2">
+              {articleCardsData.map((card, i) => (
+                <figure key={i} className="sticky top-0 h-screen grid place-content-center">
+                  <article
+                    className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
+                    style={{ backgroundColor: card.color }}
+                  >
+                    <h1 className="text-2xl font-semibold">{card.title}</h1>
+                    <p>{card.description}</p>
+                  </article>
+                </figure>
+              ))}
+            </div>
+
+            <div className="sticky top-0 h-screen grid place-content-center">
+              <h1 className="text-4xl px-8 font-medium text-center tracking-tight leading-[120%]">
+                O que os nossos <br /> usuários falam
+              </h1>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </section>
+      </main>
+    </ReactLenis>
   );
-};
+});
 
-export default ScrollCard;
+Component.displayName = 'Component';
+
+export default Component;
