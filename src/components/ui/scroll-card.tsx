@@ -1,108 +1,91 @@
-"use client";
+'use client';
+import { ReactLenis } from 'lenis/react';
+import React, { forwardRef } from 'react';
 
-import { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { cn } from "@/lib/utils";
-
-interface ArticleCardProps {
+interface ArticleCardData {
   title: string;
   description: string;
-  date: string;
-  readTime: string;
-  category: string;
+  link: string;
+  color: string;
+  rotation: string;
 }
 
-const ArticleCard = ({ title, description, date, readTime, category }: ArticleCardProps) => (
-  <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 max-w-md">
-    <span className="inline-block px-2 py-1 text-xs font-medium bg-purple-600 text-white rounded-full mb-3">
-      {category}
-    </span>
-    <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-    <p className="text-gray-300 mb-4">{description}</p>
-    <div className="flex items-center justify-between text-sm text-gray-400">
-      <span>{date}</span>
-      <span>{readTime}</span>
-    </div>
-  </div>
-);
-
-const articleCardsData: ArticleCardProps[] = [
+const articleCardsData: ArticleCardData[] = [
   {
-    title: "Como Maximizar Seu Tempo de Estudo",
-    description: "Descubra técnicas comprovadas para aumentar sua eficiência nos estudos e alcançar melhores resultados no ENEM.",
-    date: "15 Mar 2024",
-    readTime: "5 min",
-    category: "Dicas de Estudo"
+    title: 'Ana Luiza, 17 anos',
+    description:
+      'O chat da Enem AI é simplesmente genial. A IA explica os assuntos do ENEM de um jeito fácil de entender e sem enrolação.',
+    link: 'https://ui-layout.com/components/image-mousetrail',
+    color: '#C0C0C0', // Medium Gray
+    rotation: 'rotate-6',
   },
   {
-    title: "Entendendo as Competências da Redação",
-    description: "Um guia completo sobre as cinco competências avaliadas na redação do ENEM e como se preparar para cada uma.",
-    date: "22 Mar 2024",
-    readTime: "8 min",
-    category: "Redação"
+    title: 'Gustavo Ramos, 18 anos',
+    description:
+      'Finalmente uma plataforma que une professores e alunos de verdade. As comunidades deixam o estudo muito mais dinâmico.',
+    link: 'https://ui-layout.com/components/progressive-carousel',
+    color: '#C0C0C0', // Medium Gray
+    rotation: 'rotate-0',
   },
   {
-    title: "Matemática: Álgebra e suas Aplicações",
-    description: "Explore conceitos fundamentais de álgebra que aparecem com frequência nas questões de matemática do ENEM.",
-    date: "30 Mar 2024",
-    readTime: "10 min",
-    category: "Matemática"
+    title: 'Mariana Torres, 16 anos',
+    description:
+      'As anotações inteligentes são o diferencial. A IA lembra do que eu escrevi e usa isso pra me ajudar melhor depois.',
+    link: 'https://ui-layout.com/components/drawer',
+    color: '#A0A0A0', // Darker Gray
+    rotation: '-rotate-6',
   },
   {
-    title: "História do Brasil: Período Colonial",
-    description: "Reveja os principais eventos e características do período colonial brasileiro, essenciais para o ENEM.",
-    date: "5 Abr 2024",
-    readTime: "7 min",
-    category: "História"
-  }
+    title: 'Rafael Almeida, 19 anos',
+    description:
+      'Estudar com a Enem AI é como ter um tutor pessoal 24h por dia. Tudo é direto, prático e feito pra quem quer aprender de verdade.',
+    link: 'https://ui-layout.com/components/globe',
+    color: '#808080', // Even Darker Gray
+    rotation: 'rotate-0',
+  },
 ];
 
-const ScrollCard = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
-
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkIfMobile();
-    window.addEventListener('resize', checkIfMobile);
-    
-    return () => {
-      window.removeEventListener('resize', checkIfMobile);
-    };
-  }, []);
-
-  const x = useTransform(scrollYProgress, [0, 1], [0, -200]);
-  const x2 = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const x3 = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const x4 = useTransform(scrollYProgress, [0, 1], [0, 100]);
-
+const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
   return (
-    <div ref={containerRef} className="relative h-[300vh] overflow-hidden">
-      <div className="sticky top-0 h-screen flex items-center overflow-hidden">
-        <div className="flex justify-between px-16 opacity-60">
-          <div className="grid gap-2">
-            {articleCardsData.map((card, i) => (
-              <figure 
-                key={i} 
-                className="sticky top-0 h-screen grid place-content-center"
-                style={{ y: i === 0 ? x : i === 1 ? x2 : i === 2 ? x3 : x4 }}
-              >
-                <ArticleCard {...card} />
-              </figure>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+    <ReactLenis root>
+      <main className="bg-black" ref={ref}>
+        <div className="wrapper">
+          {/* HERO: fundo em tela cheia (pattern) */}
 
-export default ScrollCard;
+        </div>
+
+        {/* SEÇÃO PRINCIPAL: background full-width aplicado por um absolute atrás do conteúdo */}
+        <section className="relative text-white w-full">
+          {/* background que ocupa toda a viewport (mesma técnica) */}
+          <div className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen -z-10 pointer-events-none bg-slate-950" />
+
+          <div className="flex justify-between px-16">
+            <div className="grid gap-2">
+              {articleCardsData.map((card, i) => (
+                <figure key={i} className="sticky top-0 h-screen grid place-content-center">
+                  <article
+                    className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
+                    style={{ backgroundColor: card.color }}
+                  >
+                    <h1 className="text-2xl font-semibold">{card.title}</h1>
+                    <p>{card.description}</p>
+                  </article>
+                </figure>
+              ))}
+            </div>
+
+            <div className="sticky top-0 h-screen grid place-content-center">
+              <h1 className="text-4xl px-8 font-medium text-center tracking-tight leading-[120%]">
+                O que os nossos <br /> usuários falam
+              </h1>
+            </div>
+          </div>
+        </section>
+      </main>
+    </ReactLenis>
+  );
+});
+
+Component.displayName = 'Component';
+
+export default Component;
