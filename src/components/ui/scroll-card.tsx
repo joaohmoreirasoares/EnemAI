@@ -1,104 +1,113 @@
-'use client';
-import { ReactLenis } from 'lenis/react';
-import React, { forwardRef } from 'react';
+"use client";
 
-interface ArticleCardData {
-  title: string;
-  description: string;
-  link: string;
-  color: string;
-  rotation: string;
+import React, { useRef, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+
+interface ScrollCardProps {
+  items: {
+    id: number;
+    title: string;
+    description: string;
+    content?: React.ReactNode;
+  }[];
+  className?: string;
+  onCardClick?: (id: number) => void;
 }
 
-const articleCardsData: ArticleCardData[] = [
-  {
-    title: 'Ana Luiza, 17 anos',
-    description:
-      'O chat da Enem AI é simplesmente genial. A IA explica os assuntos do ENEM de um jeito fácil de entender e sem enrolação.',
-    link: 'https://ui-layout.com/components/image-mousetrail',
-    color: '#C0C0C0', // Medium Gray
-    rotation: 'rotate-6',
-  },
-  {
-    title: 'Gustavo Ramos, 18 anos',
-    description:
-      'Finalmente uma plataforma que une professores e alunos de verdade. As comunidades deixam o estudo muito mais dinâmico.',
-    link: 'https://ui-layout.com/components/progressive-carousel',
-    color: '#C0C0C0', // Medium Gray
-    rotation: 'rotate-0',
-  },
-  {
-    title: 'Mariana Torres, 16 anos',
-    description:
-      'As anotações inteligentes são o diferencial. A IA lembra do que eu escrevi e usa isso pra me ajudar melhor depois.',
-    link: 'https://ui-layout.com/components/drawer',
-    color: '#A0A0A0', // Darker Gray
-    rotation: '-rotate-6',
-  },
-  {
-    title: 'Rafael Almeida, 19 anos',
-    description:
-      'Estudar com a Enem AI é como ter um tutor pessoal 24h por dia. Tudo é direto, prático e feito pra quem quer aprender de verdade.',
-    link: 'https://ui-layout.com/components/globe',
-    color: '#808080', // Even Darker Gray
-    rotation: 'rotate-0',
-  },
-];
+export const ScrollCard: React.FC<ScrollCardProps> = ({ items, className, onCardClick }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-const Component = forwardRef<HTMLElement, unknown>((_props, ref) => {
+  const handleCardClick = (index: number) => {
+    if (isAnimating || index === activeIndex) return;
+    setIsAnimating(true);
+    setActiveIndex(index);
+    setTimeout(() => setIsAnimating(false), 300);
+  };
+
+  const handlePrev = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setActiveIndex((prev) => (prev === 0 ? items.length - 1 : prev - 1));
+    setTimeout(() => setIsAnimating(false), 300);
+  };
+
+  const handleNext = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setActiveIndex((prev) => (prev === items.length - 1 ? 0 : prev + 1));
+    setTimeout(() => setIsAnimating(false), 300);
+  };
+
   return (
-    <ReactLenis root>
-      <main className="bg-black" ref={ref}>
-        <div className="wrapper">
-          {/* HERO: fundo em tela cheia (pattern) */}
-          <section className="relative text-white h-screen w-full grid place-content-center sticky top-0">
-            {/* Full-viewport background — garante 100% da largura da viewport */}
-            <div
-              className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen pointer-events-none -z-10
-                bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)]
-                bg-[size:54px_54px]
-                [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]
-              "
-            />
-            {/* Conteúdo do hero (centralizado) */}
-            <div className="z-10"> {/* z-10 para garantir sobreposição do conteúdo */}
-              {/* Se quiser algo no hero, coloque aqui */}
-            </div>
-          </section>
+    <div className={cn("relative w-full h-full", className)}>
+      {/* Container principal com fundo transparente */}
+      <div className="relative w-full h-full bg-transparent rounded-2xl overflow-hidden">
+        {/* Padrão SVG inline (aspas 100% escapadas) */}
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundRepeat: 'repeat',
+          }}
+        ></div>
+
+        {/* Cartões */}
+        <div className="relative w-full h-full p-8">
+          <AnimatePresence mode="wait">
+            {items.map((item, index) => (
+              <motion.div
+                key={item.id}
+                className={cn(
+                  "absolute inset-0 bg-transparent/20 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 cursor-pointer",
+                  index === activeIndex && "z-10",
+                  index < activeIndex && "opacity-0 scale-95",
+                  index > activeIndex && "opacity-0 scale-105"
+                )}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{
+                  opacity: index === activeIndex ? 1 : 0,
+                  scale: index === activeIndex ? 1 : 0.95,
+                  y: index === activeIndex ? 0 : (index - activeIndex) * 20,
+                }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                onClick={() => handleCardClick(index)}
+              >
+                <div className="h-full flex flex-col">
+                  <h3 className="text-xl font-bold text-white mb-4">{item.title}</h3>
+                  <p className="text-gray-300 mb-6 flex-1">{item.description}</p>
+                  {item.content && <div className="mt-auto">{item.content}</div>}
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
-        {/* SEÇÃO PRINCIPAL: background full-width aplicado por um absolute atrás do conteúdo */}
-        <section className="relative text-white w-full">
-          {/* background que ocupa toda a viewport (mesma técnica) */}
-          <div className="absolute inset-0 left-1/2 -translate-x-1/2 w-screen -z-10 pointer-events-none bg-slate-950" />
-
-          <div className="flex justify-between px-16">
-            <div className="grid gap-2">
-              {articleCardsData.map((card, i) => (
-                <figure key={i} className="sticky top-0 h-screen grid place-content-center">
-                  <article
-                    className={`h-72 w-[30rem] rounded-lg ${card.rotation} p-4 grid place-content-center gap-4`}
-                    style={{ backgroundColor: card.color }}
-                  >
-                    <h1 className="text-2xl font-semibold">{card.title}</h1>
-                    <p>{card.description}</p>
-                  </article>
-                </figure>
-              ))}
-            </div>
-
-            <div className="sticky top-0 h-screen grid place-content-center">
-              <h1 className="text-4xl px-8 font-medium text-center tracking-tight leading-[120%]">
-                O que os nossos <br /> usuários falam
-              </h1>
-            </div>
-          </div>
-        </section>
-      </main>
-    </ReactLenis>
+        {/* Botões de navegação */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+          <button
+            onClick={handlePrev}
+            className="w-10 h-10 bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-full flex items-center justify-center text-white hover:bg-gray-700/50 transition-colors"
+            disabled={isAnimating}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={handleNext}
+            className="w-10 h-10 bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-full flex items-center justify-center text-white hover:bg-gray-700/50 transition-colors"
+            disabled={isAnimating}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
   );
-});
-
-Component.displayName = 'Component';
-
-export default Component;
+};
