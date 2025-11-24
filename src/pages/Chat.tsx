@@ -9,14 +9,12 @@ import { getUserNotes } from '@/pages/Notes';
 import AgentSelector from '@/components/chat/AgentSelector';
 import ChatMessages from '@/components/chat/ChatMessages';
 import ChatInput from '@/components/chat/ChatInput';
-import ConversationsModal from '@/components/chat/ConversationsModal';
 import WelcomeMessage from '@/components/chat/WelcomeMessage';
 
 const ChatPage = () => {
   const [message, setMessage] = useState('');
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showConversations, setShowConversations] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [generatedResponse, setGeneratedResponse] = useState<string>('');
@@ -330,14 +328,12 @@ const ChatPage = () => {
           <div className="bg-gradient-to-b from-gray-900 to-gray-950 flex-1 flex flex-col">
             <CardContent className="p-0 flex-1 flex flex-col">
               {/* Agent selector */}
-              <AgentSelector 
-                onShowConversations={() => setShowConversations(true)}
-              />
+              <AgentSelector />
 
               {/* Messages area */}
               <ScrollArea className="flex-1 p-4 bg-gradient-to-b from-gray-900 to-gray-950" ref={scrollAreaRef}>
                 {messages.length > 0 ? (
-                  <ChatMessages 
+                  <ChatMessages
                     messages={messages}
                     selectedAgent="Tutor ENEM AI"
                     isGenerating={isGenerating}
@@ -372,18 +368,6 @@ const ChatPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Conversations popup modal */}
-      {showConversations && (
-        <ConversationsModal
-          conversations={conversations}
-          activeConversation={activeConversation}
-          onCreateConversation={createConversation}
-          onSelectConversation={setActiveConversation}
-          onDeleteConversation={deleteConversation}
-          onClose={() => setShowConversations(false)}
-        />
-      )}
     </div>
   );
 };
