@@ -15,6 +15,9 @@ import CommunityPage from "./pages/Community";
 import ProfilePage from "./pages/Profile";
 import DirectChat from "./components/chat/DirectChat";
 import DiscussionDetail from "./pages/DiscussionDetail";
+import SimuladosList from "./pages/SimuladosList";
+import SimuladoPage from "./pages/Simulado";
+import SimuladoResultPage from "./pages/SimuladoResult";
 
 const queryClient = new QueryClient();
 
@@ -28,79 +31,109 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
+
           {/* Protected routes */}
-          <Route 
-            path="/chat" 
+          <Route
+            path="/chat"
             element={
               <ProtectedRoute>
                 <DashboardLayout>
                   <ChatPage />
                 </DashboardLayout>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/chat/:conversationId" 
+          <Route
+            path="/chat/:conversationId"
             element={
               <ProtectedRoute>
                 <DashboardLayout>
                   <DirectChat conversationId="default-conversation-id" />
                 </DashboardLayout>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/notes" 
+          <Route
+            path="/notes"
             element={
               <ProtectedRoute>
                 <DashboardLayout>
                   <NotesPage />
                 </DashboardLayout>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/community" 
+          <Route
+            path="/community"
             element={
               <ProtectedRoute>
                 <DashboardLayout>
                   <CommunityPage />
                 </DashboardLayout>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/discussion/:id" 
+          <Route
+            path="/discussion/:id"
             element={
               <ProtectedRoute>
                 <DashboardLayout>
                   <DiscussionDetail />
                 </DashboardLayout>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/profile" 
+          <Route
+            path="/profile"
             element={
               <ProtectedRoute>
                 <DashboardLayout>
                   <ProfilePage />
                 </DashboardLayout>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/profile/:id" 
+          <Route
+            path="/profile/:id"
             element={
               <ProtectedRoute>
                 <DashboardLayout>
                   <ProfilePage />
                 </DashboardLayout>
               </ProtectedRoute>
-            } 
+            }
           />
-          
+          <Route
+            path="/simulados"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <SimuladosList />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/simulado/:simuladoId"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <SimuladoPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/simulado/:simuladoId/resultado"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <SimuladoResultPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

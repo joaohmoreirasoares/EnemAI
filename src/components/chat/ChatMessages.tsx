@@ -3,7 +3,7 @@ import MarkdownProcessor from './MarkdownProcessor';
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: string;
 }
@@ -15,37 +15,41 @@ interface ChatMessagesProps {
   generatedResponse: string;
 }
 
-const ChatMessages = ({ 
-  messages, 
-  selectedAgent, 
-  isGenerating, 
-  generatedResponse 
+const ChatMessages = ({
+  messages,
+  selectedAgent,
+  isGenerating,
+  generatedResponse
 }: ChatMessagesProps) => {
   return (
     <div className="space-y-4 w-full">
       {messages.map((msg) => (
         <div
           key={msg.id}
-          className={`flex ${
-            msg.role === 'user' ? 'justify-end' : 'justify-start'
-          }`}
+          className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'
+            }`}
         >
           <div
-            className={`max-w-[85%] rounded-lg p-4 ${
-              msg.role === 'user'
-                ? 'bg-purple-600 text-white'
+            className={`max-w-[85%] rounded-lg p-4 ${msg.role === 'user'
+              ? 'bg-purple-600 text-white'
+              : msg.role === 'system'
+                ? 'bg-gray-800 text-gray-300 border border-gray-700 font-mono text-sm'
                 : 'bg-gray-700 text-white'
-            }`}
+              }`}
           >
             <div className="flex items-start gap-2">
               {msg.role === 'assistant' ? (
                 <Bot className="h-5 w-5 mt-0.5 flex-shrink-0" />
-              ) : (
+              ) : msg.role === 'user' ? (
                 <User className="h-5 w-5 mt-0.5 flex-shrink-0" />
+              ) : (
+                <div className="h-5 w-5 mt-0.5 flex-shrink-0 flex items-center justify-center">
+                  <span className="text-xs">⚙️</span>
+                </div>
               )}
               <div>
                 <p className="font-medium text-xs mb-1">
-                  {msg.role === 'user' ? 'Você' : 'Tutor ENEM AI'}
+                  {msg.role === 'user' ? 'Você' : msg.role === 'system' ? 'Sistema' : 'Tutor ENEM AI'}
                 </p>
                 {msg.role === 'assistant' ? (
                   <MarkdownProcessor content={msg.content} />

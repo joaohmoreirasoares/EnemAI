@@ -1,133 +1,116 @@
-# Enem AI
+# SavAI - Project Documentation
 
-Plataforma completa para preparação para o ENEM com inteligência artificial, anotações inteligentes e comunidade de estudos.
+Este documento fornece uma visão geral técnica do projeto **SavAI** para garantir a compatibilidade e facilitar a manutenção e desenvolvimento futuro.
 
-## Descrição
+## 🛠 Tech Stack
 
-O Enem AI é uma aplicação web que ajuda estudantes do ensino médio a se prepararem para o ENEM através de:
+### Core
+- **Framework:** [React](https://react.dev/) (v18.3.1)
+- **Build Tool:** [Vite](https://vitejs.dev/) (v6.3.4)
+- **Language:** [TypeScript](https://www.typescriptlang.org/) (v5.5.3)
+- **Package Manager:** pnpm (inferido pelo `pnpm-lock.yaml`)
 
-- Chat com IA especializada nas competências do ENEM
-- Editor de anotações com funcionalidades avançadas
-- Comunidade de estudos para interação entre alunos e professores
-- Sistema de autenticação seguro
+### Estilização & UI
+- **CSS Framework:** [Tailwind CSS](https://tailwindcss.com/) (v3.4.11)
+- **Component Library:** [shadcn/ui](https://ui.shadcn.com/) (baseado em Radix UI)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/) & `tailwindcss-animate`
+- **Utils:** `clsx`, `tailwind-merge`, `class-variance-authority` (CVA)
 
-## Tecnologias
+### Gerenciamento de Estado & Data Fetching
+- **Server State:** [TanStack Query](https://tanstack.com/query/latest) (React Query v5)
+- **Local State:** React Context & Hooks
 
-- **Frontend**: React, TypeScript, Tailwind CSS
-- **Backend**: Supabase (Auth, Database, Storage, Realtime)
-- **Autenticação**: Supabase Auth
-- **Banco de Dados**: Supabase Postgres
-- **Armazenamento**: Supabase Storage
-- **Tempo Real**: Supabase Realtime
+### Backend & Autenticação
+- **Service:** [Supabase](https://supabase.com/)
+- **SDK:** `@supabase/supabase-js` & `@supabase/auth-ui-react`
 
-## Estrutura do Projeto
+### Roteamento
+- **Router:** [React Router DOM](https://reactrouter.com/) (v6.26.2)
 
-```
-src/
-├── components/          # Componentes reutilizáveis
-├── integrations/        # Integrações com serviços externos
-├── pages/               # Páginas da aplicação
-├── lib/                 # Funções utilitárias
-└── hooks/               # Hooks personalizados
-```
+### Formulários & Validação
+- **Forms:** [React Hook Form](https://react-hook-form.com/)
+- **Validation:** [Zod](https://zod.dev/) (`@hookform/resolvers`)
 
-## Configuração Inicial
+### Outras Bibliotecas Importantes
+- **Markdown/Math:** `react-markdown`, `katex`, `rehype-katex`, `remark-math`, `react-quill` (Editor de texto rico)
+- **Charts:** `recharts`
+- **Utilities:** `date-fns` (manipulação de datas), `sonner` (toasts)
 
-1. **Configurar Supabase**:
-   - Crie um projeto no [Supabase](https://supabase.io/)
-   - Copie as credenciais do projeto (URL e chave anônima)
-   - Configure as variáveis de ambiente no arquivo `.env`
+## 📂 Estrutura do Projeto
 
-2. **Instalar dependências**:
-   ```bash
-   npm install
-   ```
-
-3. **Executar a aplicação**:
-   ```bash
-   npm run dev
-   ```
-
-## Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+A estrutura de diretórios segue o padrão Vite + React:
 
 ```
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+/src
+  ├── /components    # Componentes reutilizáveis (UI, layout, etc.)
+  ├── /context       # Contextos do React (ex: Auth, Theme)
+  ├── /hooks         # Custom Hooks
+  ├── /integrations  # Integrações externas (ex: Supabase)
+  ├── /lib           # Configurações de bibliotecas (utils, utils do shadcn)
+  ├── /pages         # Páginas da aplicação (rotas)
+  ├── /utils         # Funções utilitárias gerais
+  ├── App.tsx        # Componente raiz e definição de rotas
+  ├── main.tsx       # Ponto de entrada da aplicação
 ```
 
-## Funcionalidades
+## 🌟 Funcionalidades do Sistema
 
-### 1. Chat com IA
-- Conversas com agentes especializados em cada área do ENEM
-- Histórico de conversas salvo
-- Interface escura e intuitiva
+O **SavAI** é uma plataforma educacional focada no ENEM, integrando IA, ferramentas de estudo e comunidade.
 
-### 2. Anotações
-- Editor rico de texto (negrito, itálico, listas, etc.)
-- Organização por tags
-- Exportação para HTML
-- Salvamento automático
+### 1. 🤖 Chat com IA (Tutor ENEM AI)
+O coração da plataforma. Um assistente virtual inteligente para tirar dúvidas.
+- **Engine:** Utiliza a API da **Groq** (`openai/gpt-oss-120b`) para respostas rápidas e precisas.
+- **Funcionalidades:**
+    - **Múltiplos Agentes:** Arquitetura preparada para suportar diferentes personas (atualmente focado no "Tutor ENEM AI").
+    - **Histórico de Conversas:** As conversas são salvas no Supabase (`chat_conversations`), permitindo retomar estudos anteriores.
+    - **Typing Effect:** Simulação de digitação para uma experiência mais natural.
+    - **Contexto:** A IA pode ser alimentada com anotações do usuário para respostas personalizadas.
 
-### 3. Comunidade
-- Criação de tópicos de discussão
-- Sistema de comentários
-- Atualizações em tempo real
+### 2. 📝 Anotações Inteligentes (Notes)
+Um caderno virtual completo para organização dos estudos.
+- **Editor Rico:** Utiliza **ReactQuill** para formatação de texto (negrito, listas, links, imagens).
+- **Gerenciamento:** CRUD completo (Criar, Ler, Atualizar, Deletar) de anotações.
+- **Exportação:** Permite exportar anotações como arquivos HTML.
+- **Estatísticas:** Dashboard com contagem total de anotações e criadas no dia.
+- **Busca:** Filtro em tempo real por título e conteúdo.
 
-### 4. Autenticação
-- Registro e login com email/senha
-- Proteção de rotas
-- Perfil de usuário
+### 3. 👥 Comunidade
+Um fórum para interação entre estudantes.
+- **Discussões:** Criação de tópicos com título, conteúdo e tags (Matemática, Redação, Dúvida, etc.).
+- **Filtros:** Busca por texto e filtragem por tags específicas.
+- **Perfis:** Visualização básica de perfil dos usuários (integrado com a tabela `profiles` do Supabase).
+- **Interação:** Sistema preparado para comentários e likes (estrutura de dados presente).
+- **Backend Social:** O arquivo `src/lib/social.ts` já contém a lógica para mensagens diretas (`openOrCreateConversation`) e comentários aninhados, pronto para expansão futura.
 
-## Banco de Dados
+### 4. 🎓 Simulados (Feature em Desenvolvimento)
+*Nota: Esta funcionalidade existe no código (`src/pages/Simulado.tsx`) mas não está acessível via menu principal atualmente.*
+- **Motor de Questões:** Suporte a questões com texto base, enunciado e alternativas.
+- **Timer:** Cronômetro para simular o tempo real de prova.
+- **Correção Automática:** Feedback imediato e cálculo de score ao finalizar.
+- **Persistência:** Resultados salvos na tabela `simulados`.
 
-O projeto utiliza as seguintes tabelas no Supabase:
+## 🔐 Autenticação e Segurança
+- **Supabase Auth:** Gerenciamento completo de usuários (Login, Registro, Recuperação de Senha).
+- **Proteção de Rotas:** Componente `ProtectedRoute` garante que apenas usuários autenticados acessem as áreas internas.
+- **RLS (Row Level Security):** As tabelas do banco de dados possuem políticas de segurança para garantir que usuários acessem apenas seus próprios dados (notas, conversas, simulados).
 
-1. **profiles** - Informações do usuário
-2. **notes** - Anotações dos usuários
-3. **chat_conversations** - Histórico de conversas
-4. **community_posts** - Posts da comunidade
-5. **comments** - Comentários nos posts
+## 🚀 Scripts Disponíveis
 
-## Deploy
+No diretório do projeto, você pode rodar:
 
-### Vercel
-1. Conecte o repositório ao Vercel
-2. Configure as variáveis de ambiente
-3. Faça o deploy
+- `npm run dev` ou `pnpm dev`: Inicia o servidor de desenvolvimento.
+- `npm run build` ou `pnpm build`: Compila o app para produção.
+- `npm run lint` ou `pnpm lint`: Executa o ESLint para verificar problemas no código.
+- `npm run preview` ou `pnpm preview`: Visualiza a build de produção localmente.
 
-### Supabase
-1. Configure o projeto Supabase
-2. Execute os scripts SQL para criar as tabelas
-3. Configure as políticas de segurança
+## ⚠️ Notas de Compatibilidade
 
-## Desenvolvimento
+1.  **Node.js**: Recomenda-se usar uma versão LTS recente do Node.js (v18+ ou v20+), compatível com Vite 5/6.
+2.  **TypeScript**: O projeto está configurado com `strict: true` (provavelmente). Mantenha a tipagem forte para evitar erros de build.
+3.  **Tailwind**: A configuração do Tailwind (`tailwind.config.ts`) inclui plugins como `tailwindcss-animate`. Ao adicionar novos plugins, verifique a compatibilidade.
+4.  **Supabase**: As chaves de API e URL do Supabase devem estar configuradas nas variáveis de ambiente (`.env` ou `.env.local`).
+5.  **Shadcn UI**: Ao adicionar novos componentes do shadcn, use a CLI ou copie manualmente garantindo que as dependências (Radix UI) sejam instaladas.
 
-### Estrutura de Componentes
-- Componentes reutilizáveis em `src/components/`
-- Páginas em `src/pages/`
-- Layouts em `src/components/layout/`
-
-### Estilização
-- Utiliza Tailwind CSS para estilização
-- Tema escuro como padrão
-- Cores principais: roxo (#8B5CF6) para elementos interativos
-
-## Contribuição
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## Licença
-
-Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
-
-## Contato
-
-Seu Nome - [@seu_usuario](https://twitter.com/seu_usuario)
-
-Link do Projeto: [https://github.com/seu_usuario/enem-ai](https://github.com/seu_usuario/enem-ai)
+---
+*Gerado automaticamente para auxiliar no desenvolvimento do SavAI.*

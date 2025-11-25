@@ -1,11 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  MessageSquare, 
-  FileText, 
-  Users, 
+import {
+  MessageSquare,
+  FileText,
+  Users,
   LogOut,
   Home,
-  User
+  User,
+  Play
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
@@ -38,6 +39,7 @@ const Sidebar = () => {
   const navItems = [
     { name: 'Chat IA', href: '/chat', icon: MessageSquare },
     { name: 'Anotações', href: '/notes', icon: FileText },
+    { name: 'Simulados', href: '/simulados', icon: Play },
     { name: 'Comunidade', href: '/community', icon: Users },
     { name: 'Meu Perfil', href: '/profile', icon: User },
   ];
@@ -46,7 +48,7 @@ const Sidebar = () => {
     <div className="flex flex-col h-full bg-gray-900 text-white w-48 border-r border-gray-800">
       <div className="p-3 border-b border-gray-800">
         <div className="flex items-center">
-          
+
           <h1 className="text-lg font-bold text-purple-400">Enem AI</h1>
         </div>
         {profile && (
@@ -55,7 +57,7 @@ const Sidebar = () => {
           </p>
         )}
       </div>
-      
+
       <nav className="flex-1 p-2">
         <ul className="space-y-1">
           {navItems.map((item) => {
@@ -65,11 +67,10 @@ const Sidebar = () => {
               <li key={item.name}>
                 <Link
                   to={item.href}
-                  className={`flex items-center p-2 rounded-lg transition-colors ${
-                    isActive 
-                      ? 'bg-purple-900 text-white' 
-                      : 'text-gray-300 hover:bg-gray-800'
-                  }`}
+                  className={`flex items-center p-2 rounded-lg transition-colors ${isActive
+                    ? 'bg-purple-900 text-white'
+                    : 'text-gray-300 hover:bg-gray-800'
+                    }`}
                 >
                   <Icon className="h-4 w-4 mr-2" />
                   <span className="text-sm">{item.name}</span>
@@ -79,7 +80,7 @@ const Sidebar = () => {
           })}
         </ul>
       </nav>
-      
+
       <div className="p-3 border-t border-gray-800">
         <Button
           variant="ghost"

@@ -114,7 +114,7 @@ export const getTotalNotesCount = async () => {
 
 // Função para obter o número de anotações criadas hoje pelo usuário
 export const getTodayNotesCount = async () => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } = {} } = await supabase.auth.getUser();
   if (!user) return 0;
 
   const today = new Date();

@@ -5,15 +5,23 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { showError, showSuccess } from '@/utils/toast';
-import { getUserNotes } from '@/pages/Notes';
+
 import AgentSelector from '@/components/chat/AgentSelector';
 import ChatMessages from '@/components/chat/ChatMessages';
 import ChatInput from '@/components/chat/ChatInput';
 import WelcomeMessage from '@/components/chat/WelcomeMessage';
+import ContextSelector from '@/components/chat/ContextSelector';
+import ChatHome from '@/components/chat/ChatHome';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { TOOLS, searchNotes, readNote, updateNote } from '@/lib/agent-tools';
+import { calculateStats } from '@/lib/streak';
 
 const ChatPage = () => {
   const [message, setMessage] = useState('');
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
+  const [view, setView] = useState<'home' | 'chat'>('home');
+  const [showConversations, setShowConversations] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState<string | null>(null);
@@ -22,6 +30,25 @@ const ChatPage = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [selectedNoteIds, setSelectedNoteIds] = useState<string[]>([]);
+
+  // Fetch user's notes for context
+  const { data: notes = [] } = useQuery({
+    queryKey: ['chat-context-notes'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from('notes')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    }
+  });
 
   // Clear interval on unmount
   useEffect(() => {
@@ -87,6 +114,10 @@ const ChatPage = () => {
     enabled: !!activeConversation
   });
 
+
+
+  const stats = calculateStats(conversations);
+
   // Create new conversation
   const createConversation = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -99,7 +130,7 @@ const ChatPage = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
-    
+
     const newTitle = `Chat com Tutor ENEM AI - ${timestamp}`;
     const { data, error } = await supabase
       .from('chat_conversations')
@@ -113,8 +144,9 @@ const ChatPage = () => {
       .single();
 
     if (error) throw error;
-    
+
     setActiveConversation(data.id);
+    setView('chat');
     refetchConversations();
     showSuccess('Nova conversa criada!');
     setShowConversations(false);
@@ -141,11 +173,29 @@ const ChatPage = () => {
   };
 
   // Call Groq API to get AI response
-  const getAIResponse = async (userMessage: string, context: string) => {
+  const getAIResponse = async (messages: any[], context: string) => {
     if (!apiKey) {
       setError('Chave da API não configurada');
       return null;
     }
+
+    const systemPrompt = `Você é o Tutor ENEM AI, um assistente especializado em todas as áreas do ENEM.
+    
+    FERRAMENTAS DISPONÍVEIS:
+    Você tem acesso às seguintes ferramentas para ajudar o usuário. Para usar uma ferramenta, você DEVE responder APENAS com um JSON no seguinte formato:
+    { "tool": "nome_da_ferramenta", "parameters": { ... } }
+
+    Lista de Ferramentas:
+    ${JSON.stringify(TOOLS, null, 2)}
+
+    INSTRUÇÕES:
+    1. Se o usuário pedir para buscar, ler ou modificar anotações, USE AS FERRAMENTAS.
+    2. Não invente informações sobre as anotações. Use as ferramentas para buscar a verdade.
+    3. Se você usar uma ferramenta, o sistema executará e devolverá o resultado para você.
+    4. Se não precisar de ferramentas, responda normalmente como um tutor.
+    5. Use as anotações do usuário (fornecidas via contexto ou ferramentas) para personalizar suas respostas.
+    
+    Contexto inicial das anotações selecionadas: ${context}`;
 
     try {
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -157,18 +207,14 @@ const ChatPage = () => {
         body: JSON.stringify({
           model: 'openai/gpt-oss-120b',
           messages: [
-            {
-              role: 'system',
-              content: `Você é o Tutor ENEM AI, um assistente especializado em todas as áreas do ENEM. Use as anotações do usuário como referência para personalizar suas respostas e facilitar o aprendizado. Seja claro, direto e ensine de forma simples e prática. Contexto das anotações do usuário: ${context}`
-            },
-            {
-              role: 'user',
-              content: userMessage
-            }
+            { role: 'system', content: systemPrompt },
+            ...messages.map(m => ({ role: m.role === 'system' ? 'user' : m.role, content: m.content })) // Map system messages to user for API compatibility if needed, or keep as system? standard OpenAI allows multiple system messages. Let's keep 'system'.
+            // Actually, some models behave better if tool outputs are 'user' or 'function'.
+            // Let's try mapping 'system' (tool output) to 'user' with a prefix "Tool Output:" to be safe with generic OSS models.
           ],
           temperature: 0.7,
           max_tokens: 1000,
-          stream: false // Ensure we get the full response at once
+          stream: false
         })
       });
 
@@ -187,8 +233,15 @@ const ChatPage = () => {
   };
 
   // Send message to AI
-  const sendMessage = async (userMessage: string, context: string) => {
+  const sendMessage = async (userMessage: string) => {
     if (!userMessage.trim() || !activeConversation || isLoading || !apiKey) return;
+
+    // Build context from selected notes
+    let context = '';
+    if (selectedNoteIds.length > 0) {
+      const selectedNotes = notes.filter((n: any) => selectedNoteIds.includes(n.id));
+      context = selectedNotes.map((n: any) => `Nota: ${n.title}\nConteúdo: ${n.content || ''}\n`).join('\n');
+    }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -212,13 +265,14 @@ const ChatPage = () => {
       timestamp: new Date().toISOString()
     };
 
-    // Update conversation with user message
-    const updatedMessages = [...messages, userMsg];
-    
+    // Initial messages state
+    let currentMessages = [...messages, userMsg];
+
+    // Update conversation with user message first
     const { error: updateError } = await supabase
       .from('chat_conversations')
       .update({
-        messages: updatedMessages,
+        messages: currentMessages,
         updated_at: new Date().toISOString()
       })
       .eq('id', activeConversation);
@@ -233,62 +287,156 @@ const ChatPage = () => {
     queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
     refetchConversations();
 
-    // Get AI response
-    const aiResponse = await getAIResponse(userMessage, context);
-    
-    if (aiResponse) {
-      // Start generating animation
-      setIsGenerating(true);
-      setGeneratedResponse('');
-      
-      // Simulate typing effect - faster speed
-      let currentIndex = 0;
-      const fullResponse = aiResponse.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
-      
-      // Clear any existing interval before starting a new one
-      if (typingIntervalRef.current) {
-        clearInterval(typingIntervalRef.current);
-      }
-      
-      typingIntervalRef.current = setInterval(() => {
-        if (currentIndex <= fullResponse.length) {
-          setGeneratedResponse(fullResponse.substring(0, currentIndex));
-          currentIndex += 3; // Increased speed - show 3 characters at a time
-        } else {
-          if (typingIntervalRef.current) {
-            clearInterval(typingIntervalRef.current);
-            typingIntervalRef.current = null;
+    // Tool execution loop
+    let loopCount = 0;
+    const MAX_LOOPS = 5;
+    let finalResponse = '';
+
+    try {
+      while (loopCount < MAX_LOOPS) {
+        loopCount++;
+
+        // Get AI response
+        const aiResponse = await getAIResponse(currentMessages, context);
+
+        if (!aiResponse) break;
+
+        // Check if response is a tool call
+        let toolCall = null;
+        try {
+          // Try to parse JSON if it looks like a tool call
+          const trimmed = aiResponse.trim();
+          if (trimmed.startsWith('{') && trimmed.includes('"tool"')) {
+            toolCall = JSON.parse(trimmed);
           }
-          setIsGenerating(false);
-          
-          // Save final response to database
-          const aiMsg = {
-            id: (Date.now() + 1).toString(),
+        } catch (e) {
+          // Not a valid JSON tool call, treat as text
+        }
+
+        if (toolCall && toolCall.tool) {
+          // It's a tool call
+          console.log('Tool call detected:', toolCall);
+
+          // Add AI's tool call message to history (optional, but good for debugging/context)
+          // We'll display it as a system message or code block to the user? 
+          // Let's add it as an assistant message but maybe formatted.
+          // Actually, let's NOT show the raw JSON to the user if possible, or show it as a "Thinking" step.
+          // For now, we append it to history so the AI knows it asked for it.
+          const toolMsg = {
+            id: Date.now().toString(),
             role: 'assistant',
-            content: aiResponse,
+            content: aiResponse, // Raw JSON
             timestamp: new Date().toISOString()
           };
+          currentMessages = [...currentMessages, toolMsg];
 
-          const finalMessages = [...updatedMessages, aiMsg];
-          
-          // Update database with final response
-          supabase
+          // Save to DB so user sees "Thinking..." (raw json)
+          await supabase
             .from('chat_conversations')
-            .update({
-              messages: finalMessages,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', activeConversation)
-            .then(({ error: finalError }) => {
-              if (finalError) {
-                showError('Erro ao salvar resposta da IA');
-              }
-              queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
-              setIsLoading(false);
-            });
+            .update({ messages: currentMessages, updated_at: new Date().toISOString() })
+            .eq('id', activeConversation);
+
+          queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
+
+          // Execute tool
+          let toolResult = '';
+          try {
+            if (toolCall.tool === 'search_notes') {
+              const result = await searchNotes(toolCall.parameters.query);
+              toolResult = `Resultado da busca: ${JSON.stringify(result)}`;
+            } else if (toolCall.tool === 'read_note') {
+              const result = await readNote(toolCall.parameters.title);
+              toolResult = `Conteúdo da nota: ${JSON.stringify(result)}`;
+            } else if (toolCall.tool === 'update_note') {
+              const result = await updateNote(toolCall.parameters.title, toolCall.parameters.content);
+              toolResult = `Nota atualizada com sucesso: ${JSON.stringify(result)}`;
+            } else {
+              toolResult = `Erro: Ferramenta ${toolCall.tool} não encontrada.`;
+            }
+          } catch (err: any) {
+            toolResult = `Erro ao executar ferramenta: ${err.message}`;
+          }
+
+          // Add tool result to history
+          const systemMsg = {
+            id: (Date.now() + 1).toString(),
+            role: 'system',
+            content: toolResult,
+            timestamp: new Date().toISOString()
+          };
+          currentMessages = [...currentMessages, systemMsg];
+
+          // Save to DB
+          await supabase
+            .from('chat_conversations')
+            .update({ messages: currentMessages, updated_at: new Date().toISOString() })
+            .eq('id', activeConversation);
+
+          queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
+
+          // Loop continues to get AI's interpretation of the result
+        } else {
+          // Regular response, we are done
+          finalResponse = aiResponse;
+          break;
         }
-      }, 10); // Faster interval - 10ms instead of 20ms
-    } else {
+      }
+
+      if (finalResponse) {
+        // Start generating animation for the final response
+        setIsGenerating(true);
+        setGeneratedResponse('');
+
+        // Simulate typing effect
+        let currentIndex = 0;
+        const fullResponse = finalResponse.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
+
+        if (typingIntervalRef.current) {
+          clearInterval(typingIntervalRef.current);
+        }
+
+        typingIntervalRef.current = setInterval(() => {
+          if (currentIndex <= fullResponse.length) {
+            setGeneratedResponse(fullResponse.substring(0, currentIndex));
+            currentIndex += 3;
+          } else {
+            if (typingIntervalRef.current) {
+              clearInterval(typingIntervalRef.current);
+              typingIntervalRef.current = null;
+            }
+            setIsGenerating(false);
+
+            // Save final response
+            const aiMsg = {
+              id: (Date.now() + 2).toString(),
+              role: 'assistant',
+              content: finalResponse,
+              timestamp: new Date().toISOString()
+            };
+
+            const finalMessages = [...currentMessages, aiMsg];
+
+            supabase
+              .from('chat_conversations')
+              .update({
+                messages: finalMessages,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', activeConversation)
+              .then(({ error: finalError }) => {
+                if (finalError) showError('Erro ao salvar resposta da IA');
+                queryClient.invalidateQueries({ queryKey: ['conversation', activeConversation] });
+                setIsLoading(false);
+              });
+          }
+        }, 10);
+      } else {
+        setIsLoading(false);
+      }
+
+    } catch (err: any) {
+      console.error('Error in chat loop:', err);
+      setError('Erro no processamento da conversa.');
       setIsLoading(false);
     }
   };
@@ -307,7 +455,7 @@ const ChatPage = () => {
       clearInterval(typingIntervalRef.current);
       typingIntervalRef.current = null;
     }
-    
+
     // Reset states
     setIsLoading(false);
     setIsGenerating(false);
@@ -315,56 +463,90 @@ const ChatPage = () => {
     setError(null);
   }, [activeConversation]);
 
+  if (view === 'home') {
+    return (
+      <ChatHome
+        conversations={conversations}
+        onSelectConversation={(id) => {
+          setActiveConversation(id);
+          setView('chat');
+        }}
+        onDeleteConversation={deleteConversation}
+        stats={stats}
+        onCreateNew={createConversation}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col h-full">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white">Chat com IA</h1>
-        <p className="text-gray-400">Converse com o Tutor ENEM AI sobre todas as áreas do ENEM</p>
-      </div>
+      <div className="flex-1 flex flex-col h-full relative">
+        <div className="flex flex-col h-full">
+          <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setView('home')}
+                className="text-gray-400 hover:text-white hover:bg-gray-800"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div>
+                <h1 className="text-xl font-bold text-white">Chat com IA</h1>
+                <p className="text-xs text-gray-400 hidden md:block">Converse com o Tutor ENEM AI</p>
+              </div>
+            </div>
+          </div>
 
-      <div className="flex flex-col md:flex-row gap-6 flex-1">
-        {/* Chat area */}
-        <div className="flex-1 flex flex-col">
-          <div className="bg-gradient-to-b from-gray-900 to-gray-950 flex-1 flex flex-col">
-            <CardContent className="p-0 flex-1 flex flex-col">
-              {/* Agent selector */}
-              <AgentSelector />
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="bg-gradient-to-b from-gray-900 to-gray-950 flex-1 flex flex-col overflow-hidden">
+              <CardContent className="p-0 flex-1 flex flex-col h-full overflow-hidden">
+                {/* Messages area */}
+                <ScrollArea className="flex-1 p-4 bg-gradient-to-b from-gray-900 to-gray-950" ref={scrollAreaRef}>
+                  {messages.length > 0 ? (
+                    <ChatMessages
+                      messages={messages}
+                      selectedAgent="Tutor ENEM AI"
+                      isGenerating={isGenerating}
+                      generatedResponse={generatedResponse}
+                    />
+                  ) : (
+                    <WelcomeMessage onCreateConversation={createConversation} />
+                  )}
 
-              {/* Messages area */}
-              <ScrollArea className="flex-1 p-4 bg-gradient-to-b from-gray-900 to-gray-950" ref={scrollAreaRef}>
-                {messages.length > 0 ? (
-                  <ChatMessages
-                    messages={messages}
-                    selectedAgent="Tutor ENEM AI"
-                    isGenerating={isGenerating}
-                    generatedResponse={generatedResponse}
-                  />
-                ) : (
-                  <WelcomeMessage onCreateConversation={createConversation} />
-                )}
-                
-                {/* Error message */}
-                {error && (
-                  <div className="mt-4 p-3 bg-red-900/30 border border-red-700 rounded-lg flex items-start">
-                    <AlertCircle className="h-5 w-5 text-red-400 mt-0.5 mr-2 flex-shrink-0" />
-                    <div>
-                      <p className="text-red-400 font-medium">Erro</p>
-                      <p className="text-red-300 text-sm">{error}</p>
+                  {/* Error message */}
+                  {error && (
+                    <div className="mt-4 p-3 bg-red-900/30 border border-red-700 rounded-lg flex items-start">
+                      <AlertCircle className="h-5 w-5 text-red-400 mt-0.5 mr-2 flex-shrink-0" />
+                      <div>
+                        <p className="text-red-400 font-medium">Erro</p>
+                        <p className="text-red-300 text-sm">{error}</p>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </ScrollArea>
+                  )}
+                </ScrollArea>
 
-              {/* Input area */}
-              <ChatInput
-                message={message}
-                setMessage={setMessage}
-                onSend={sendMessage}
-                isLoading={isLoading}
-                hasApiKey={!!apiKey}
-                hasActiveConversation={!!activeConversation}
-              />
-            </CardContent>
+                {/* Context Selector */}
+                <div className="px-3 pt-2 bg-gray-900 border-t border-gray-800">
+                  <ContextSelector
+                    notes={notes}
+                    selectedNoteIds={selectedNoteIds}
+                    onSelectionChange={setSelectedNoteIds}
+                  />
+                </div>
+
+                {/* Input area */}
+                <ChatInput
+                  message={message}
+                  setMessage={setMessage}
+                  onSend={sendMessage}
+                  isLoading={isLoading}
+                  hasApiKey={!!apiKey}
+                  hasActiveConversation={!!activeConversation}
+                />
+              </CardContent>
+            </div>
           </div>
         </div>
       </div>

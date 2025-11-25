@@ -13,6 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowLeft, MessageCircle, Clock, User } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { createComment, getComments } from '@/lib/social';
 
 interface Comment {
   id: string;
@@ -47,7 +48,7 @@ const DiscussionDetail = () => {
     queryKey: ['discussion', discussionId],
     queryFn: async () => {
       if (!discussionId) return null;
-      
+
       const { data, error } = await supabase
         .from('discussions')
         .select(`
@@ -72,22 +73,7 @@ const DiscussionDetail = () => {
     queryKey: ['discussion-comments', discussionId],
     queryFn: async () => {
       if (!discussionId) return [];
-      
-      const { data, error } = await supabase
-        .from('comments')
-        .select(`
-          *,
-          profiles (
-            id,
-            name,
-            avatar_url
-          )
-        `)
-        .eq('discussion_id', discussionId)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-      return data || [];
+      return await getComments({ discussionId });
     },
     enabled: !!discussionId
   });
@@ -98,16 +84,12 @@ const DiscussionDetail = () => {
     setError(null);
 
     try {
-      const { error } = await supabase
-        .from('comments')
-        .insert({
-          discussion_id: discussionId,
-          user_id: currentUser.id,
-          content: newComment.trim()
-        });
+      await createComment({
+        discussion_id: discussionId,
+        author_id: currentUser.id,
+        body: newComment.trim()
+      });
 
-      if (error) throw error;
-      
       setNewComment('');
       queryClient.invalidateQueries({ queryKey: ['discussion-comments', discussionId] });
     } catch (error: any) {
@@ -118,9 +100,9 @@ const DiscussionDetail = () => {
 
   const formatDate = (dateString: string) => {
     try {
-      return formatDistanceToNow(new Date(dateString), { 
-        addSuffix: true, 
-        locale: ptBR 
+      return formatDistanceToNow(new Date(dateString), {
+        addSuffix: true,
+        locale: ptBR
       });
     } catch {
       return new Date(dateString).toLocaleDateString('pt-BR');
@@ -192,7 +174,7 @@ const DiscussionDetail = () => {
                 {getAuthorInitials(discussion.profiles?.name)}
               </AvatarFallback>
             </Avatar>
-            
+
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <span className="font-medium text-white">
@@ -204,8 +186,8 @@ const DiscussionDetail = () => {
                   {formatDate(discussion.created_at)}
                 </span>
               </div>
-              
-              <Badge 
+
+              <Badge
                 variant="secondary"
                 className={`${TAG_COLORS[discussion.tag] || TAG_COLORS['Geral']} text-white`}
               >
@@ -301,7 +283,7 @@ const DiscussionDetail = () => {
                             {getAuthorInitials(comment.profiles?.name)}
                           </AvatarFallback>
                         </Avatar>
-                        
+
                         <div className="flex-1">
                           <Card className="bg-gray-700 border-gray-600">
                             <CardContent className="p-3">

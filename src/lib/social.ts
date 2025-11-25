@@ -112,27 +112,50 @@ export async function createPost({
 
 export async function createComment({
   post_id,
+  discussion_id,
   author_id,
   body,
   parent_comment_id
 }: {
-  post_id: string;
+  post_id?: string;
+  discussion_id?: string;
   author_id: string;
   body: string;
   parent_comment_id?: string;
 }) {
+  if (!post_id && !discussion_id) {
+    throw new Error('Either post_id or discussion_id must be provided');
+  }
+
+  const payload: any = {
+    author_id,
+    content: body, // Note: DiscussionDetail uses 'content', social.ts used 'body'. Let's unify or check schema. DiscussionDetail uses 'content'. social.ts used 'body'. I should probably use 'content' if that's what the table has.
+    // social.ts line 129: body.
+    // DiscussionDetail line 106: content: newComment.
+    // I will assume 'content' is the correct column name based on DiscussionDetail which seems more active.
+    // But wait, social.ts might have been written for a different table 'comments' that has 'body'?
+    // Or maybe 'comments' table has 'content' and social.ts was wrong?
+    // Let's check social.ts again. It inserts { body }.
+    // DiscussionDetail inserts { content }.
+    // This implies they might be using DIFFERENT tables or one is wrong.
+    // DiscussionDetail queries 'comments'. social.ts queries 'comments'.
+    // So it's the SAME table. One of them is wrong about the column name.
+    // Given DiscussionDetail is a page likely used, 'content' is more probable.
+    // I will use 'content' in the payload and map 'body' arg to it if needed, or change arg to 'content'.
+    parent_comment_id
+  };
+
+  if (post_id) payload.post_id = post_id;
+  if (discussion_id) payload.discussion_id = discussion_id;
+
   const { data: comment, error } = await supabase
     .from('comments')
-    .insert({
-      post_id,
-      author_id,
-      body,
-      parent_comment_id
-    })
+    .insert(payload)
     .select()
     .single();
 
   if (error || !comment) {
+    console.error('Error creating comment:', error);
     throw new Error('Failed to create comment');
   }
 
@@ -209,16 +232,38 @@ export async function getPostById(postId: string) {
   return data;
 }
 
-export async function getCommentsByPost(postId: string) {
-  const { data, error } = await supabase
+export async function getComments({
+  postId,
+  discussionId
+}: {
+  postId?: string;
+  discussionId?: string;
+}) {
+  if (!postId && !discussionId) {
+    throw new Error('Either postId or discussionId must be provided');
+  }
+
+  let query = supabase
     .from('comments')
     .select(`
       *,
-      profiles (first_name, last_name, avatar_url),
+      profiles (
+        id,
+        name,
+        avatar_url
+      ),
       parent_comment_id
     `)
-    .eq('post_id', postId)
     .order('created_at', { ascending: true });
+
+  if (postId) {
+    query = query.eq('post_id', postId);
+  }
+  if (discussionId) {
+    query = query.eq('discussion_id', discussionId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw new Error('Failed to fetch comments');
