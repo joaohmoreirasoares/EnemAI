@@ -1,14 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Plus, Search, Save, Download, Trash2, Edit3, List } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Plus, Search, Save, Download, Trash2, List, Flame, Calendar, FileText, Clock, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card } from '@/components/ui/card';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import '../components/quill-dark.css'; // Corrigindo o caminho para o tema escuro customizado
+import '../components/quill-dark.css';
+import { motion } from 'framer-motion';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { calculateStats } from '@/lib/streak';
 
 // Função para obter os títulos de todas as anotações
 export const getNoteTitles = async () => {
@@ -44,7 +48,7 @@ export const getNoteContent = async (title: string) => {
     .from('notes')
     .select('content')
     .eq('user_id', user.id)
-    .ilike('title', `%${title}%`) // Use ilike for case-insensitive partial match
+    .ilike('title', `%${title}%`)
     .limit(1)
     .single();
 
@@ -67,7 +71,6 @@ export const editNote = async (title: string, newContent: string) => {
   if (!title) return 'Título da anotação não fornecido.';
   if (!newContent) return 'Novo conteúdo da anotação não fornecido.';
 
-  // Primeiro, encontramos a nota para garantir que ela existe
   const { data: note, error: findError } = await supabase
     .from('notes')
     .select('id')
@@ -81,7 +84,6 @@ export const editNote = async (title: string, newContent: string) => {
     return `Anotação com o título parecido com "${title}" não encontrada.`;
   }
 
-  // Agora, atualizamos a nota com o novo conteúdo
   const { error: updateError } = await supabase
     .from('notes')
     .update({ content: newContent, updated_at: new Date().toISOString() })
@@ -95,55 +97,11 @@ export const editNote = async (title: string, newContent: string) => {
   return `Anotação "${title}" atualizada com sucesso.`;
 };
 
-// Função para obter o número total de anotações do usuário
-export const getTotalNotesCount = async () => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return 0;
-
-  const { count, error } = await supabase
-    .from('notes')
-    .select('*', { count: 'exact' })
-    .eq('user_id', user.id);
-
-  if (error) {
-    console.error('Error fetching total notes count:', error);
-    return 0;
-  }
-  return count || 0;
-};
-
-// Função para obter o número de anotações criadas hoje pelo usuário
-export const getTodayNotesCount = async () => {
-  const { data: { user } = {} } = await supabase.auth.getUser();
-  if (!user) return 0;
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Set to the beginning of today
-
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1); // Set to the beginning of tomorrow
-
-  const { count, error } = await supabase
-    .from('notes')
-    .select('*', { count: 'exact' })
-    .eq('user_id', user.id)
-    .gte('created_at', today.toISOString())
-    .lt('created_at', tomorrow.toISOString());
-
-  if (error) {
-    console.error('Error fetching today\'s notes count:', error);
-    return 0;
-  }
-  return count || 0;
-};
-
-
 const NotesPage = () => {
   const [activeNote, setActiveNote] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [showAllNotes, setShowAllNotes] = useState(false); // This state will now control the modal, not the main view
   const queryClient = useQueryClient();
 
   // Fetch user's notes
@@ -164,17 +122,8 @@ const NotesPage = () => {
     }
   });
 
-  // Fetch total notes count
-  const { data: totalNotesCount = 0, isLoading: isLoadingTotalNotes } = useQuery({
-    queryKey: ['totalNotesCount'],
-    queryFn: getTotalNotesCount
-  });
-
-  // Fetch today's notes count
-  const { data: todayNotesCount = 0, isLoading: isLoadingTodayNotes } = useQuery({
-    queryKey: ['todayNotesCount'],
-    queryFn: getTodayNotesCount
-  });
+  // Calculate stats using the same logic as Chat
+  const stats = useMemo(() => calculateStats(notes), [notes]);
 
   // Filter notes based on search term
   const filteredNotes = notes.filter((note: any) =>
@@ -209,11 +158,9 @@ const NotesPage = () => {
       .single();
 
     if (error) throw error;
-    
+
     setActiveNote(data);
     queryClient.invalidateQueries({ queryKey: ['notes'] });
-    queryClient.invalidateQueries({ queryKey: ['totalNotesCount'] });
-    queryClient.invalidateQueries({ queryKey: ['todayNotesCount'] });
   };
 
   // Save note
@@ -230,10 +177,8 @@ const NotesPage = () => {
       .eq('id', activeNote.id);
 
     if (error) throw error;
-    
+
     queryClient.invalidateQueries({ queryKey: ['notes'] });
-    queryClient.invalidateQueries({ queryKey: ['totalNotesCount'] });
-    queryClient.invalidateQueries({ queryKey: ['todayNotesCount'] });
   };
 
   // Delete note
@@ -246,32 +191,27 @@ const NotesPage = () => {
       .eq('id', activeNote.id);
 
     if (error) throw error;
-    
+
     setActiveNote(null);
     queryClient.invalidateQueries({ queryKey: ['notes'] });
-    queryClient.invalidateQueries({ queryKey: ['totalNotesCount'] });
-    queryClient.invalidateQueries({ queryKey: ['todayNotesCount'] });
   };
 
   // Delete note from list
   const deleteNoteFromList = async (noteId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Impede que o clique no botão de exclusão acione o clique no clique no item da lista
-    
+    e.stopPropagation();
+
     const { error } = await supabase
       .from('notes')
       .delete()
       .eq('id', noteId);
 
     if (error) throw error;
-    
-    // Se a nota excluída era a ativa, limpa o editor
+
     if (activeNote?.id === noteId) {
       setActiveNote(null);
     }
-    
+
     queryClient.invalidateQueries({ queryKey: ['notes'] });
-    queryClient.invalidateQueries({ queryKey: ['totalNotesCount'] });
-    queryClient.invalidateQueries({ queryKey: ['todayNotesCount'] });
   };
 
   // Export note as HTML
@@ -308,235 +248,247 @@ const NotesPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex flex-col gap-6 flex-1">
-        {/* Editor area */}
-        <div className="flex-1 flex flex-col">
-          {activeNote ? (
-            <div className="flex flex-col h-full min-h-0 bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-              {/* Compact header */}
-              <div className="flex items-center gap-2 px-2 py-2 h-10 border-b border-gray-700">
-                <Button
-                  onClick={() => setActiveNote(null)}
-                  size="sm"
-                  variant="ghost"
-                  className="text-gray-400 hover:text-white"
-                >
-                  <List className="h-4 w-4 mr-2" />
-                  Voltar
-                </Button>
-                <Input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Título (opcional)"
-                  className="flex-1 bg-transparent text-gray-200 placeholder-gray-400 px-3 py-2 rounded border-transparent"
-                />
-                <div className="flex gap-2">
-                  <Button
-                    onClick={saveNote}
-                    size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:brightness-110"
-                  >
-                    <Save className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    onClick={exportNote}
-                    size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:brightness-110"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    onClick={deleteNote}
-                    size="sm"
-                    variant="destructive"
-                    className="bg-red-600 hover:bg-red-700 text-white shadow-md hover:brightness-110"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Editor that takes full space */}
-              <div className="flex-1 min-h-0 overflow-hidden">
-                <ReactQuill
-                  theme="snow"
-                  value={content}
-                  onChange={setContent}
-                  className="h-full dark-quill" // Adicionar a classe dark-quill aqui
-                  modules={{
-                    toolbar: [
-                      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                      ['bold', 'italic', 'underline', 'strike'],
-                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                      ['link', 'image'],
-                      ['clean']
-                    ]
-                  }}
-                  formats={[
-                    'header',
-                    'bold', 'italic', 'underline', 'strike',
-                    'list', 'bullet',
-                    'link', 'image'
-                  ]}
-                  style={{ height: '100%' }}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col h-full min-h-0">
-              {/* Dashboard Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <Card className="bg-gray-800 border-gray-700 p-4 flex flex-col items-center justify-center">
-                  <CardContent className="p-0 text-center">
-                    <h4 className="text-sm font-medium text-gray-400 mb-1">Total de Anotações</h4>
-                    <p className="text-3xl font-bold text-white">
-                      {isLoadingTotalNotes ? '...' : totalNotesCount}
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-gray-800 border-gray-700 p-4 flex flex-col items-center justify-center">
-                  <CardContent className="p-0 text-center">
-                    <h4 className="text-sm font-medium text-gray-400 mb-1">Criadas Hoje</h4>
-                    <p className="text-3xl font-bold text-white">
-                      {isLoadingTodayNotes ? '...' : todayNotesCount}
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Notes List */}
-              <Card className="bg-gray-800 border-gray-700 flex-1 flex flex-col">
-                <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-white">Minhas Anotações</h3>
-                  <Button onClick={createNote} className="bg-purple-600 hover:bg-purple-700">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nova Anotação
-                  </Button>
-                </div>
-                <div className="p-4">
-                  <Input
-                    placeholder="Buscar anotações..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full mb-4 bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500"
-                  />
-                  <ScrollArea className="h-[calc(100vh-350px)]"> {/* Adjust height as needed */}
-                    <div className="space-y-2">
-                      {isLoadingNotes ? (
-                        <p className="text-gray-400 text-sm text-center py-4">Carregando anotações...</p>
-                      ) : filteredNotes.length === 0 ? (
-                        <p className="text-gray-400 text-sm text-center py-4">
-                          Nenhuma anotação encontrada. Crie uma nova!
-                        </p>
-                      ) : (
-                        filteredNotes.map((note: any) => (
-                          <div
-                            key={note.id}
-                            className={`p-3 rounded-lg cursor-pointer transition-colors ${activeNote?.id === note.id
-                                ? 'bg-purple-900'
-                                : 'bg-gray-700 hover:bg-gray-600'
-                            }`}
-                            onClick={() => setActiveNote(note)}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-gray-200 truncate">{note.title}</p>
-                                <p className="text-xs text-gray-400 truncate">
-                                  {new Date(note.updated_at).toLocaleDateString('pt-BR')}
-                                </p>
-                                {note.content && (
-                                  <p className="text-sm text-gray-300 mt-2 line-clamp-2">
-                                    {/* Display a snippet of the content, stripping HTML */}
-                                    {note.content.replace(/<[^>]*>?/gm, '').substring(0, 100)}...
-                                  </p>
-                                )}
-                              </div>
-                              <Button
-                                onClick={(e) => deleteNoteFromList(note.id, e)}
-                                size="sm"
-                                variant="ghost"
-                                className="ml-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 p-1 h-8 w-8"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </ScrollArea>
-                </div>
-              </Card>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Modal para todas as anotações (still exists, but now only for "Ver Todas" button) */}
-      {showAllNotes && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 border border-gray-700 rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col">
-            <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-white">Todas as Anotações</h3>
+    <div className="flex flex-col h-full bg-gradient-to-b from-gray-900 to-gray-950 overflow-hidden">
+      {activeNote ? (
+        <div className="flex flex-col h-full min-h-0 bg-gray-900">
+          {/* Editor Header */}
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm">
+            <Button
+              onClick={() => setActiveNote(null)}
+              size="sm"
+              variant="ghost"
+              className="text-gray-400 hover:text-white hover:bg-gray-800"
+            >
+              <List className="h-4 w-4 mr-2" />
+              Voltar
+            </Button>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Título da anotação"
+              className="flex-1 bg-transparent text-lg font-semibold text-white placeholder-gray-500 px-3 py-2 rounded border-transparent focus:ring-0"
+            />
+            <div className="flex gap-2">
               <Button
+                onClick={saveNote}
                 size="sm"
-                onClick={() => setShowAllNotes(false)}
-                className="bg-gray-700 hover:bg-gray-600 text-white"
+                className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-900/20"
               >
-                ✕
+                <Save className="h-4 w-4 mr-2" />
+                Salvar
+              </Button>
+              <Button
+                onClick={exportNote}
+                size="sm"
+                variant="outline"
+                className="border-gray-700 text-gray-300 hover:text-white hover:bg-gray-800"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+              <Button
+                onClick={deleteNote}
+                size="sm"
+                variant="destructive"
+                className="bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20"
+              >
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
-            <div className="p-4">
-              <Input
-                placeholder="Buscar anotações..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full mb-4 bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500"
-              />
-              <ScrollArea className="h-[60vh]">
-                <div className="space-y-2">
+          </div>
+
+          {/* Editor Content */}
+          <div className="flex-1 min-h-0 overflow-hidden bg-gray-900">
+            <ReactQuill
+              theme="snow"
+              value={content}
+              onChange={setContent}
+              className="h-full dark-quill"
+              modules={{
+                toolbar: [
+                  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                  ['bold', 'italic', 'underline', 'strike'],
+                  [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                  ['link', 'image'],
+                  ['clean']
+                ]
+              }}
+              formats={[
+                'header',
+                'bold', 'italic', 'underline', 'strike',
+                'list', 'bullet',
+                'link', 'image'
+              ]}
+              style={{ height: '100%' }}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col h-full p-6 md:p-10 overflow-hidden">
+          <div className="max-w-6xl mx-auto w-full flex flex-col h-full">
+
+            {/* Header Section */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8"
+            >
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+                Suas Anotações
+              </h1>
+              <p className="text-gray-400 text-lg">
+                Organize suas ideias e estudos em um só lugar.
+              </p>
+            </motion.div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 flex items-center gap-4 hover:bg-gray-800/80 transition-colors"
+              >
+                <div className="p-3 bg-orange-500/10 rounded-xl">
+                  <Flame className="h-8 w-8 text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Streak de Escrita</p>
+                  <p className="text-3xl font-bold text-white">{stats.streakDays} <span className="text-sm font-normal text-gray-500">dias</span></p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 flex items-center gap-4 hover:bg-gray-800/80 transition-colors"
+              >
+                <div className="p-3 bg-blue-500/10 rounded-xl">
+                  <FileText className="h-8 w-8 text-blue-500" />
+                </div>
+                <div>
+                  <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Total de Notas</p>
+                  <p className="text-3xl font-bold text-white">{stats.totalChats}</p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 flex items-center gap-4 hover:bg-gray-800/80 transition-colors"
+              >
+                <div className="p-3 bg-green-500/10 rounded-xl">
+                  <Calendar className="h-8 w-8 text-green-500" />
+                </div>
+                <div>
+                  <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Hoje</p>
+                  <p className="text-3xl font-bold text-white">{stats.chatsToday} <span className="text-sm font-normal text-gray-500">criadas</span></p>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Action & List Section */}
+            <div className="flex-1 flex flex-col min-h-0">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-gray-400" />
+                  Recentes
+                </h2>
+
+                <div className="flex w-full md:w-auto gap-3">
+                  <div className="relative flex-1 md:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                    <Input
+                      placeholder="Buscar anotações..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 bg-gray-800/50 border-gray-700 text-white placeholder-gray-500 focus:bg-gray-800 transition-colors"
+                    />
+                  </div>
+                  <Button
+                    onClick={createNote}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-900/20 whitespace-nowrap"
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    Nova Nota
+                  </Button>
+                </div>
+              </div>
+
+              <ScrollArea className="flex-1 -mx-2 px-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-10">
+                  {/* Create New Card */}
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 }}
+                    onClick={createNote}
+                    className="group flex flex-col items-center justify-center h-48 rounded-2xl border-2 border-dashed border-gray-700 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all duration-300"
+                  >
+                    <div className="h-12 w-12 rounded-full bg-gray-800 group-hover:bg-purple-500/20 flex items-center justify-center mb-3 transition-colors">
+                      <Plus className="h-6 w-6 text-gray-400 group-hover:text-purple-400" />
+                    </div>
+                    <span className="text-gray-400 group-hover:text-purple-300 font-medium">Criar nova anotação</span>
+                  </motion.button>
+
                   {isLoadingNotes ? (
-                    <p className="text-gray-400 text-sm text-center py-4">Carregando anotações...</p>
-                  ) : notes.length === 0 ? (
-                    <p className="text-gray-400 text-sm text-center py-4">
-                      Nenhuma anotação encontrada
-                    </p>
+                    [1, 2, 3].map((i) => (
+                      <div key={i} className="h-48 rounded-2xl bg-gray-800/30 animate-pulse" />
+                    ))
+                  ) : filteredNotes.length === 0 && searchTerm ? (
+                    <div className="col-span-full text-center py-10 text-gray-500">
+                      Nenhuma anotação encontrada para "{searchTerm}"
+                    </div>
                   ) : (
-                    notes.map((note: any) => (
-                      <div
+                    filteredNotes.map((note: any, index: number) => (
+                      <motion.div
                         key={note.id}
-                        className={`p-3 rounded-lg cursor-pointer transition-colors ${activeNote?.id === note.id
-                            ? 'bg-purple-900'
-                            : 'bg-gray-700 hover:bg-gray-600'
-                        }`}
-                        onClick={() => {
-                          setActiveNote(note);
-                          setShowAllNotes(false);
-                        }}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.4 + (index * 0.05) }}
+                        className="group relative"
                       >
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-200 truncate">{note.title}</p>
-                            <p className="text-xs text-gray-400 truncate">
-                              {new Date(note.updated_at).toLocaleDateString('pt-BR')}
+                        <Card
+                          onClick={() => setActiveNote(note)}
+                          className="h-48 p-5 bg-gray-800/40 border-gray-700/50 hover:bg-gray-800 hover:border-gray-600 transition-all duration-300 cursor-pointer flex flex-col justify-between group-hover:shadow-xl group-hover:shadow-purple-900/10"
+                        >
+                          <div>
+                            <div className="flex justify-between items-start mb-3">
+                              <div className="p-2 bg-purple-500/10 rounded-lg">
+                                <FileText className="h-5 w-5 text-purple-400" />
+                              </div>
+                              <span className="text-xs text-gray-500 font-medium bg-gray-900/50 px-2 py-1 rounded-full">
+                                {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true, locale: ptBR })}
+                              </span>
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-200 group-hover:text-white line-clamp-1 transition-colors mb-2">
+                              {note.title || 'Sem título'}
+                            </h3>
+                            <p className="text-sm text-gray-500 line-clamp-2 group-hover:text-gray-400 transition-colors">
+                              {note.content ? note.content.replace(/<[^>]*>?/gm, '').substring(0, 150) : 'Sem conteúdo...'}
                             </p>
-                            {note.content && (
-                              <p className="text-sm text-gray-300 mt-2 line-clamp-2">
-                                {note.content.replace(/<[^>]*>?/gm, '').substring(0, 100)}...
-                              </p>
-                            )}
                           </div>
-                          <Button
-                            onClick={(e) => deleteNoteFromList(note.id, e)}
-                            size="sm"
-                            variant="ghost"
-                            className="ml-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 p-1 h-8 w-8"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
+
+                          <div className="flex justify-between items-center mt-2">
+                            <span className="text-xs text-gray-600 group-hover:text-gray-500 transition-colors">
+                              {new Date(note.created_at).toLocaleDateString('pt-BR')}
+                            </span>
+                            <div className="flex items-center text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300">
+                              <span className="text-sm font-medium mr-1">Abrir</span>
+                              <ArrowRight className="h-4 w-4" />
+                            </div>
+                          </div>
+                        </Card>
+
+                        <button
+                          onClick={(e) => deleteNoteFromList(note.id, e)}
+                          className="absolute top-4 right-4 p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200"
+                          title="Excluir anotação"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </motion.div>
                     ))
                   )}
                 </div>
