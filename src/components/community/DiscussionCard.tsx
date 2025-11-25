@@ -1,219 +1,127 @@
-"use client";
-
-import { useState } from 'react';
-import { MessageCircle, Clock, User, MoreVertical, Trash2 } from 'lucide-react';
+import { MessageSquare, Trash2, Link as LinkIcon, Share2 } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { motion } from 'framer-motion';
 
 interface DiscussionCardProps {
   id: string;
   title: string;
-  content?: string;
+  content: string;
   author: {
-    id: string;
     name: string;
-    avatar_url?: string;
+    avatar_url: string;
   };
   tag: string;
   created_at: string;
-  onClick?: () => void;
-  onComment?: () => void;
-  onDelete?: (id: string) => void;
-  isOwnDiscussion?: boolean;
+  onClick: () => void;
+  onComment: () => void;
+  onDelete: (id: string) => void;
+  isOwnDiscussion: boolean;
 }
 
-const TAG_COLORS: Record<string, string> = {
-  'Matemática': 'bg-blue-600',
-  'Português': 'bg-pink-600',
-  'História': 'bg-amber-600',
-  'Geografia': 'bg-emerald-600',
-  'Física': 'bg-violet-600',
-  'Química': 'bg-rose-600',
-  'Biologia': 'bg-green-600',
-  'Redação': 'bg-yellow-600',
-  'Dúvida': 'bg-slate-600',
-  'Estudo': 'bg-sky-600',
-  'Geral': 'bg-gray-600'
-};
-
-const DiscussionCard = ({ 
-  id, 
-  title, 
-  content, 
-  author, 
-  tag, 
-  created_at, 
+const DiscussionCard = ({
+  id,
+  title,
+  content,
+  author,
+  tag,
+  created_at,
   onClick,
   onComment,
   onDelete,
-  isOwnDiscussion = false
+  isOwnDiscussion
 }: DiscussionCardProps) => {
-  const [showFullContent, setShowFullContent] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-
-  const contentPreview = content ? 
-    (content.length > 150 ? content.substring(0, 150) + '...' : content) : 
-    '';
-
-  const handleCardClick = () => {
-    if (onClick) {
-      onClick();
-    } else {
-      // Default behavior - could navigate to discussion detail
-      console.log('Discussion clicked:', id);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { 
-        addSuffix: true, 
-        locale: ptBR 
-      });
-    } catch {
-      return new Date(dateString).toLocaleDateString('pt-BR');
-    }
-  };
-
-  // Função para obter as iniciais do nome do autor com fallback
-  const getAuthorInitials = (name: string | undefined) => {
-    if (!name) return 'U';
-    const names = name.split(' ');
-    if (names.length === 1) return names[0].charAt(0).toUpperCase();
-    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
-  };
-
-  const handleMenuClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowMenu(!showMenu);
-  };
-
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowMenu(false);
-    onDelete?.(id);
-  };
-
   return (
-    <Card 
-      className="bg-gray-800 border-gray-700 hover:bg-gray-750 cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/10"
-      onClick={handleCardClick}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2 }}
     >
-      <CardContent className="p-4">
-        {/* Header */}
-        <div className="flex items-start gap-3 mb-3">
-          <Avatar className="w-10 h-10 flex-shrink-0">
-            <AvatarImage src={author.avatar_url} alt={author.name} />
-            <AvatarFallback>
-              {getAuthorInitials(author.name)}
-            </AvatarFallback>
-          </Avatar>
-          
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-medium text-gray-200 truncate">
-                {author.name || 'Usuário'}
-              </span>
-              <span className="text-gray-500">•</span>
-              <span className="text-xs text-gray-400 flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {formatDate(created_at)}
-              </span>
+      <Card
+        className="bg-gray-800/40 backdrop-blur-sm border-gray-700/50 hover:bg-gray-800/60 hover:border-purple-500/30 transition-all duration-300 cursor-pointer overflow-hidden group"
+        onClick={onClick}
+      >
+        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10 border border-gray-700 ring-2 ring-transparent group-hover:ring-purple-500/20 transition-all">
+              <AvatarImage src={author?.avatar_url} />
+              <AvatarFallback className="bg-purple-900/50 text-purple-200">
+                {author?.name?.substring(0, 2).toUpperCase() || 'AN'}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">
+                {author?.name || 'Anônimo'}
+              </p>
+              <p className="text-xs text-gray-500">
+                {formatDistanceToNow(new Date(created_at), { addSuffix: true, locale: ptBR })}
+              </p>
             </div>
-            
-            {/* Tag */}
-            <Badge 
-              variant="secondary"
-              className={`${TAG_COLORS[tag] || TAG_COLORS['Geral']} text-white text-xs`}
+          </div>
+          <span className="inline-flex items-center rounded-full bg-purple-500/10 px-2.5 py-0.5 text-xs font-medium text-purple-400 border border-purple-500/20">
+            {tag}
+          </span>
+        </CardHeader>
+        <CardContent>
+          <h3 className="text-lg font-semibold text-gray-100 mb-2 group-hover:text-purple-300 transition-colors line-clamp-1">
+            {title}
+          </h3>
+          <p className="text-sm text-gray-400 line-clamp-3 leading-relaxed">
+            {content}
+          </p>
+        </CardContent>
+        <CardFooter className="flex justify-between pt-2 border-t border-gray-700/30 mt-2">
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-400 hover:text-purple-400 hover:bg-purple-500/10 gap-2"
+              onClick={(e) => { e.stopPropagation(); onComment(); }}
             >
-              {tag}
-            </Badge>
+              <MessageSquare className="h-4 w-4" />
+              <span className="text-xs">Responder</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 gap-2"
+              onClick={(e) => { e.stopPropagation(); }}
+            >
+              <LinkIcon className="h-4 w-4" />
+              <span className="text-xs">Vincular Nota</span>
+            </Button>
           </div>
 
-          {/* Menu dropdown */}
-          {isOwnDiscussion && (
-            <div className="relative">
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-gray-500 hover:text-white hover:bg-gray-700"
+              onClick={(e) => { e.stopPropagation(); }}
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
+            {isOwnDiscussion && (
               <Button
                 variant="ghost"
-                size="sm"
-                onClick={handleMenuClick}
-                className="text-gray-400 hover:text-white p-1 h-8 w-8"
+                size="icon"
+                className="h-8 w-8 text-gray-500 hover:text-red-400 hover:bg-red-500/10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(id);
+                }}
               >
-                <MoreVertical className="h-4 w-4" />
+                <Trash2 className="h-4 w-4" />
               </Button>
-              
-              {showMenu && (
-                <div className="absolute right-0 top-8 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-10">
-                  <div className="py-1">
-                    <button
-                      onClick={handleDeleteClick}
-                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-900/20 flex items-center gap-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Excluir
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Title */}
-        <h3 className="font-semibold text-white mb-2 line-clamp-2">
-          {title}
-        </h3>
-
-        {/* Content Preview */}
-        {contentPreview && (
-          <div className="mb-3">
-            <p className="text-gray-300 text-sm line-clamp-3">
-              {contentPreview}
-              {content && content.length > 150 && (
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowFullContent(!showFullContent);
-                  }}
-                  className="text-purple-400 hover:text-purple-300 ml-1 text-xs font-medium"
-                >
-                  {showFullContent ? 'Ver menos' : 'Ler mais'}
-                </button>
-              )}
-            </p>
-            {showFullContent && content && (
-              <p className="text-gray-300 text-sm mt-2">
-                {content}
-              </p>
             )}
           </div>
-        )}
-
-        {/* Actions */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-700">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onComment?.();
-            }}
-            className="text-gray-400 hover:text-white flex items-center gap-1"
-          >
-            <MessageCircle className="h-4 w-4" />
-            <span>Comentar</span>
-          </Button>
-          
-          <div className="text-xs text-gray-500">
-            Discussão
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardFooter>
+      </Card>
+    </motion.div>
   );
 };
 
