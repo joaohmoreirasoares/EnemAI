@@ -128,20 +128,8 @@ export async function createComment({
   }
 
   const payload: any = {
-    author_id,
-    content: body, // Note: DiscussionDetail uses 'content', social.ts used 'body'. Let's unify or check schema. DiscussionDetail uses 'content'. social.ts used 'body'. I should probably use 'content' if that's what the table has.
-    // social.ts line 129: body.
-    // DiscussionDetail line 106: content: newComment.
-    // I will assume 'content' is the correct column name based on DiscussionDetail which seems more active.
-    // But wait, social.ts might have been written for a different table 'comments' that has 'body'?
-    // Or maybe 'comments' table has 'content' and social.ts was wrong?
-    // Let's check social.ts again. It inserts { body }.
-    // DiscussionDetail inserts { content }.
-    // This implies they might be using DIFFERENT tables or one is wrong.
-    // DiscussionDetail queries 'comments'. social.ts queries 'comments'.
-    // So it's the SAME table. One of them is wrong about the column name.
-    // Given DiscussionDetail is a page likely used, 'content' is more probable.
-    // I will use 'content' in the payload and map 'body' arg to it if needed, or change arg to 'content'.
+    user_id: author_id,
+    content: body,
     parent_comment_id
   };
 

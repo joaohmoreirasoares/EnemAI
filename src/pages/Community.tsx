@@ -123,9 +123,9 @@ const CommunityPage = () => {
         <Leaderboard />
 
         <div className="bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-500/20 rounded-xl p-6 text-center">
-          <h3 className="text-lg font-bold text-white mb-2">Contribua e Ganhe</h3>
+          <h3 className="text-lg font-bold text-white mb-2">Participe da Comunidade</h3>
           <p className="text-sm text-gray-400 mb-4">
-            Ajude outros estudantes e ganhe <span className="text-purple-400 font-bold">Brain Points</span> para subir no ranking!
+            Compartilhe suas dúvidas, ajude outros estudantes e troque conhecimentos para evoluir nos estudos.
           </p>
           <Button
             className="w-full bg-purple-600 hover:bg-purple-700 text-white"

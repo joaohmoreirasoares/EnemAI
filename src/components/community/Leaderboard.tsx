@@ -36,7 +36,7 @@ export const Leaderboard = () => {
             // Note: RLS might restrict this to only the current user's notes, 
             // so streaks for others might be 0, which is expected behavior for now.
             const { data: notes, error: notesError } = await supabase
-                .from('notes')
+                .from('notes_metadata')
                 .select('user_id, updated_at, created_at');
 
             if (notesError) throw notesError;
