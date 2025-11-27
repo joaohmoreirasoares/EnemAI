@@ -1,6 +1,6 @@
-# SavAI - Project Documentation
+# EnemAI - Project Documentation
 
-Este documento fornece uma visão geral técnica do projeto **SavAI** para garantir a compatibilidade e facilitar a manutenção e desenvolvimento futuro.
+Este documento fornece uma visão geral técnica do projeto **EnemAI** para garantir a compatibilidade e facilitar a manutenção e desenvolvimento futuro.
 
 ## 🛠 Tech Stack
 
@@ -56,7 +56,7 @@ A estrutura de diretórios segue o padrão Vite + React:
 
 ## 🌟 Funcionalidades do Sistema
 
-O **SavAI** é uma plataforma educacional focada no ENEM, integrando IA, ferramentas de estudo e comunidade.
+O **EnemAI** é uma plataforma educacional focada no ENEM, integrando IA, ferramentas de estudo e comunidade.
 
 ### 1. 🤖 Chat com IA (Tutor ENEM AI)
 O coração da plataforma. Um assistente virtual inteligente para tirar dúvidas.
@@ -113,4 +113,3 @@ No diretório do projeto, você pode rodar:
 5.  **Shadcn UI**: Ao adicionar novos componentes do shadcn, use a CLI ou copie manualmente garantindo que as dependências (Radix UI) sejam instaladas.
 
 ---
-*Gerado automaticamente para auxiliar no desenvolvimento do SavAI.*

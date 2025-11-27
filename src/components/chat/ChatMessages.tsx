@@ -22,57 +22,78 @@ const ChatMessages = ({
   generatedResponse
 }: ChatMessagesProps) => {
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full max-w-3xl mx-auto px-4">
       {messages.map((msg) => (
         <div
           key={msg.id}
-          className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'
-            }`}
+          className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
         >
           <div
-            className={`max-w-[85%] rounded-lg p-4 ${msg.role === 'user'
-              ? 'bg-purple-600 text-white'
-              : msg.role === 'system'
-                ? 'bg-gray-800 text-gray-300 border border-gray-700 font-mono text-sm'
-                : 'bg-gray-700 text-white'
+            className={`flex gap-4 max-w-[90%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'
               }`}
           >
-            <div className="flex items-start gap-2">
+            {/* Avatar / Icon */}
+            <div className={`flex-shrink-0 mt-1`}>
               {msg.role === 'assistant' ? (
-                <Bot className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                  <Bot className="h-5 w-5 text-white" />
+                </div>
               ) : msg.role === 'user' ? (
-                <User className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                  <User className="h-5 w-5 text-gray-300" />
+                </div>
               ) : (
-                <div className="h-5 w-5 mt-0.5 flex-shrink-0 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center">
                   <span className="text-xs">⚙️</span>
                 </div>
               )}
-              <div>
-                <p className="font-medium text-xs mb-1">
-                  {msg.role === 'user' ? 'Você' : msg.role === 'system' ? 'Sistema' : 'Tutor ENEM AI'}
-                </p>
+            </div>
+
+            {/* Message Content */}
+            <div
+              className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'
+                }`}
+            >
+              <div
+                className={`text-sm ${msg.role === 'user'
+                    ? 'bg-gray-800 text-white px-5 py-3 rounded-2xl rounded-tr-sm'
+                    : msg.role === 'system'
+                      ? 'bg-gray-900/50 text-gray-400 border border-gray-800 p-4 rounded-lg font-mono text-xs w-full'
+                      : 'text-gray-100 py-1' // AI message has no background
+                  }`}
+              >
                 {msg.role === 'assistant' ? (
                   <MarkdownProcessor content={msg.content} />
                 ) : (
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                  <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                 )}
               </div>
+
+              {/* Timestamp or Name (optional, keeping minimal for now) */}
+              {msg.role !== 'user' && msg.role !== 'system' && (
+                <span className="text-xs text-gray-500 mt-1 ml-1">Tutor ENEM AI</span>
+              )}
             </div>
           </div>
         </div>
       ))}
+
+      {/* Loading State */}
       {isGenerating && (
-        <div className="flex justify-start">
-          <div className="max-w-[85%] rounded-lg p-4 bg-gray-700 text-white">
-            <div className="flex items-start gap-2">
-              <Bot className="h-5 w-5 mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="font-medium text-xs mb-1">Tutor ENEM AI</p>
+        <div className="flex w-full justify-start">
+          <div className="flex gap-4 max-w-[90%]">
+            <div className="flex-shrink-0 mt-1">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/20 animate-pulse">
+                <Bot className="h-5 w-5 text-white" />
+              </div>
+            </div>
+            <div className="flex flex-col items-start">
+              <div className="text-gray-100 py-1">
                 <MarkdownProcessor content={generatedResponse} />
-                <div className="flex items-center gap-1 mt-2">
-                  <span className="inline-block w-2 h-2 rounded-full bg-gray-400 animate-bounce"></span>
-                  <span className="inline-block w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.2s' }}></span>
-                  <span className="inline-block w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                <div className="flex items-center gap-1 mt-2 h-6">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce"></span>
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0.4s' }}></span>
                 </div>
               </div>
             </div>

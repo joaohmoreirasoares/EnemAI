@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -10,7 +11,6 @@ import AgentSelector from '@/components/chat/AgentSelector';
 import ChatMessages from '@/components/chat/ChatMessages';
 import ChatInput from '@/components/chat/ChatInput';
 import WelcomeMessage from '@/components/chat/WelcomeMessage';
-import ContextSelector from '@/components/chat/ContextSelector';
 import ChatHome from '@/components/chat/ChatHome';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -32,23 +32,14 @@ const ChatPage = () => {
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [selectedNoteIds, setSelectedNoteIds] = useState<string[]>([]);
 
-  // Fetch user's notes for context
-  const { data: notes = [] } = useQuery({
-    queryKey: ['chat-context-notes'],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
-
-      const { data, error } = await supabase
-        .from('notes')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('updated_at', { ascending: false });
-
-      if (error) throw error;
-      return data;
-    }
-  });
+  // Fetch user's notes for context (kept for potential future use or tool context, though UI is removed)
+  // We can keep the query but remove the UI selection logic if we want the AI to still have access via tools
+  // For now, let's keep the query as it might be useful for the 'search_notes' tool to have a cache or similar, 
+  // but we won't pass 'selectedNoteIds' to context anymore since the user can't select them.
+  // Actually, the prompt says "Contexto inicial das anotações selecionadas: ${context}". 
+  // Since we are removing manual selection, we should probably remove this context injection or automate it.
+  // The user asked to "retirar o sistema para colocar anotações no contexto da IA onde o usuário escolhe uma anotação manualmente".
+  // So we will remove the manual selection state.
 
   // Clear interval on unmount
   useEffect(() => {
@@ -237,11 +228,9 @@ const ChatPage = () => {
     if (!userMessage.trim() || !activeConversation || isLoading || !apiKey) return;
 
     // Build context from selected notes
-    let context = '';
-    if (selectedNoteIds.length > 0) {
-      const selectedNotes = notes.filter((n: any) => selectedNoteIds.includes(n.id));
-      context = selectedNotes.map((n: any) => `Nota: ${n.title}\nConteúdo: ${n.content || ''}\n`).join('\n');
-    }
+    // Manual context selection removed as per user request.
+    // The AI can still use tools to search for notes if needed.
+    const context = '';
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -463,93 +452,112 @@ const ChatPage = () => {
     setError(null);
   }, [activeConversation]);
 
-  if (view === 'home') {
-    return (
-      <ChatHome
-        conversations={conversations}
-        onSelectConversation={(id) => {
-          setActiveConversation(id);
-          setView('chat');
-        }}
-        onDeleteConversation={deleteConversation}
-        stats={stats}
-        onCreateNew={createConversation}
-      />
-    );
-  }
-
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 flex flex-col h-full relative">
-        <div className="flex flex-col h-full">
-          <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setView('home')}
-                className="text-gray-400 hover:text-white hover:bg-gray-800"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <div>
-                <h1 className="text-xl font-bold text-white">Chat com IA</h1>
-                <p className="text-xs text-gray-400 hidden md:block">Converse com o Tutor ENEM AI</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="bg-gradient-to-b from-gray-900 to-gray-950 flex-1 flex flex-col overflow-hidden">
-              <CardContent className="p-0 flex-1 flex flex-col h-full overflow-hidden">
-                {/* Messages area */}
-                <ScrollArea className="flex-1 p-4 bg-gradient-to-b from-gray-900 to-gray-950" ref={scrollAreaRef}>
-                  {messages.length > 0 ? (
-                    <ChatMessages
-                      messages={messages}
-                      selectedAgent="Tutor ENEM AI"
-                      isGenerating={isGenerating}
-                      generatedResponse={generatedResponse}
-                    />
-                  ) : (
-                    <WelcomeMessage onCreateConversation={createConversation} />
-                  )}
-
-                  {/* Error message */}
-                  {error && (
-                    <div className="mt-4 p-3 bg-red-900/30 border border-red-700 rounded-lg flex items-start">
-                      <AlertCircle className="h-5 w-5 text-red-400 mt-0.5 mr-2 flex-shrink-0" />
-                      <div>
-                        <p className="text-red-400 font-medium">Erro</p>
-                        <p className="text-red-300 text-sm">{error}</p>
-                      </div>
+    <div className="h-full overflow-hidden">
+      <AnimatePresence mode="wait">
+        {view === 'home' ? (
+          <motion.div
+            key="home"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+            className="h-full"
+          >
+            <ChatHome
+              conversations={conversations}
+              onSelectConversation={(id) => {
+                setActiveConversation(id);
+                setView('chat');
+              }}
+              onDeleteConversation={deleteConversation}
+              stats={stats}
+              onCreateNew={createConversation}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="chat"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2 }}
+            className="h-full flex flex-col"
+          >
+            <div className="flex-1 flex flex-col h-full relative">
+              <div className="flex flex-col h-full">
+                <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50">
+                  <div className="flex items-center gap-4">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setView('home')}
+                      className="text-gray-400 hover:text-white hover:bg-gray-800"
+                    >
+                      <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                    <div>
+                      <h1 className="text-xl font-bold text-white">Chat com IA</h1>
+                      <p className="text-xs text-gray-400 hidden md:block">Converse com o Tutor ENEM AI</p>
                     </div>
-                  )}
-                </ScrollArea>
-
-                {/* Context Selector */}
-                <div className="px-3 pt-2 bg-gray-900 border-t border-gray-800">
-                  <ContextSelector
-                    notes={notes}
-                    selectedNoteIds={selectedNoteIds}
-                    onSelectionChange={setSelectedNoteIds}
-                  />
+                  </div>
                 </div>
 
-                {/* Input area */}
-                <ChatInput
-                  message={message}
-                  setMessage={setMessage}
-                  onSend={sendMessage}
-                  isLoading={isLoading}
-                  hasApiKey={!!apiKey}
-                  hasActiveConversation={!!activeConversation}
-                />
-              </CardContent>
+                <div className="flex-1 flex flex-col overflow-hidden relative">
+                  {/* Background - Deep dark, subtle gradient */}
+                  <div className="absolute inset-0 bg-[#0f1117] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-[#0f1117] to-[#0f1117]"></div>
+
+                  <div className="relative flex-1 flex flex-col overflow-hidden">
+                    {/* Messages area */}
+                    <ScrollArea className="flex-1" ref={scrollAreaRef}>
+                      <div className="py-8">
+                        {messages.length > 0 ? (
+                          <ChatMessages
+                            messages={messages}
+                            selectedAgent="Tutor ENEM AI"
+                            isGenerating={isGenerating}
+                            generatedResponse={generatedResponse}
+                          />
+                        ) : (
+                          <WelcomeMessage onCreateConversation={createConversation} />
+                        )}
+
+                        {/* Error message */}
+                        {error && (
+                          <div className="max-w-3xl mx-auto px-4 mt-4">
+                            <div className="p-3 bg-red-900/20 border border-red-800/50 rounded-lg flex items-start backdrop-blur-sm">
+                              <AlertCircle className="h-5 w-5 text-red-400 mt-0.5 mr-2 flex-shrink-0" />
+                              <div>
+                                <p className="text-red-400 font-medium text-sm">Erro</p>
+                                <p className="text-red-300 text-xs">{error}</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Spacer for floating input */}
+                        <div className="h-32"></div>
+                      </div>
+                    </ScrollArea>
+
+                    {/* Input area - Fixed at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-[#0f1117] via-[#0f1117]/80 to-transparent pt-10 pb-6">
+                      <ChatInput
+                        message={message}
+                        setMessage={setMessage}
+                        onSend={sendMessage}
+                        isLoading={isLoading}
+                        hasApiKey={!!apiKey}
+                        hasActiveConversation={!!activeConversation}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
