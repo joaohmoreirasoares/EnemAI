@@ -1,12 +1,51 @@
 import { supabase } from '@/integrations/supabase/client';
 
+/**
+ * Interface defining the structure of an AI tool.
+ * Used to generate the JSON schema passed to the LLM system prompt.
+ */
 export interface AgentTool {
     name: string;
     description: string;
-    parameters: any;
+    parameters: {
+        type: string;
+        properties: Record<string, {
+            type: string;
+            description: string;
+            enum?: string[];
+        }>;
+        required: string[];
+    };
 }
 
+/**
+ * List of available tools for the AI Agent.
+ * These definitions are injected into the system prompt.
+ */
 export const TOOLS: AgentTool[] = [
+    {
+        name: 'list_notes',
+        description: 'List all available notes from the user. Use this to discover what notes exist before reading a specific one.',
+        parameters: {
+            type: 'object',
+            properties: {},
+            required: [],
+        },
+    },
+    {
+        name: 'read_note',
+        description: 'Read the full content of a specific note. Use this when you need to see the details of a note found via search or list.',
+        parameters: {
+            type: 'object',
+            properties: {
+                title: {
+                    type: 'string',
+                    description: 'The exact title of the note to read.',
+                },
+            },
+            required: ['title'],
+        },
+    },
     {
         name: 'search_notes',
         description: 'Search for notes by title or content. Use this to find relevant notes when the user asks about a specific topic.',
@@ -19,20 +58,6 @@ export const TOOLS: AgentTool[] = [
                 },
             },
             required: ['query'],
-        },
-    },
-    {
-        name: 'read_note',
-        description: 'Read the full content of a specific note. Use this when you need to see the details of a note found via search.',
-        parameters: {
-            type: 'object',
-            properties: {
-                title: {
-                    type: 'string',
-                    description: 'The exact title of the note to read.',
-                },
-            },
-            required: ['title'],
         },
     },
     {
@@ -55,28 +80,40 @@ export const TOOLS: AgentTool[] = [
     },
 ];
 
-export async function searchNotes(query: string) {
+// ============================================================================
+// Tool Implementations
+// ============================================================================
+
+/**
+ * Lists all notes for the authenticated user.
+ * Optimization: Returns only titles to minimize token usage.
+ */
+export async function listNotes() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
     const { data, error } = await supabase
         .from('notes')
-        .select('id, title, updated_at')
+        .select('title') // Only fetch titles for efficiency
         .eq('user_id', user.id)
-        .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
-        .limit(5);
+        .order('updated_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+
+    // Return a simple list of strings to be friendly to the LLM
+    return data.map(note => note.title);
 }
 
+/**
+ * Reads the full content of a specific note by title.
+ */
 export async function readNote(title: string) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
     const { data, error } = await supabase
         .from('notes')
-        .select('id, title, content, updated_at')
+        .select('title, content, updated_at')
         .eq('user_id', user.id)
         .eq('title', title)
         .single();
@@ -85,11 +122,32 @@ export async function readNote(title: string) {
     return data;
 }
 
+/**
+ * Searches for notes matching a query string.
+ */
+export async function searchNotes(query: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+        .from('notes')
+        .select('title, updated_at') // Don't fetch full content in search results to save tokens
+        .eq('user_id', user.id)
+        .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
+        .limit(5);
+
+    if (error) throw error;
+    return data;
+}
+
+/**
+ * Updates the content of an existing note.
+ */
 export async function updateNote(title: string, content: string) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    // First check if note exists
+    // First check if note exists to get its ID
     const { data: existingNote } = await supabase
         .from('notes')
         .select('id')

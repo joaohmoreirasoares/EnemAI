@@ -18,12 +18,12 @@ const AgentSelector = ({ onShowConversations }: AgentSelectorProps) => {
           <MessageSquare className="h-4 w-4 mr-2" />
           Conversas
         </Button>
-        
+
         <div className="text-center">
-          <h3 className="text-sm font-semibold text-white">Agente ENEM AI</h3>
+          <h3 className="text-sm font-semibold text-white">KIAra</h3>
           <p className="text-xs text-gray-400">Tutor Geral</p>
         </div>
-        
+
         <p className="text-xs text-gray-500 max-w-[200px]">
           Este agente responde dúvidas de todas as áreas do ENEM e utiliza suas anotações como contexto.
         </p>

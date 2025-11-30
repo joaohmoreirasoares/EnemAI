@@ -1,11 +1,13 @@
-import { Bot, User } from 'lucide-react';
+import { Bot, User, Loader2, BookOpen } from 'lucide-react';
 import MarkdownProcessor from './MarkdownProcessor';
 
-interface Message {
+export interface Message {
   id: string;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
+  role: 'user' | 'assistant' | 'system' | 'tool';
+  content: string | null;
   timestamp: string;
+  tool_calls?: any[];
+  tool_call_id?: string;
 }
 
 interface ChatMessagesProps {
@@ -13,17 +15,35 @@ interface ChatMessagesProps {
   selectedAgent: string;
   isGenerating: boolean;
   generatedResponse: string;
+  isLoading: boolean;
 }
 
+// Componente de mensagens do chat
 const ChatMessages = ({
   messages,
   selectedAgent,
   isGenerating,
-  generatedResponse
+  generatedResponse,
+  isLoading
 }: ChatMessagesProps) => {
   return (
     <div className="space-y-6 w-full max-w-3xl mx-auto px-4">
-      {messages.map((msg) => (
+      {messages.filter(msg => {
+        // Hide system messages (tool outputs)
+        if (msg.role === 'system' || msg.role === 'tool') return false;
+
+        // Hide assistant messages that are raw tool calls (start with { and contain "tool") or logic steps
+        if (msg.role === 'assistant') {
+          if (!msg.content) return false; // Hide if no content (likely a native tool call container)
+
+          const content = msg.content.trim();
+          if ((content.startsWith('{') && content.includes('"tool"')) || content.startsWith('LOGIC_STEP:')) {
+            return false;
+          }
+        }
+
+        return true;
+      }).map((msg) => (
         <div
           key={msg.id}
           className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -35,8 +55,15 @@ const ChatMessages = ({
             {/* Avatar / Icon */}
             <div className={`flex-shrink-0 mt-1`}>
               {msg.role === 'assistant' ? (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
-                  <Bot className="h-5 w-5 text-white" />
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-lg ${selectedAgent === 'LIAn'
+                  ? 'bg-gradient-to-br from-emerald-500 to-teal-500 shadow-emerald-500/20'
+                  : 'bg-gradient-to-br from-purple-500 to-blue-500 shadow-purple-500/20'
+                  }`}>
+                  {selectedAgent === 'LIAn' ? (
+                    <BookOpen className="w-5 h-5 text-white" />
+                  ) : (
+                    <Bot className="w-5 h-5 text-white" />
+                  )}
                 </div>
               ) : msg.role === 'user' ? (
                 <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
@@ -56,10 +83,10 @@ const ChatMessages = ({
             >
               <div
                 className={`text-sm ${msg.role === 'user'
-                    ? 'bg-gray-800 text-white px-5 py-3 rounded-2xl rounded-tr-sm'
-                    : msg.role === 'system'
-                      ? 'bg-gray-900/50 text-gray-400 border border-gray-800 p-4 rounded-lg font-mono text-xs w-full'
-                      : 'text-gray-100 py-1' // AI message has no background
+                  ? 'bg-gray-800 text-white px-5 py-3 rounded-2xl rounded-tr-sm'
+                  : msg.role === 'system'
+                    ? 'bg-gray-900/50 text-gray-400 border border-gray-800 p-4 rounded-lg font-mono text-xs w-full'
+                    : 'text-gray-100 py-1' // AI message has no background
                   }`}
               >
                 {msg.role === 'assistant' ? (
@@ -71,7 +98,7 @@ const ChatMessages = ({
 
               {/* Timestamp or Name (optional, keeping minimal for now) */}
               {msg.role !== 'user' && msg.role !== 'system' && (
-                <span className="text-xs text-gray-500 mt-1 ml-1">Tutor ENEM AI</span>
+                <span className="text-xs text-gray-500 mt-1 ml-1">KIAra</span>
               )}
             </div>
           </div>
@@ -94,6 +121,29 @@ const ChatMessages = ({
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce"></span>
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0.2s' }}></span>
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Thinking State (when loading but not yet generating text) */}
+      {isLoading && !isGenerating && (
+        <div className="flex w-full justify-start">
+          <div className="flex gap-4 max-w-[90%]">
+            <div className="flex-shrink-0 mt-1">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/20 animate-pulse">
+                <Bot className="h-5 w-5 text-white" />
+              </div>
+            </div>
+            <div className="flex flex-col items-start">
+              <div className="text-gray-400 py-1 text-sm italic flex items-center gap-2">
+                <span>Pensando...</span>
+                <div className="flex items-center gap-1 h-4">
+                  <span className="inline-block w-1 h-1 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0s' }}></span>
+                  <span className="inline-block w-1 h-1 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                  <span className="inline-block w-1 h-1 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.4s' }}></span>
                 </div>
               </div>
             </div>

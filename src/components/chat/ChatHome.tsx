@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MessageSquare, Flame, Calendar, Plus, ArrowRight, Clock, Trash2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -95,13 +96,7 @@ const ChatHome = ({
                             <Clock className="h-5 w-5 text-gray-400" />
                             Recentes
                         </h2>
-                        <Button
-                            onClick={onCreateNew}
-                            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg shadow-purple-900/20 rounded-full px-6"
-                        >
-                            <Plus className="h-5 w-5 mr-2" />
-                            Nova Conversa
-                        </Button>
+
                     </div>
 
                     <ScrollArea className="flex-1 -mx-2 px-2">
@@ -134,8 +129,17 @@ const ChatHome = ({
                                     >
                                         <div>
                                             <div className="flex justify-between items-start mb-2">
-                                                <div className="p-2 bg-purple-500/10 rounded-lg">
-                                                    <MessageSquare className="h-5 w-5 text-purple-400" />
+                                                <div className={`p-2 rounded-lg ${conv.agent === 'LIAn' ? 'bg-emerald-500/10' :
+                                                    conv.agent === 'KIAra' ? 'bg-purple-500/10' :
+                                                        'bg-gray-700/50'
+                                                    }`}>
+                                                    {conv.agent === 'LIAn' ? (
+                                                        <Clock className="h-5 w-5 text-emerald-400" />
+                                                    ) : conv.agent === 'KIAra' ? (
+                                                        <MessageSquare className="h-5 w-5 text-purple-400" />
+                                                    ) : (
+                                                        <MessageSquare className="h-5 w-5 text-gray-400" />
+                                                    )}
                                                 </div>
                                                 <span className="text-xs text-gray-500 font-medium bg-gray-900/50 px-2 py-1 rounded-full">
                                                     {formatDistanceToNow(new Date(conv.updated_at), { addSuffix: true, locale: ptBR })}
