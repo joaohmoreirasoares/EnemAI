@@ -2,7 +2,7 @@
 
 Bem-vindo ao **EnemAI**, uma plataforma educacional de ponta projetada para revolucionar a preparação para o ENEM. Combinando Inteligência Artificial avançada, ferramentas de organização de estudos e uma comunidade vibrante, o EnemAI oferece uma experiência de aprendizado personalizada e envolvente.
 
-![EnemAI Banner](public/banner_enemai.png)
+<img width="3168" height="1344" alt="banner_enemai" src="https://github.com/user-attachments/assets/04f17270-28b6-418c-95fc-a41dbf753e75" />
 
 ## 🌟 Visão Geral
 
