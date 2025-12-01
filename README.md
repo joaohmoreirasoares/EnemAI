@@ -2,7 +2,7 @@
 
 Bem-vindo ao **EnemAI**, uma plataforma educacional de ponta projetada para revolucionar a preparação para o ENEM. Combinando Inteligência Artificial avançada, ferramentas de organização de estudos e uma comunidade vibrante, o EnemAI oferece uma experiência de aprendizado personalizada e envolvente.
 
-![EnemAI Banner](https://placehold.co/1200x400/8B5CF6/FFFFFF?text=EnemAI+Platform)
+![EnemAI Banner](public/logo.png)
 
 ## 🌟 Visão Geral
 
