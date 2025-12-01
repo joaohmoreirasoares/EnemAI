@@ -16,6 +16,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2, Edit, User, Calendar, MessageSquare, Info, Save, GraduationCap, BookOpen, School, Target, Sparkles } from 'lucide-react';
 import { openOrCreateConversation } from '../lib/social';
 import { toast } from 'sonner';
+import { AccessibilityHelper } from '@/components/accessibility/AccessibilityHelper';
 
 // --- Data Constants ---
 const subjects = [
@@ -373,9 +374,11 @@ const ViewProfileView = ({ profile, isOwnProfile, onEdit, sessionUserId }: any) 
 
           <div className="flex gap-3 mt-4 md:mt-12 w-full md:w-auto">
             {isOwnProfile ? (
-              <Button onClick={onEdit} className="flex-1 md:flex-none bg-gray-800 border border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:text-purple-200 transition-all hover:scale-105">
-                <Edit className="h-4 w-4 mr-2" />Editar Perfil
-              </Button>
+              <AccessibilityHelper description="Editar Perfil: Atualize suas informações pessoais e acadêmicas.">
+                <Button onClick={onEdit} className="flex-1 md:flex-none bg-gray-800 border border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:text-purple-200 transition-all hover:scale-105">
+                  <Edit className="h-4 w-4 mr-2" />Editar Perfil
+                </Button>
+              </AccessibilityHelper>
             ) : (
               <Button onClick={handleChat} className="flex-1 md:flex-none bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-900/20 transition-all hover:scale-105">
                 <MessageSquare className="h-4 w-4 mr-2" />Conversar

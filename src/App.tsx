@@ -19,137 +19,140 @@ import DiscussionDetail from "./pages/DiscussionDetail";
 import SimuladosList from "./pages/SimuladosList";
 import SimuladoPage from "./pages/Simulado";
 import SimuladoResultPage from "./pages/SimuladoResult";
+import { AccessibilityProvider } from "@/context/AccessibilityContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+    <AccessibilityProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          {/* Protected routes */}
-          <Route
-            path="/chat"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <ChatPage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chat/:conversationId"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <DirectChat conversationId="default-conversation-id" />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/notes"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <NotesPage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/community"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <CommunityPage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/discussion/:id"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <DiscussionDetail />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <ProfilePage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile/:id"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <ProfilePage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <SettingsPage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/simulados"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <SimuladosList />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/simulado/:simuladoId"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <SimuladoPage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/simulado/:simuladoId/resultado"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <SimuladoResultPage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
+            {/* Protected routes */}
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <ChatPage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat/:conversationId"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <DirectChat conversationId="default-conversation-id" />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notes"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <NotesPage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/community"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <CommunityPage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/discussion/:id"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <DiscussionDetail />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <ProfilePage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/:id"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <ProfilePage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <SettingsPage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/simulados"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <SimuladosList />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/simulado/:simuladoId"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <SimuladoPage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/simulado/:simuladoId/resultado"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <SimuladoResultPage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AccessibilityProvider>
   </QueryClientProvider>
 );
 

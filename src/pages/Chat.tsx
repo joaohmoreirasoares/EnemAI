@@ -17,6 +17,8 @@ import { Button } from '@/components/ui/button';
 import { TOOLS, searchNotes, readNote, updateNote, listNotes } from '@/lib/agent-tools';
 import { calculateStats } from '@/lib/streak';
 
+import { AccessibilityHelper } from '@/components/accessibility/AccessibilityHelper';
+
 const ChatPage = () => {
   const [message, setMessage] = useState('');
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
@@ -698,16 +700,19 @@ Em seguida, tente conectar o assunto trivial a algo estudável (ex: futebol -> f
           >
             <div className="flex-1 flex flex-col h-full relative">
               <div className="flex flex-col h-full">
+
                 <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50">
                   <div className="flex items-center gap-4">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setView('home')}
-                      className="text-gray-400 hover:text-white hover:bg-gray-800"
-                    >
-                      <ArrowLeft className="h-5 w-5" />
-                    </Button>
+                    <AccessibilityHelper description="Voltar: Retorna para a lista de conversas e estatísticas.">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setView('home')}
+                        className="text-gray-400 hover:text-white hover:bg-gray-800"
+                      >
+                        <ArrowLeft className="h-5 w-5" />
+                      </Button>
+                    </AccessibilityHelper>
                     <div>
                       <h1 className="text-xl font-bold text-white">Chat com IA</h1>
                       <p className="text-xs text-gray-400 hidden md:block">Converse com a KIAra</p>
@@ -766,6 +771,7 @@ Em seguida, tente conectar o assunto trivial a algo estudável (ex: futebol -> f
                           isLoading={isLoading}
                           hasApiKey={!!apiKey}
                           hasActiveConversation={!!activeConversation}
+                          showHelp={messages.length === 0}
                         />
                       </div>
                     )}

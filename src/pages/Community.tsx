@@ -11,6 +11,7 @@ import CreateDiscussionModal from '../components/community/CreateDiscussionModal
 import DiscussionCard from '../components/community/DiscussionCard';
 import { Leaderboard } from '../components/community/Leaderboard';
 import { UserDirectory } from '../components/community/UserDirectory';
+import { AccessibilityHelper } from '@/components/accessibility/AccessibilityHelper';
 
 const TAGS = [
   'Matemática', 'Português', 'História', 'Geografia',
@@ -140,31 +141,35 @@ const CommunityPage = () => {
       <div className="lg:col-span-8 space-y-6">
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button
-            onClick={() => setViewMode('discussions')}
-            className="p-6 bg-gray-800/40 border border-gray-700/50 rounded-xl hover:bg-gray-800/60 hover:border-purple-500/30 transition-all text-left group"
-          >
-            <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center mb-4 group-hover:bg-purple-500/20 transition-colors">
-              <MessageSquare className="h-5 w-5 text-purple-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-1">Todas as Discussões</h3>
-            <p className="text-sm text-gray-400 flex items-center">
-              Navegue por {discussions.length} tópicos <ArrowRight className="h-3 w-3 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </p>
-          </button>
+          <AccessibilityHelper description="Fórum: Acesse todas as discussões da comunidade.">
+            <button
+              onClick={() => setViewMode('discussions')}
+              className="p-6 bg-gray-800/40 border border-gray-700/50 rounded-xl hover:bg-gray-800/60 hover:border-purple-500/30 transition-all text-left group w-full"
+            >
+              <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center mb-4 group-hover:bg-purple-500/20 transition-colors">
+                <MessageSquare className="h-5 w-5 text-purple-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-1">Todas as Discussões</h3>
+              <p className="text-sm text-gray-400 flex items-center">
+                Navegue por {discussions.length} tópicos <ArrowRight className="h-3 w-3 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </p>
+            </button>
+          </AccessibilityHelper>
 
-          <button
-            onClick={() => setViewMode('directory')}
-            className="p-6 bg-gray-800/40 border border-gray-700/50 rounded-xl hover:bg-gray-800/60 hover:border-blue-500/30 transition-all text-left group"
-          >
-            <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
-              <BookOpen className="h-5 w-5 text-blue-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-1">Diretório de Usuários</h3>
-            <p className="text-sm text-gray-400 flex items-center">
-              Encontre professores e alunos <ArrowRight className="h-3 w-3 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </p>
-          </button>
+          <AccessibilityHelper description="Diretório: Encontre e conecte-se com outros estudantes e professores.">
+            <button
+              onClick={() => setViewMode('directory')}
+              className="p-6 bg-gray-800/40 border border-gray-700/50 rounded-xl hover:bg-gray-800/60 hover:border-blue-500/30 transition-all text-left group w-full"
+            >
+              <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
+                <BookOpen className="h-5 w-5 text-blue-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-1">Diretório de Usuários</h3>
+              <p className="text-sm text-gray-400 flex items-center">
+                Encontre professores e alunos <ArrowRight className="h-3 w-3 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </p>
+            </button>
+          </AccessibilityHelper>
         </div>
 
         {/* Top Discussions Preview */}
@@ -207,43 +212,52 @@ const CommunityPage = () => {
       className="space-y-6"
     >
       <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={() => setViewMode('dashboard')} className="text-gray-400 hover:text-white">
-          ← Voltar
-        </Button>
+        <AccessibilityHelper description="Voltar: Retorna para o painel principal da comunidade.">
+          <Button variant="ghost" onClick={() => setViewMode('dashboard')} className="text-gray-400 hover:text-white">
+            ← Voltar
+          </Button>
+        </AccessibilityHelper>
         <h2 className="text-2xl font-bold text-white">Todas as Discussões</h2>
       </div>
 
       {/* Search Bar */}
-      <div className="relative group max-w-2xl">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <Input
-            placeholder="Pesquisar tópicos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-12 h-12 bg-gray-900/80 border-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 transition-all"
-          />
+      <AccessibilityHelper description="Busca: Pesquise por tópicos específicos na comunidade.">
+        <div className="relative group max-w-2xl">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Input
+              placeholder="Pesquisar tópicos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-12 h-12 bg-gray-900/80 border-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 transition-all"
+            />
+          </div>
         </div>
-      </div>
+      </AccessibilityHelper>
 
-      <div className="space-y-4">
-        {discussions.map((discussion) => (
-          <DiscussionCard
-            key={discussion.id}
-            id={discussion.id}
-            title={discussion.title}
-            content={discussion.content}
-            author={discussion.profiles}
-            tag={discussion.tag}
-            created_at={discussion.created_at}
-            onClick={() => handleDiscussionClick(discussion.id)}
-            onComment={() => handleDiscussionClick(discussion.id)}
-            onDelete={handleDeleteDiscussion}
-            isOwnDiscussion={currentUser?.id === discussion.author_id}
-          />
-        ))}
-      </div>
+      <AccessibilityHelper
+        description="Lista de Discussões: Navegue por todos os tópicos criados pela comunidade."
+        borderClassName="-inset-4"
+      >
+        <div className="space-y-4">
+          {discussions.map((discussion) => (
+            <DiscussionCard
+              key={discussion.id}
+              id={discussion.id}
+              title={discussion.title}
+              content={discussion.content}
+              author={discussion.profiles}
+              tag={discussion.tag}
+              created_at={discussion.created_at}
+              onClick={() => handleDiscussionClick(discussion.id)}
+              onComment={() => handleDiscussionClick(discussion.id)}
+              onDelete={handleDeleteDiscussion}
+              isOwnDiscussion={currentUser?.id === discussion.author_id}
+            />
+          ))}
+        </div>
+      </AccessibilityHelper>
     </motion.div>
   );
 
@@ -256,13 +270,20 @@ const CommunityPage = () => {
       className="space-y-6"
     >
       <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={() => setViewMode('dashboard')} className="text-gray-400 hover:text-white">
-          ← Voltar
-        </Button>
+        <AccessibilityHelper description="Voltar: Retorna para o painel principal da comunidade.">
+          <Button variant="ghost" onClick={() => setViewMode('dashboard')} className="text-gray-400 hover:text-white">
+            ← Voltar
+          </Button>
+        </AccessibilityHelper>
         <h2 className="text-2xl font-bold text-white">Diretório de Usuários</h2>
       </div>
 
-      <UserDirectory />
+      <AccessibilityHelper
+        description="Lista de Usuários: Encontre pessoas para seguir e interagir."
+        borderClassName="-inset-4"
+      >
+        <UserDirectory />
+      </AccessibilityHelper>
     </motion.div>
   );
 
@@ -276,25 +297,32 @@ const CommunityPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-4"
         >
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
-              <Users className="h-8 w-8 text-purple-400" />
-              Comunidade
-            </h1>
-            <p className="text-gray-400 text-lg">
-              Conecte-se, aprenda e evolua com a rede.
-            </p>
-          </div>
+          <AccessibilityHelper
+            description="Comunidade: Espaço para interação e aprendizado colaborativo."
+            borderClassName="-inset-4"
+          >
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
+                <Users className="h-8 w-8 text-purple-400" />
+                Comunidade
+              </h1>
+              <p className="text-gray-400 text-lg">
+                Conecte-se, aprenda e evolua com a rede.
+              </p>
+            </div>
+          </AccessibilityHelper>
 
           <div className="flex gap-3">
-            <Button
-              onClick={handleProfileClick}
-              variant="outline"
-              className="bg-gray-800/50 border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white backdrop-blur-sm"
-            >
-              <User className="h-4 w-4 mr-2" />
-              Perfil
-            </Button>
+            <AccessibilityHelper description="Perfil: Visualize e edite seu perfil público.">
+              <Button
+                onClick={handleProfileClick}
+                variant="outline"
+                className="bg-gray-800/50 border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white backdrop-blur-sm"
+              >
+                <User className="h-4 w-4 mr-2" />
+                Perfil
+              </Button>
+            </AccessibilityHelper>
           </div>
         </motion.div>
 

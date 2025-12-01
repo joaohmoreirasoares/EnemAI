@@ -17,6 +17,7 @@ import { ptBR } from 'date-fns/locale';
 import { calculateStats } from '@/lib/streak';
 import { QuickSwitcher } from '@/components/notes/QuickSwitcher';
 import { NoteGraph } from '@/components/notes/NoteGraph';
+import { AccessibilityHelper } from '@/components/accessibility/AccessibilityHelper';
 
 // Função para obter os títulos de todas as anotações
 export const getNoteTitles = async () => {
@@ -508,29 +509,33 @@ const NotesPage = () => {
                   <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
                     Quadro de Anotações
                   </h1>
-                  <p className="text-gray-400 text-lg flex items-center gap-2">
-                    <Network className="h-4 w-4" />
-                    {notes.length} conexões neurais
-                    <span className="text-gray-600">•</span>
-                    <Flame className="h-4 w-4 text-orange-500" />
-                    {stats.streakDays} dias de foco
-                  </p>
+                  <AccessibilityHelper description="Estatísticas: Veja suas conexões neurais e dias de foco (streak).">
+                    <p className="text-gray-400 text-lg flex items-center gap-2">
+                      <Network className="h-4 w-4" />
+                      {notes.length} conexões neurais
+                      <span className="text-gray-600">•</span>
+                      <Flame className="h-4 w-4 text-orange-500" />
+                      {stats.streakDays} dias de foco
+                    </p>
+                  </AccessibilityHelper>
                 </div>
               </motion.div>
 
               {/* Graph View */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="h-[500px] mb-8 shadow-2xl shadow-purple-900/10 rounded-xl overflow-hidden border border-gray-800 shrink-0"
-              >
-                <NoteGraph
-                  notes={notes}
-                  onNodeClick={(id) => { const note = notes.find((n: any) => n.id === id); if (note) setActiveNote(note); }}
-                  onCreateConnection={(sourceId) => handleOpenNewNoteDialog(sourceId)}
-                />
-              </motion.div>
+              <AccessibilityHelper description="Grafo de Conhecimento: Visualize como suas anotações estão interconectadas. Clique nos nós para navegar.">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="h-[500px] mb-8 shadow-2xl shadow-purple-900/10 rounded-xl overflow-hidden border border-gray-800 shrink-0"
+                >
+                  <NoteGraph
+                    notes={notes}
+                    onNodeClick={(id) => { const note = notes.find((n: any) => n.id === id); if (note) setActiveNote(note); }}
+                    onCreateConnection={(sourceId) => handleOpenNewNoteDialog(sourceId)}
+                  />
+                </motion.div>
+              </AccessibilityHelper>
 
               {/* Action & List Section */}
               <div className="flex flex-col">
@@ -542,13 +547,17 @@ const NotesPage = () => {
 
                   <div className="flex w-full md:w-auto gap-3">
                     <div className="relative flex-1 md:w-64">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                      <Input
-                        placeholder="Filtrar notas..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-9 bg-gray-800/50 border-gray-700 text-white placeholder-gray-500 focus:bg-gray-800 transition-colors"
-                      />
+                      <AccessibilityHelper description="Busca: Pesquise por títulos ou conteúdo dentro das suas anotações.">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                          <Input
+                            placeholder="Filtrar notas..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-9 bg-gray-800/50 border-gray-700 text-white placeholder-gray-500 focus:bg-gray-800 transition-colors"
+                          />
+                        </div>
+                      </AccessibilityHelper>
                     </div>
                     <div className="text-xs text-gray-500 flex items-center bg-gray-800/50 px-3 rounded border border-gray-700">
                       <span className="mr-1">⌘K</span> para buscar
@@ -558,18 +567,20 @@ const NotesPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-10">
                   {/* Create New Card */}
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 }}
-                    onClick={() => handleOpenNewNoteDialog()}
-                    className="group flex flex-col items-center justify-center h-48 rounded-2xl border-2 border-dashed border-gray-700 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all duration-300"
-                  >
-                    <div className="h-10 w-10 rounded-full bg-gray-800 group-hover:bg-purple-500/20 flex items-center justify-center mb-3 transition-colors">
-                      <Plus className="h-5 w-5 text-gray-400 group-hover:text-purple-400" />
-                    </div>
-                    <span className="text-sm text-gray-400 group-hover:text-purple-300 font-medium">Nova anotação</span>
-                  </motion.button>
+                  <AccessibilityHelper description="Nova Anotação: Clique para criar uma nova nota do zero.">
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.4 }}
+                      onClick={() => handleOpenNewNoteDialog()}
+                      className="group flex flex-col items-center justify-center h-48 rounded-2xl border-2 border-dashed border-gray-700 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all duration-300 w-full"
+                    >
+                      <div className="h-10 w-10 rounded-full bg-gray-800 group-hover:bg-purple-500/20 flex items-center justify-center mb-3 transition-colors">
+                        <Plus className="h-5 w-5 text-gray-400 group-hover:text-purple-400" />
+                      </div>
+                      <span className="text-sm text-gray-400 group-hover:text-purple-300 font-medium">Nova anotação</span>
+                    </motion.button>
+                  </AccessibilityHelper>
 
                   {isLoadingNotes ? (
                     [1, 2, 3].map((i) => (
@@ -581,54 +592,55 @@ const NotesPage = () => {
                     </div>
                   ) : (
                     filteredNotes.map((note: any, index: number) => (
-                      <motion.div
-                        key={note.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.4 + (index * 0.05) }}
-                        className="group relative"
-                      >
-                        <Card
-                          onClick={() => setActiveNote(note)}
-                          className="h-48 p-5 bg-gray-800/40 border-gray-700/50 hover:bg-gray-800 hover:border-gray-600 transition-all duration-300 cursor-pointer flex flex-col justify-between group-hover:shadow-xl group-hover:shadow-purple-900/10"
+                      <AccessibilityHelper key={note.id} description={`Anotação: ${note.title || 'Sem título'}. Clique para editar.`}>
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.4 + (index * 0.05) }}
+                          className="group relative h-full"
                         >
-                          <div>
-                            <div className="flex justify-between items-start mb-3">
-                              <div className="p-2 bg-purple-500/10 rounded-lg">
-                                <FileText className="h-4 w-4 text-purple-400" />
+                          <Card
+                            onClick={() => setActiveNote(note)}
+                            className="h-48 p-5 bg-gray-800/40 border-gray-700/50 hover:bg-gray-800 hover:border-gray-600 transition-all duration-300 cursor-pointer flex flex-col justify-between group-hover:shadow-xl group-hover:shadow-purple-900/10"
+                          >
+                            <div>
+                              <div className="flex justify-between items-start mb-3">
+                                <div className="p-2 bg-purple-500/10 rounded-lg">
+                                  <FileText className="h-4 w-4 text-purple-400" />
+                                </div>
+                                <span className="text-[10px] text-gray-500 font-medium bg-gray-900/50 px-2 py-1 rounded-full">
+                                  {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true, locale: ptBR })}
+                                </span>
                               </div>
-                              <span className="text-[10px] text-gray-500 font-medium bg-gray-900/50 px-2 py-1 rounded-full">
-                                {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true, locale: ptBR })}
-                              </span>
+                              <h3 className="text-base font-semibold text-gray-200 group-hover:text-white line-clamp-1 transition-colors mb-1">
+                                {note.title || 'Sem título'}
+                              </h3>
+                              <p className="text-xs text-gray-500 line-clamp-3 group-hover:text-gray-400 transition-colors">
+                                {note.content ? note.content.replace(/<[^>]*>?/gm, '').substring(0, 150) : 'Sem conteúdo...'}
+                              </p>
                             </div>
-                            <h3 className="text-base font-semibold text-gray-200 group-hover:text-white line-clamp-1 transition-colors mb-1">
-                              {note.title || 'Sem título'}
-                            </h3>
-                            <p className="text-xs text-gray-500 line-clamp-3 group-hover:text-gray-400 transition-colors">
-                              {note.content ? note.content.replace(/<[^>]*>?/gm, '').substring(0, 150) : 'Sem conteúdo...'}
-                            </p>
-                          </div>
 
-                          <div className="flex justify-between items-center mt-2 border-t border-gray-700/30 pt-2">
-                            <div className="flex items-center gap-1 text-[10px] text-gray-600 group-hover:text-gray-500 transition-colors">
-                              <Network className="h-3 w-3" />
-                              {/* Mock connection count based on content matching title */}
-                              {notes.filter((n: any) => n.content && n.content.includes(note.title)).length} conexões
+                            <div className="flex justify-between items-center mt-2 border-t border-gray-700/30 pt-2">
+                              <div className="flex items-center gap-1 text-[10px] text-gray-600 group-hover:text-gray-500 transition-colors">
+                                <Network className="h-3 w-3" />
+                                {/* Mock connection count based on content matching title */}
+                                {notes.filter((n: any) => n.content && n.content.includes(note.title)).length} conexões
+                              </div>
+                              <div className="flex items-center text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300">
+                                <ArrowRight className="h-4 w-4" />
+                              </div>
                             </div>
-                            <div className="flex items-center text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300">
-                              <ArrowRight className="h-4 w-4" />
-                            </div>
-                          </div>
-                        </Card>
+                          </Card>
 
-                        <button
-                          onClick={(e) => deleteNoteFromList(note.id, e)}
-                          className="absolute top-4 right-4 p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200"
-                          title="Excluir anotação"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </motion.div>
+                          <button
+                            onClick={(e) => deleteNoteFromList(note.id, e)}
+                            className="absolute top-4 right-4 p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200"
+                            title="Excluir anotação"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </motion.div>
+                      </AccessibilityHelper>
                     ))
                   )}
                 </div>

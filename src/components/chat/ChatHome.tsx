@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ChatStats } from '@/lib/streak';
+import { AccessibilityHelper } from '@/components/accessibility/AccessibilityHelper';
 
 interface ChatHomeProps {
     conversations: any[];
@@ -43,50 +44,56 @@ const ChatHome = ({
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 flex items-center gap-4 hover:bg-gray-800/80 transition-colors"
-                    >
-                        <div className="p-3 bg-orange-500/10 rounded-xl">
-                            <Flame className="h-8 w-8 text-orange-500" />
-                        </div>
-                        <div>
-                            <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Streak</p>
-                            <p className="text-3xl font-bold text-white">{stats.streakDays} <span className="text-sm font-normal text-gray-500">dias</span></p>
-                        </div>
-                    </motion.div>
+                    <AccessibilityHelper description="Streak: Mostra quantos dias consecutivos você interagiu com a IA. Mantenha a constância!">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 flex items-center gap-4 hover:bg-gray-800/80 transition-colors h-full"
+                        >
+                            <div className="p-3 bg-orange-500/10 rounded-xl">
+                                <Flame className="h-8 w-8 text-orange-500" />
+                            </div>
+                            <div>
+                                <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Streak</p>
+                                <p className="text-3xl font-bold text-white">{stats.streakDays} <span className="text-sm font-normal text-gray-500">dias</span></p>
+                            </div>
+                        </motion.div>
+                    </AccessibilityHelper>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 flex items-center gap-4 hover:bg-gray-800/80 transition-colors"
-                    >
-                        <div className="p-3 bg-blue-500/10 rounded-xl">
-                            <MessageSquare className="h-8 w-8 text-blue-500" />
-                        </div>
-                        <div>
-                            <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Total de Chats</p>
-                            <p className="text-3xl font-bold text-white">{stats.totalChats}</p>
-                        </div>
-                    </motion.div>
+                    <AccessibilityHelper description="Total de Chats: O número total de conversas que você já iniciou com a IA.">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 flex items-center gap-4 hover:bg-gray-800/80 transition-colors h-full"
+                        >
+                            <div className="p-3 bg-blue-500/10 rounded-xl">
+                                <MessageSquare className="h-8 w-8 text-blue-500" />
+                            </div>
+                            <div>
+                                <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Total de Chats</p>
+                                <p className="text-3xl font-bold text-white">{stats.totalChats}</p>
+                            </div>
+                        </motion.div>
+                    </AccessibilityHelper>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 flex items-center gap-4 hover:bg-gray-800/80 transition-colors"
-                    >
-                        <div className="p-3 bg-green-500/10 rounded-xl">
-                            <Calendar className="h-8 w-8 text-green-500" />
-                        </div>
-                        <div>
-                            <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Hoje</p>
-                            <p className="text-3xl font-bold text-white">{stats.chatsToday} <span className="text-sm font-normal text-gray-500">novos</span></p>
-                        </div>
-                    </motion.div>
+                    <AccessibilityHelper description="Hoje: Quantas novas conversas você criou hoje.">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 flex items-center gap-4 hover:bg-gray-800/80 transition-colors h-full"
+                        >
+                            <div className="p-3 bg-green-500/10 rounded-xl">
+                                <Calendar className="h-8 w-8 text-green-500" />
+                            </div>
+                            <div>
+                                <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Hoje</p>
+                                <p className="text-3xl font-bold text-white">{stats.chatsToday} <span className="text-sm font-normal text-gray-500">novos</span></p>
+                            </div>
+                        </motion.div>
+                    </AccessibilityHelper>
                 </div>
 
                 {/* Action & Recent List */}
@@ -102,76 +109,79 @@ const ChatHome = ({
                     <ScrollArea className="flex-1 -mx-2 px-2">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-10">
                             {/* New Chat Card (Alternative entry) */}
-                            <motion.button
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.4 }}
-                                onClick={onCreateNew}
-                                className="group flex flex-col items-center justify-center h-40 rounded-2xl border-2 border-dashed border-gray-700 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all duration-300"
-                            >
-                                <div className="h-12 w-12 rounded-full bg-gray-800 group-hover:bg-purple-500/20 flex items-center justify-center mb-3 transition-colors">
-                                    <Plus className="h-6 w-6 text-gray-400 group-hover:text-purple-400" />
-                                </div>
-                                <span className="text-gray-400 group-hover:text-purple-300 font-medium">Iniciar nova conversa</span>
-                            </motion.button>
-
-                            {conversations.map((conv, index) => (
-                                <motion.div
-                                    key={conv.id}
+                            <AccessibilityHelper description="Iniciar Nova Conversa: Clique aqui para começar um novo chat com a IA.">
+                                <motion.button
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.4 + (index * 0.05) }}
-                                    className="group relative"
+                                    transition={{ delay: 0.4 }}
+                                    onClick={onCreateNew}
+                                    className="group flex flex-col items-center justify-center h-40 rounded-2xl border-2 border-dashed border-gray-700 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all duration-300 w-full"
                                 >
-                                    <Card
-                                        onClick={() => onSelectConversation(conv.id)}
-                                        className="h-40 p-5 bg-gray-800/40 border-gray-700/50 hover:bg-gray-800 hover:border-gray-600 transition-all duration-300 cursor-pointer flex flex-col justify-between group-hover:shadow-xl group-hover:shadow-purple-900/10"
+                                    <div className="h-12 w-12 rounded-full bg-gray-800 group-hover:bg-purple-500/20 flex items-center justify-center mb-3 transition-colors">
+                                        <Plus className="h-6 w-6 text-gray-400 group-hover:text-purple-400" />
+                                    </div>
+                                    <span className="text-gray-400 group-hover:text-purple-300 font-medium">Iniciar nova conversa</span>
+                                </motion.button>
+                            </AccessibilityHelper>
+
+                            {conversations.map((conv, index) => (
+                                <AccessibilityHelper key={conv.id} description={`Conversa: ${conv.title || 'Sem título'}. Clique para abrir.`}>
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.4 + (index * 0.05) }}
+                                        className="group relative h-full"
                                     >
-                                        <div>
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div className={`p-2 rounded-lg ${conv.agent === 'LIAn' ? 'bg-emerald-500/10' :
-                                                    conv.agent === 'KIAra' ? 'bg-purple-500/10' :
-                                                        'bg-gray-700/50'
-                                                    }`}>
-                                                    {conv.agent === 'LIAn' ? (
-                                                        <Clock className="h-5 w-5 text-emerald-400" />
-                                                    ) : conv.agent === 'KIAra' ? (
-                                                        <MessageSquare className="h-5 w-5 text-purple-400" />
-                                                    ) : (
-                                                        <MessageSquare className="h-5 w-5 text-gray-400" />
-                                                    )}
+                                        <Card
+                                            onClick={() => onSelectConversation(conv.id)}
+                                            className="h-40 p-5 bg-gray-800/40 border-gray-700/50 hover:bg-gray-800 hover:border-gray-600 transition-all duration-300 cursor-pointer flex flex-col justify-between group-hover:shadow-xl group-hover:shadow-purple-900/10"
+                                        >
+                                            <div>
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <div className={`p-2 rounded-lg ${conv.agent === 'LIAn' ? 'bg-emerald-500/10' :
+                                                        conv.agent === 'KIAra' ? 'bg-purple-500/10' :
+                                                            'bg-gray-700/50'
+                                                        }`}>
+                                                        {conv.agent === 'LIAn' ? (
+                                                            <Clock className="h-5 w-5 text-emerald-400" />
+                                                        ) : conv.agent === 'KIAra' ? (
+                                                            <MessageSquare className="h-5 w-5 text-purple-400" />
+                                                        ) : (
+                                                            <MessageSquare className="h-5 w-5 text-gray-400" />
+                                                        )}
+                                                    </div>
+                                                    <span className="text-xs text-gray-500 font-medium bg-gray-900/50 px-2 py-1 rounded-full">
+                                                        {formatDistanceToNow(new Date(conv.updated_at), { addSuffix: true, locale: ptBR })}
+                                                    </span>
                                                 </div>
-                                                <span className="text-xs text-gray-500 font-medium bg-gray-900/50 px-2 py-1 rounded-full">
-                                                    {formatDistanceToNow(new Date(conv.updated_at), { addSuffix: true, locale: ptBR })}
+                                                <h3 className="text-lg font-semibold text-gray-200 group-hover:text-white line-clamp-2 transition-colors">
+                                                    {conv.title || 'Nova Conversa'}
+                                                </h3>
+                                            </div>
+
+                                            <div className="flex justify-between items-center mt-2">
+                                                <span className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors">
+                                                    {conv.messages?.length || 0} mensagens
                                                 </span>
+                                                <div className="flex items-center text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300">
+                                                    <span className="text-sm font-medium mr-1">Abrir</span>
+                                                    <ArrowRight className="h-4 w-4" />
+                                                </div>
                                             </div>
-                                            <h3 className="text-lg font-semibold text-gray-200 group-hover:text-white line-clamp-2 transition-colors">
-                                                {conv.title || 'Nova Conversa'}
-                                            </h3>
-                                        </div>
+                                        </Card>
 
-                                        <div className="flex justify-between items-center mt-2">
-                                            <span className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors">
-                                                {conv.messages?.length || 0} mensagens
-                                            </span>
-                                            <div className="flex items-center text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300">
-                                                <span className="text-sm font-medium mr-1">Abrir</span>
-                                                <ArrowRight className="h-4 w-4" />
-                                            </div>
-                                        </div>
-                                    </Card>
-
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onDeleteConversation(conv.id);
-                                        }}
-                                        className="absolute top-4 right-4 p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200"
-                                        title="Excluir conversa"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </button>
-                                </motion.div>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onDeleteConversation(conv.id);
+                                            }}
+                                            className="absolute top-4 right-4 p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                            title="Excluir conversa"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    </motion.div>
+                                </AccessibilityHelper>
                             ))}
                         </div>
                     </ScrollArea>

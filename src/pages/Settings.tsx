@@ -9,9 +9,12 @@ import { Switch } from '@/components/ui/switch';
 import { Loader2, Save, Lock, Mail, Eye, EyeOff, Shield, Globe, Settings as SettingsIcon, Accessibility } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { useAccessibility } from '@/context/AccessibilityContext';
+import { AccessibilityHelper } from '@/components/accessibility/AccessibilityHelper';
 
 const SettingsPage = () => {
     const queryClient = useQueryClient();
+    const { showAccessibility, setAccessibility } = useAccessibility();
 
     const { data: sessionUser } = useQuery({
         queryKey: ['sessionUser'],
@@ -34,9 +37,7 @@ const SettingsPage = () => {
     });
 
     const [isPublic, setIsPublic] = useState(profile?.is_public ?? true);
-    const [showAccessibility, setShowAccessibility] = useState(() => {
-        return localStorage.getItem('show_accessibility') === 'true';
-    });
+    // showAccessibility is now managed by AccessibilityContext
     const [emailForm, setEmailForm] = useState({ newEmail: '', password: '' });
     const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
     const [showPassword, setShowPassword] = useState(false);
@@ -168,25 +169,26 @@ const SettingsPage = () => {
                             <CardDescription className="text-gray-400">Opções de acessibilidade para melhorar sua experiência.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between p-4 bg-gray-800/40 rounded-xl border border-gray-700/50 hover:border-purple-500/20 transition-colors">
-                                <div className="space-y-1">
-                                    <Label className="text-base text-gray-200">Mostrar Acessibilidade</Label>
-                                    <p className="text-sm text-gray-500">
-                                        {showAccessibility
-                                            ? "As opções de acessibilidade serão exibidas nas abas."
-                                            : "As opções de acessibilidade estão ocultas."}
-                                    </p>
+                            <AccessibilityHelper description="Ative esta opção para ver descrições de ajuda em elementos da interface.">
+                                <div className="flex items-center justify-between p-4 bg-gray-800/40 rounded-xl border border-gray-700/50 hover:border-purple-500/20 transition-colors">
+                                    <div className="space-y-1">
+                                        <Label className="text-base text-gray-200">Mostrar Acessibilidade</Label>
+                                        <p className="text-sm text-gray-500">
+                                            {showAccessibility
+                                                ? "As opções de acessibilidade serão exibidas nas abas."
+                                                : "As opções de acessibilidade estão ocultas."}
+                                        </p>
+                                    </div>
+                                    <Switch
+                                        checked={showAccessibility}
+                                        onCheckedChange={(checked) => {
+                                            setAccessibility(checked);
+                                            toast.success(`Acessibilidade ${checked ? 'ativada' : 'desativada'}`);
+                                        }}
+                                        className="data-[state=checked]:bg-purple-600"
+                                    />
                                 </div>
-                                <Switch
-                                    checked={showAccessibility}
-                                    onCheckedChange={(checked) => {
-                                        setShowAccessibility(checked);
-                                        localStorage.setItem('show_accessibility', String(checked));
-                                        toast.success(`Acessibilidade ${checked ? 'ativada' : 'desativada'}`);
-                                    }}
-                                    className="data-[state=checked]:bg-purple-600"
-                                />
-                            </div>
+                            </AccessibilityHelper>
                         </CardContent>
                     </Card>
 
