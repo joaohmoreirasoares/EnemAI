@@ -13,6 +13,7 @@ import ChatPage from "./pages/Chat";
 import NotesPage from "./pages/Notes";
 import CommunityPage from "./pages/Community";
 import ProfilePage from "./pages/Profile";
+import SettingsPage from "./pages/Settings";
 import DirectChat from "./components/chat/DirectChat";
 import DiscussionDetail from "./pages/DiscussionDetail";
 import SimuladosList from "./pages/SimuladosList";
@@ -99,6 +100,16 @@ const App = () => (
               <ProtectedRoute>
                 <DashboardLayout>
                   <ProfilePage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <SettingsPage />
                 </DashboardLayout>
               </ProtectedRoute>
             }

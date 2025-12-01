@@ -6,7 +6,8 @@ import {
   LogOut,
   Home,
   User,
-  Play
+  Play,
+  Settings
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
@@ -42,6 +43,7 @@ const Sidebar = () => {
     { name: 'Simulados', href: '/simulados', icon: Play },
     { name: 'Comunidade', href: '/community', icon: Users },
     { name: 'Meu Perfil', href: '/profile', icon: User },
+    { name: 'Configurações', href: '/settings', icon: Settings },
   ];
 
   return (
