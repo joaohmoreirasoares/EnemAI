@@ -112,93 +112,135 @@ const CommunityPage = () => {
   };
 
   // Render Dashboard View
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   const renderDashboard = () => (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      exit={{ opacity: 0, y: -20 }}
+      className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12"
     >
       {/* Left Column: Leaderboard & Stats */}
-      <div className="lg:col-span-4 space-y-6">
-        <Leaderboard />
+      <div className="lg:col-span-4 space-y-8">
+        <motion.div variants={itemVariants}>
+          <Leaderboard />
+        </motion.div>
 
-        <div className="bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-500/20 rounded-xl p-6 text-center">
-          <h3 className="text-lg font-bold text-white mb-2">Participe da Comunidade</h3>
-          <p className="text-sm text-gray-400 mb-4">
+        <motion.div
+          variants={itemVariants}
+          className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-500/30 rounded-2xl p-8 text-center shadow-lg shadow-purple-900/20 backdrop-blur-sm relative overflow-hidden group"
+        >
+          <div className="absolute inset-0 bg-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <h3 className="text-xl font-bold text-white mb-3 relative z-10">Participe da Comunidade</h3>
+          <p className="text-gray-300 mb-6 leading-relaxed relative z-10">
             Compartilhe suas dúvidas, ajude outros estudantes e troque conhecimentos para evoluir nos estudos.
           </p>
           <Button
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white h-12 text-lg shadow-lg shadow-purple-500/25 relative z-10 transition-all hover:scale-[1.02]"
             onClick={handleCreateDiscussion}
           >
-            <Plus className="h-4 w-4 mr-2" /> Nova Discussão
+            <Plus className="h-5 w-5 mr-2" /> Nova Discussão
           </Button>
-        </div>
+        </motion.div>
       </div>
 
       {/* Right Column: Top Discussions & Actions */}
-      <div className="lg:col-span-8 space-y-6">
+      <div className="lg:col-span-8 space-y-10">
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <AccessibilityHelper description="Fórum: Acesse todas as discussões da comunidade.">
             <button
               onClick={() => setViewMode('discussions')}
-              className="p-6 bg-gray-800/40 border border-gray-700/50 rounded-xl hover:bg-gray-800/60 hover:border-purple-500/30 transition-all text-left group w-full"
+              className="relative p-8 bg-gray-900/60 border border-gray-800 rounded-2xl hover:bg-gray-800/80 hover:border-purple-500/50 transition-all text-left group w-full overflow-hidden shadow-xl"
             >
-              <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center mb-4 group-hover:bg-purple-500/20 transition-colors">
-                <MessageSquare className="h-5 w-5 text-purple-400" />
+              <div className="absolute top-0 right-0 p-32 bg-purple-500/5 rounded-full blur-3xl -mr-16 -mt-16 transition-all group-hover:bg-purple-500/10" />
+
+              <div className="relative z-10">
+                <div className="h-14 w-14 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-purple-500/20">
+                  <MessageSquare className="h-7 w-7 text-purple-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">Fórum de Discussões</h3>
+                <p className="text-gray-400 flex items-center text-base">
+                  Navegue por {discussions.length} tópicos <ArrowRight className="h-4 w-4 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-1">Todas as Discussões</h3>
-              <p className="text-sm text-gray-400 flex items-center">
-                Navegue por {discussions.length} tópicos <ArrowRight className="h-3 w-3 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </p>
             </button>
           </AccessibilityHelper>
 
           <AccessibilityHelper description="Diretório: Encontre e conecte-se com outros estudantes e professores.">
             <button
               onClick={() => setViewMode('directory')}
-              className="p-6 bg-gray-800/40 border border-gray-700/50 rounded-xl hover:bg-gray-800/60 hover:border-blue-500/30 transition-all text-left group w-full"
+              className="relative p-8 bg-gray-900/60 border border-gray-800 rounded-2xl hover:bg-gray-800/80 hover:border-blue-500/50 transition-all text-left group w-full overflow-hidden shadow-xl"
             >
-              <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
-                <BookOpen className="h-5 w-5 text-blue-400" />
+              <div className="absolute top-0 right-0 p-32 bg-blue-500/5 rounded-full blur-3xl -mr-16 -mt-16 transition-all group-hover:bg-blue-500/10" />
+
+              <div className="relative z-10">
+                <div className="h-14 w-14 rounded-2xl bg-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-blue-500/20">
+                  <BookOpen className="h-7 w-7 text-blue-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">Diretório de Usuários</h3>
+                <p className="text-gray-400 flex items-center text-base">
+                  Encontre professores e alunos <ArrowRight className="h-4 w-4 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-1">Diretório de Usuários</h3>
-              <p className="text-sm text-gray-400 flex items-center">
-                Encontre professores e alunos <ArrowRight className="h-3 w-3 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </p>
             </button>
           </AccessibilityHelper>
-        </div>
+        </motion.div>
 
         {/* Top Discussions Preview */}
-        <div>
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-yellow-500" /> Destaques
-          </h2>
+        <motion.div variants={itemVariants}>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+              <Sparkles className="h-6 w-6 text-yellow-500" /> Destaques
+            </h2>
+            <Button variant="link" onClick={() => setViewMode('discussions')} className="text-purple-400 hover:text-purple-300">
+              Ver tudo
+            </Button>
+          </div>
+
           <div className="space-y-4">
             {isLoading ? (
               <div className="space-y-4">
-                {[1, 2, 3].map(i => <div key={i} className="h-32 bg-gray-800/30 rounded-xl animate-pulse" />)}
+                {[1, 2, 3].map(i => <div key={i} className="h-40 bg-gray-800/30 rounded-2xl animate-pulse" />)}
               </div>
             ) : discussions.slice(0, 3).map((discussion, index) => (
-              <DiscussionCard
+              <motion.div
                 key={discussion.id}
-                id={discussion.id}
-                title={discussion.title}
-                content={discussion.content}
-                author={discussion.profiles}
-                tag={discussion.tag}
-                created_at={discussion.created_at}
-                onClick={() => handleDiscussionClick(discussion.id)}
-                onComment={() => handleDiscussionClick(discussion.id)}
-                onDelete={handleDeleteDiscussion}
-                isOwnDiscussion={currentUser?.id === discussion.author_id}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <DiscussionCard
+                  id={discussion.id}
+                  title={discussion.title}
+                  content={discussion.content}
+                  author={discussion.profiles}
+                  tag={discussion.tag}
+                  created_at={discussion.created_at}
+                  onClick={() => handleDiscussionClick(discussion.id)}
+                  onComment={() => handleDiscussionClick(discussion.id)}
+                  onDelete={handleDeleteDiscussion}
+                  isOwnDiscussion={currentUser?.id === discussion.author_id}
+                />
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </motion.div>
   );
