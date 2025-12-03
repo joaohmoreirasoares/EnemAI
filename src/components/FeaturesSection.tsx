@@ -56,7 +56,7 @@ const CommunityDemo = () => (
       </div>
       <p className="text-sm text-gray-300">Alguém tem um bom resumo sobre a Segunda Guerra Mundial? Estou com dificuldade em entender as alianças.</p>
     </div>
-     <div className="bg-gray-800 p-4 rounded-lg mb-4 opacity-60">
+    <div className="bg-gray-800 p-4 rounded-lg mb-4 opacity-60">
       <div className="flex items-center mb-2">
         <div className="w-8 h-8 rounded-full bg-blue-600 flex-shrink-0 mr-2 flex items-center justify-center text-white font-bold">J</div>
         <span className="font-semibold text-white">João Pedro</span>
@@ -76,7 +76,7 @@ const features = [
     id: 'chat',
     title: 'Chat com IA',
     icon: MessageSquare,
-    description: 'Converse com agentes especializados em cada área do ENEM. Obtenha explicações detalhadas, resolução de exercícios e simulados personalizados com feedback instantâneo.',
+    description: 'Converse com agentes especializados em cada área do ENEM. Obtenha explicações detalhadas e resolução de exercícios com feedback instantâneo.',
     demo: <ChatDemo />,
   },
   {

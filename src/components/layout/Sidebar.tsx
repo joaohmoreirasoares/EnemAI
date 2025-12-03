@@ -40,7 +40,6 @@ const Sidebar = () => {
   const navItems = [
     { name: 'Chat IA', href: '/chat', icon: MessageSquare },
     { name: 'Anotações', href: '/notes', icon: FileText },
-    { name: 'Simulados', href: '/simulados', icon: Play },
     { name: 'Comunidade', href: '/community', icon: Users },
     { name: 'Meu Perfil', href: '/profile', icon: User },
     { name: 'Configurações', href: '/settings', icon: Settings },

@@ -76,9 +76,18 @@ Uma visão detalhada da organização do código para facilitar a navegação:
 
 ---
 
-## 🤖 KIAra: Sua Tutora Inteligente
+## 🤖 Agentes de IA
 
-A **KIAra** (Knowledge & Intelligence Artificial helper) é o coração da inteligência do EnemAI. Ela não apenas responde perguntas, mas interage com o ambiente do usuário através de **Tools**.
+O EnemAI conta com dois agentes especializados para potencializar seus estudos:
+
+### 1. KIAra (Knowledge & Intelligence Artificial helper)
+A **KIAra** é a tutora principal. Ela possui conhecimento geral sobre o ENEM e pode ajudar com qualquer dúvida, correção de redação ou plano de estudos. Ela é proativa e interage com o ambiente do usuário.
+
+### 2. LIAn (Learning Intelligence based on Annotations)
+O **LIAn** é um **Tutor Socrático** focado na consolidação da memória.
+-   **Metodologia:** Ele **NÃO** traz conhecimento externo. Ele responde suas dúvidas baseando-se **exclusivamente** nas anotações que você criou.
+-   **Objetivo:** Forçar você a criar bons resumos. Se a resposta não estiver nas suas notas, ele dirá que não sabe, incentivando você a estudar e registrar o conteúdo.
+-   **Estilo:** Faz perguntas provocativas para testar se você realmente entendeu o que anotou.
 
 ### Capacidades (Agent Tools)
 A KIAra pode executar as seguintes ações definidas em `src/lib/agent-tools.ts`:
@@ -104,13 +113,8 @@ Um espaço para troca de conhecimento.
 - **Leaderboard:** Ranking dos usuários mais ativos.
 - **Diretório:** Encontre professores e outros estudantes.
 
-### 3. 🎓 Simulados
-Pratique como se fosse no dia da prova.
-- **Cronômetro Real:** Simulação de tempo de prova.
-- **Correção Automática:** Feedback imediato.
-- **Histórico:** Acompanhe sua evolução (Em andamento / Finalizados).
 
-### 4. ♿ Acessibilidade (Novo!)
+### 3. ♿ Acessibilidade (Novo!)
 O EnemAI é para todos.
 - **Modo Assistivo:** Ative nas configurações para ver dicas contextuais.
 - **Dicas Visuais:** Tooltips explicativos em elementos interativos.
@@ -126,8 +130,6 @@ O projeto utiliza o Supabase (PostgreSQL). Abaixo, o esquema inferido das princi
 - **`notes`**: Anotações do usuário (título, conteúdo, user_id).
 - **`discussions`**: Tópicos da comunidade (título, conteúdo, tag, author_id).
 - **`chat_conversations`**: Histórico de conversas com a KIAra.
-- **`simulados`**: Registros de simulados (user_id, score, status).
-- **`questoes`**: Banco de questões (enunciado, alternativas, gabarito).
 
 ---
 

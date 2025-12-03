@@ -16,9 +16,6 @@ import ProfilePage from "./pages/Profile";
 import SettingsPage from "./pages/Settings";
 import DirectChat from "./components/chat/DirectChat";
 import DiscussionDetail from "./pages/DiscussionDetail";
-import SimuladosList from "./pages/SimuladosList";
-import SimuladoPage from "./pages/Simulado";
-import SimuladoResultPage from "./pages/SimuladoResult";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
 
 const queryClient = new QueryClient();
@@ -112,36 +109,6 @@ const App = () => (
                 <ProtectedRoute>
                   <DashboardLayout>
                     <SettingsPage />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/simulados"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <SimuladosList />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/simulado/:simuladoId"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <SimuladoPage />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/simulado/:simuladoId/resultado"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <SimuladoResultPage />
                   </DashboardLayout>
                 </ProtectedRoute>
               }
