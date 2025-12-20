@@ -1,3 +1,4 @@
+import { DynamicWave } from '@/components/DynamicWave';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import {
@@ -11,14 +12,15 @@ import {
   Mail,
   ChevronRight
 } from 'lucide-react';
-import LiquidEther from '@/components/LiquidEther';
 import ScrollCard from '@/components/ui/scroll-card';
 import LivingEcosystem from '@/components/landing/LivingEcosystem';
 
 export default function Index() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white selection:bg-purple-500/30">
-      <LiquidEther colors={['#8B5CF6', '#A855F7', '#C084FC']} />
+    <div className="min-h-screen bg-gray-950 text-white selection:bg-purple-500/30 overflow-x-hidden">
+      <div className="fixed inset-0 z-0">
+        <DynamicWave className="w-full h-full" strokeColor="rgba(139, 92, 246, 0.3)" backgroundColor="transparent" />
+      </div>
 
       {/* Navigation / Header */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-gray-900/20 backdrop-blur-lg border-b border-white/5">
