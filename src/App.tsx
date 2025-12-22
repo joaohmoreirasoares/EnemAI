@@ -2,11 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import Auth from "./pages/Auth";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import ChatPage from "./pages/Chat";
@@ -17,6 +16,8 @@ import SettingsPage from "./pages/Settings";
 import DirectChat from "./components/chat/DirectChat";
 import DiscussionDetail from "./pages/DiscussionDetail";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
+import AuthLayout from "./layouts/AuthLayout";
+import { OnboardingWizard } from "./components/auth/OnboardingWizard";
 
 const queryClient = new QueryClient();
 
@@ -29,8 +30,22 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+
+            {/* New Auth Routes */}
+            <Route element={<AuthLayout />}>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/login" element={<Navigate to="/auth" replace />} />
+              <Route path="/register" element={<Navigate to="/auth" replace />} />
+            </Route>
+
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute>
+                  <OnboardingWizard />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Protected routes */}
             <Route
@@ -120,7 +135,7 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </AccessibilityProvider>
-  </QueryClientProvider>
+  </QueryClientProvider >
 );
 
 export default App;

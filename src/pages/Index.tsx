@@ -1,3 +1,4 @@
+import React from 'react';
 import { DynamicWave } from '@/components/DynamicWave';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -16,10 +17,30 @@ import ScrollCard from '@/components/ui/scroll-card';
 import LivingEcosystem from '@/components/landing/LivingEcosystem';
 
 export default function Index() {
+  const [isReducedMotion, setIsReducedMotion] = React.useState(() => {
+    // Lazy initialization to avoid flash on first render
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+    return false;
+  });
+
+  React.useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handler = (e: MediaQueryListEvent) => setIsReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-950 text-white selection:bg-purple-500/30 overflow-x-hidden">
       <div className="fixed inset-0 z-0">
-        <DynamicWave className="w-full h-full" strokeColor="rgba(139, 92, 246, 0.3)" backgroundColor="transparent" />
+        <DynamicWave
+          className="w-full h-full"
+          strokeColor="rgba(139, 92, 246, 0.3)"
+          backgroundColor="transparent"
+          animate={!isReducedMotion}
+        />
       </div>
 
       {/* Navigation / Header */}

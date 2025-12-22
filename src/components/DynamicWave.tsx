@@ -38,8 +38,9 @@ export function DynamicWave({
     className = "",
     strokeColor = "hsl(var(--primary))",
     backgroundColor = "hsl(var(--background))",
-    pointerSize = 0.5
-}: DynamicWaveProps) {
+    pointerSize = 0.5,
+    animate = true
+}: DynamicWaveProps & { animate?: boolean }) {
     const containerRef = useRef<HTMLDivElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const prefersReducedMotionRef = useRef(false)
@@ -83,7 +84,7 @@ export function DynamicWave({
         const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
         prefersReducedMotionRef.current = mediaQuery.matches
 
-        if (!mediaQuery.matches) {
+        if (!mediaQuery.matches && animate) {
             rafRef.current = requestAnimationFrame(tick)
         } else {
             // Render once for static background if reduced motion is preferred
@@ -301,7 +302,7 @@ export function DynamicWave({
         movePoints(time)
         drawLines()
 
-        if (!prefersReducedMotionRef.current) {
+        if (!prefersReducedMotionRef.current && animate) {
             rafRef.current = requestAnimationFrame(tick)
         }
     }

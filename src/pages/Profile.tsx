@@ -405,12 +405,15 @@ const ViewProfileView = ({ profile, isOwnProfile, onEdit, sessionUserId }: any) 
                 {profile.role === 'student' ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-800">
-                      <span className="text-xs text-gray-500 uppercase tracking-wider font-bold">Série Atual</span>
-                      <p className="text-lg text-white font-medium mt-1">{profile.grade || "Não informado"}</p>
+                      <span className="text-xs text-gray-500 uppercase tracking-wider font-bold">Fase Escolar</span>
+                      <p className="text-lg text-white font-medium mt-1">{profile.school_year || profile.grade || "Não informado"}</p>
                     </div>
                     <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-800">
-                      <span className="text-xs text-gray-500 uppercase tracking-wider font-bold">Curso Desejado</span>
-                      <p className="text-lg text-white font-medium mt-1">{profile.desired_major || "Não informado"}</p>
+                      <span className="text-xs text-gray-500 uppercase tracking-wider font-bold">Sonho (Curso/Uni)</span>
+                      <p className="text-lg text-white font-medium mt-1">
+                        {profile.dream_course || profile.desired_major || "Não informado"}
+                        {profile.dream_university && <span className="block text-sm text-gray-400 mt-0.5">@ {profile.dream_university}</span>}
+                      </p>
                     </div>
                   </div>
                 ) : (
@@ -439,11 +442,21 @@ const ViewProfileView = ({ profile, isOwnProfile, onEdit, sessionUserId }: any) 
                   Focos de Estudo <InfoIcon />
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {profile.difficult_subjects?.length > 0 ? profile.difficult_subjects.map((s: string) => (
-                    <Badge key={s} variant="outline" className="border-red-900/50 text-red-300 bg-red-900/10 hover:bg-red-900/20 py-1.5 px-3">
-                      {s}
-                    </Badge>
-                  )) : <p className="text-gray-500 text-sm italic">Nenhuma dificuldade listada. Continue assim! 🚀</p>}
+                  {(() => {
+                    const subjects = (profile.struggle_subjects?.length > 0
+                      ? profile.struggle_subjects
+                      : profile.difficult_subjects) || [];
+
+                    return subjects.length > 0 ? (
+                      subjects.map((s: string) => (
+                        <Badge key={s} variant="outline" className="border-red-900/50 text-red-300 bg-red-900/10 hover:bg-red-900/20 py-1.5 px-3">
+                          {s}
+                        </Badge>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 text-sm italic">Nenhuma dificuldade listada. Continue assim! 🚀</p>
+                    );
+                  })()}
                 </div>
               </div>
             )}

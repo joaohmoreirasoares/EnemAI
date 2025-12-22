@@ -1,0 +1,41 @@
+- Reading configuration...
+  - Reading registry from registry.yaml
+  - Reading catalog from [docker-mcp.yaml]
+  - Reading config from config.yaml
+  - Reading tools from tools.yaml
+  - Reading secrets [obsidian.api_key]
+- Configuration read in 573.194542ms
+- Using images:
+  - mcp/context7@sha256:1174e6a29634a83b2be93ac1fefabf63265f498c02c72201fe3464e687dd8836
+  - mcp/duckduckgo@sha256:68eb20db6109f5c312a695fc5ec3386ad15d93ffb765a0b4eb1baf4328dec14f
+  - mcp/obsidian@sha256:0eba4c05742ad35faeb91eca40b792454d440d86449c9f1b3cb6c387a510651b
+  - mcp/youtube-transcript@sha256:f3a395136457a6b93492946eae0f0cc028debba99a40f6275d7b522dde8dfe8e
+> Images pulled in 53.389098ms
+- Those servers are enabled: context7, duckduckgo, obsidian, youtube_transcript
+- Listing MCP tools...
+  - Running mcp/youtube-transcript with [run --rm -i --init --security-opt no-new-privileges --cpus 1 --memory 2Gb --pull never -l docker-mcp=true -l docker-mcp-tool-type=mcp -l docker-mcp-name=youtube_transcript -l docker-mcp-transport=stdio]
+  - Running mcp/context7 with [run --rm -i --init --security-opt no-new-privileges --cpus 1 --memory 2Gb --pull never -l docker-mcp=true -l docker-mcp-tool-type=mcp -l docker-mcp-name=context7 -l docker-mcp-transport=stdio -e MCP_TRANSPORT]
+  - Running mcp/duckduckgo with [run --rm -i --init --security-opt no-new-privileges --cpus 1 --memory 2Gb --pull never -l docker-mcp=true -l docker-mcp-tool-type=mcp -l docker-mcp-name=duckduckgo -l docker-mcp-transport=stdio]
+  - Running mcp/obsidian with [run --rm -i --init --security-opt no-new-privileges --cpus 1 --memory 2Gb --pull never -l docker-mcp=true -l docker-mcp-tool-type=mcp -l docker-mcp-name=obsidian -l docker-mcp-transport=stdio -e OBSIDIAN_API_KEY -e OBSIDIAN_HOST]
+  > context7: (2 tools)
+  > duckduckgo: (2 tools)
+  > obsidian: (12 tools)
+  > youtube_transcript: (3 tools)
+> 19 tools listed in 3.561397399s
+- Adding internal tools (dynamic-tools feature enabled)
+  > mcp-find: tool for finding MCP servers in the catalog
+  > mcp-add: tool for adding MCP servers to the registry
+  > mcp-remove: tool for removing MCP servers from the registry
+  > mcp-config-set: tool for setting configuration values for MCP servers
+  > code-mode: write code that calls other MCPs directly
+  > mcp-exec: execute tools that exist in the current session
+  > mcp-discover: prompt for learning about dynamic server management
+- Starting OAuth notification monitor
+- Starting OAuth provider loops...
+- Watching for configuration updates...
+> Initialized in 4.189681488s
+> Start stdio server
+- Connecting to OAuth notification stream at http://localhost/notify/notifications/channel/external-oauth
+> Stop watching for updates
+- Failed to connect to OAuth notifications: Get "http://localhost/notify/notifications/channel/external-oauth": context canceled
+context canceled
