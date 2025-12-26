@@ -31,21 +31,20 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
 
-            {/* New Auth Routes */}
+            {/* New Auth Routes - Includes Onboarding */}
             <Route element={<AuthLayout />}>
               <Route path="/auth" element={<Auth />} />
               <Route path="/login" element={<Navigate to="/auth" replace />} />
               <Route path="/register" element={<Navigate to="/auth" replace />} />
+              <Route
+                path="/onboarding"
+                element={
+                  <ProtectedRoute>
+                    <OnboardingWizard />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
-
-            <Route
-              path="/onboarding"
-              element={
-                <ProtectedRoute>
-                  <OnboardingWizard />
-                </ProtectedRoute>
-              }
-            />
 
             {/* Protected routes */}
             <Route

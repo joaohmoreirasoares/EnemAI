@@ -53,12 +53,13 @@ export function AuthInput({ label, icon, className, type, ...props }: AuthInputP
         props.onChange?.(e);
     };
 
-    // Simple i18n helper (mocking a real translation system)
+    // Define translations outside component to avoid recreation
+    const translations: Record<string, string> = {
+        "auth.show_password": "Exibir senha",
+        "auth.hide_password": "Ocultar senha"
+    };
+
     const t = (key: string, fallback: string) => {
-        const translations: Record<string, string> = {
-            "auth.show_password": "Exibir senha",
-            "auth.hide_password": "Ocultar senha"
-        };
         return translations[key] || fallback;
     };
 

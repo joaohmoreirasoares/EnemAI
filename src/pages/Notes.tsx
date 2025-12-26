@@ -114,6 +114,7 @@ const NotesPage = () => {
   const [isNewNoteDialogOpen, setIsNewNoteDialogOpen] = useState(false);
   const [newNoteTitle, setNewNoteTitle] = useState('');
   const [sourceNoteId, setSourceNoteId] = useState<string | null>(null); // ID of the note we are linking FROM
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const quillRef = useRef<ReactQuill>(null);
   const queryClient = useQueryClient();
@@ -143,7 +144,7 @@ const NotesPage = () => {
     return notes.filter((n: any) =>
       n.id !== activeNote.id &&
       n.content &&
-      (n.content.includes(`[[${activeNote.title}]]`) || n.content.includes(activeNote.id))
+      (n.content.toLowerCase().includes(`[[${activeNote.title.toLowerCase()}]]`) || n.content.includes(activeNote.id))
     );
   }, [activeNote, notes]);
 
@@ -299,7 +300,7 @@ const NotesPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-gray-900 to-gray-950 overflow-hidden relative">
+    <div className="flex flex-col h-full bg-gray-950 overflow-hidden relative">
       <QuickSwitcher />
 
       {/* New Note Dialog */}
@@ -336,16 +337,16 @@ const NotesPage = () => {
         {activeNote ? (
           <motion.div
             key="editor"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="flex flex-col h-full min-h-0 bg-gray-900 absolute inset-0 z-20"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col h-full min-h-0 bg-gray-900 absolute inset-0 z-50"
           >
-            {/* Editor Header */}
+            {/* ... Editor Content (Same as before) ... */}
             <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-800 bg-gray-900/80 backdrop-blur-md sticky top-0 z-10 shadow-sm">
               <Button
-                onClick={() => setActiveNote(null)}
+                onClick={() => { saveNote(); setActiveNote(null); }}
                 size="sm"
                 variant="ghost"
                 className="text-gray-400 hover:text-white hover:bg-gray-800 transition-all hover:-translate-x-1"
@@ -406,7 +407,6 @@ const NotesPage = () => {
                     ]
                   }}
                 />
-
                 {/* Link Suggester Popup */}
                 <AnimatePresence>
                   {showLinkSuggester && (
@@ -444,7 +444,7 @@ const NotesPage = () => {
               </div>
 
               {/* Backlinks Sidebar */}
-              <div className="w-80 border-l border-gray-800 bg-gray-900/50 p-6 hidden xl:flex flex-col gap-6 overflow-y-auto backdrop-blur-sm">
+              <div className="w-80 border-l border-gray-800 bg-gray-900/50 p-6 hidden lg:flex flex-col gap-6 overflow-y-auto backdrop-blur-sm">
                 <div>
                   <h3 className="text-xs font-bold text-gray-500 mb-4 uppercase tracking-wider flex items-center gap-2">
                     <Network className="h-3 w-3" /> Conexões (Backlinks)
@@ -490,165 +490,181 @@ const NotesPage = () => {
           </motion.div>
         ) : (
           <motion.div
-            key="list"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="flex flex-col h-full overflow-y-auto bg-gradient-to-b from-gray-900 to-gray-950 absolute inset-0"
+            key="graph-view"
+            className="absolute inset-0 z-0 bg-gray-950"
           >
-            <div className="max-w-6xl mx-auto w-full flex flex-col p-6 md:p-10">
-
-              {/* Header Section */}
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4"
-              >
-                <div>
-                  <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
-                    Quadro de Anotações
-                  </h1>
-                  <AccessibilityHelper description="Estatísticas: Veja suas conexões neurais e dias de foco (streak).">
-                    <p className="text-gray-400 text-lg flex items-center gap-2">
-                      <Network className="h-4 w-4" />
-                      {notes.length} conexões neurais
-                      <span className="text-gray-600">•</span>
-                      <Flame className="h-4 w-4 text-orange-500" />
-                      {stats.streakDays} dias de foco
-                    </p>
-                  </AccessibilityHelper>
-                </div>
-              </motion.div>
-
-              {/* Graph View */}
-              <AccessibilityHelper description="Grafo de Conhecimento: Visualize como suas anotações estão interconectadas. Clique nos nós para navegar.">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="h-[500px] mb-8 shadow-2xl shadow-purple-900/10 rounded-xl overflow-hidden border border-gray-800 shrink-0"
-                >
-                  <NoteGraph
-                    notes={notes}
-                    onNodeClick={(id) => { const note = notes.find((n: any) => n.id === id); if (note) setActiveNote(note); }}
-                    onCreateConnection={(sourceId) => handleOpenNewNoteDialog(sourceId)}
-                  />
-                </motion.div>
-              </AccessibilityHelper>
-
-              {/* Action & List Section */}
-              <div className="flex flex-col">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                  <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-gray-400" />
-                    Recentes
-                  </h2>
-
-                  <div className="flex w-full md:w-auto gap-3">
-                    <div className="relative flex-1 md:w-64">
-                      <AccessibilityHelper description="Busca: Pesquise por títulos ou conteúdo dentro das suas anotações.">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                          <Input
-                            placeholder="Filtrar notas..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 bg-gray-800/50 border-gray-700 text-white placeholder-gray-500 focus:bg-gray-800 transition-colors"
-                          />
-                        </div>
-                      </AccessibilityHelper>
-                    </div>
-                    <div className="text-xs text-gray-500 flex items-center bg-gray-800/50 px-3 rounded border border-gray-700">
-                      <span className="mr-1">⌘K</span> para buscar
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-10">
-                  {/* Create New Card */}
-                  <AccessibilityHelper description="Nova Anotação: Clique para criar uma nova nota do zero.">
-                    <motion.button
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.4 }}
-                      onClick={() => handleOpenNewNoteDialog()}
-                      className="group flex flex-col items-center justify-center h-48 rounded-2xl border-2 border-dashed border-gray-700 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all duration-300 w-full"
-                    >
-                      <div className="h-10 w-10 rounded-full bg-gray-800 group-hover:bg-purple-500/20 flex items-center justify-center mb-3 transition-colors">
-                        <Plus className="h-5 w-5 text-gray-400 group-hover:text-purple-400" />
-                      </div>
-                      <span className="text-sm text-gray-400 group-hover:text-purple-300 font-medium">Nova anotação</span>
-                    </motion.button>
-                  </AccessibilityHelper>
-
-                  {isLoadingNotes ? (
-                    [1, 2, 3].map((i) => (
-                      <div key={i} className="h-48 rounded-2xl bg-gray-800/30 animate-pulse" />
-                    ))
-                  ) : filteredNotes.length === 0 && searchTerm ? (
-                    <div className="col-span-full text-center py-10 text-gray-500">
-                      Nenhuma anotação encontrada para "{searchTerm}"
-                    </div>
-                  ) : (
-                    filteredNotes.map((note: any, index: number) => (
-                      <AccessibilityHelper key={note.id} description={`Anotação: ${note.title || 'Sem título'}. Clique para editar.`}>
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.4 + (index * 0.05) }}
-                          className="group relative h-full"
-                        >
-                          <Card
-                            onClick={() => setActiveNote(note)}
-                            className="h-48 p-5 bg-gray-800/40 border-gray-700/50 hover:bg-gray-800 hover:border-gray-600 transition-all duration-300 cursor-pointer flex flex-col justify-between group-hover:shadow-xl group-hover:shadow-purple-900/10"
-                          >
-                            <div>
-                              <div className="flex justify-between items-start mb-3">
-                                <div className="p-2 bg-purple-500/10 rounded-lg">
-                                  <FileText className="h-4 w-4 text-purple-400" />
-                                </div>
-                                <span className="text-[10px] text-gray-500 font-medium bg-gray-900/50 px-2 py-1 rounded-full">
-                                  {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true, locale: ptBR })}
-                                </span>
-                              </div>
-                              <h3 className="text-base font-semibold text-gray-200 group-hover:text-white line-clamp-1 transition-colors mb-1">
-                                {note.title || 'Sem título'}
-                              </h3>
-                              <p className="text-xs text-gray-500 line-clamp-3 group-hover:text-gray-400 transition-colors">
-                                {note.content ? note.content.replace(/<[^>]*>?/gm, '').substring(0, 150) : 'Sem conteúdo...'}
-                              </p>
-                            </div>
-
-                            <div className="flex justify-between items-center mt-2 border-t border-gray-700/30 pt-2">
-                              <div className="flex items-center gap-1 text-[10px] text-gray-600 group-hover:text-gray-500 transition-colors">
-                                <Network className="h-3 w-3" />
-                                {/* Mock connection count based on content matching title */}
-                                {notes.filter((n: any) => n.content && n.content.includes(note.title)).length} conexões
-                              </div>
-                              <div className="flex items-center text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300">
-                                <ArrowRight className="h-4 w-4" />
-                              </div>
-                            </div>
-                          </Card>
-
-                          <button
-                            onClick={(e) => deleteNoteFromList(note.id, e)}
-                            className="absolute top-4 right-4 p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200"
-                            title="Excluir anotação"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </motion.div>
-                      </AccessibilityHelper>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
+            <NoteGraph
+              notes={notes}
+              onNodeClick={(id) => { const note = notes.find((n: any) => n.id === id); if (note) setActiveNote(note); }}
+              onCreateConnection={(sourceId) => handleOpenNewNoteDialog(sourceId)}
+            />
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Recentes / Drawer Logic */}
+      {!activeNote && (
+        <>
+          {/* Unified Floating Button */}
+          <motion.div
+            initial={false}
+            animate={{
+              y: isDrawerOpen ? "calc(-85vh + 0.5rem)" : 0, // Using transform for smoothness
+            }}
+            transition={{ duration: 1, ease: "easeInOut" }} // Matches drawer transition exactly
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40"
+          >
+            <Button
+              onClick={() => setIsDrawerOpen(!isDrawerOpen)}
+              variant="ghost"
+              className="flex flex-col items-center gap-2 text-white/90 hover:text-white hover:bg-transparent transition-colors group"
+            >
+              <motion.div
+                className="flex flex-col items-center gap-2"
+                initial={false}
+                animate={{ opacity: 1 }}
+              >
+                {/* Icon container */}
+                <div className="p-3 rounded-full bg-white/10 border border-white/20 group-hover:border-purple-500/50 group-hover:bg-purple-500/20 transition-all shadow-lg backdrop-blur-md">
+                  <motion.div
+                    initial={false}
+                    animate={{ rotate: isDrawerOpen ? 90 : -90 }}
+                    transition={{ duration: 1, ease: "easeInOut" }}
+                  >
+                    <ArrowRight />
+                  </motion.div>
+                </div>
+
+                {/* Text changes based on state - ALWAYS BELOW */}
+                <div className="relative h-6 min-w-[60px] flex items-center justify-center overflow-visible mt-2">
+                  <AnimatePresence initial={false}>
+                    {isDrawerOpen ? (
+                      <motion.span
+                        key="close-text"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.5 }}
+                        className="text-sm font-medium tracking-wide drop-shadow-md absolute whitespace-nowrap"
+                      >
+                        Voltar ao quadro interativo
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="open-text"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.5 }}
+                        className="text-sm font-medium tracking-wide drop-shadow-md absolute whitespace-nowrap"
+                      >
+                        Recentes
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            </Button>
+          </motion.div>
+
+          {/* Drawer Overlay & Content */}
+          <AnimatePresence>
+            {isDrawerOpen && (
+              <>
+                {/* Dark Overlay */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1 }} // Synced duration
+                  onClick={() => setIsDrawerOpen(false)}
+                  className="absolute inset-0 bg-black/40 backdrop-blur-[1px] z-20" // Reduced opacity
+                />
+
+                {/* Drawer Container */}
+                <motion.div
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  exit={{ y: "100%" }}
+                  transition={{ duration: 1, ease: "easeInOut" }}
+                  className="absolute bottom-0 left-0 right-0 h-[85vh] z-30 flex justify-center pointer-events-none"
+                >
+                  <div className="w-full max-w-4xl h-full flex flex-col pointer-events-auto">
+                    {/* Modal Panel */}
+                    <div className="flex-1 bg-gray-900/90 backdrop-blur-xl border-t border-r border-l border-white/10 rounded-t-3xl shadow-2xl flex flex-col overflow-hidden">
+                      {/* Header inside Modal */}
+                      <div className="p-6 md:p-8 pb-4 border-b border-white/5">
+                        <div className="relative">
+                          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                          <Input
+                            placeholder="Pesquisar suas anotações..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="h-14 pl-12 rounded-2xl bg-black/20 border-white/10 text-lg text-white placeholder-gray-500 focus:bg-black/40 focus:border-purple-500/50 transition-all"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Content List */}
+                      <ScrollArea className="flex-1 p-6 md:p-8 pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-12">
+                          {/* Create New Card */}
+                          <motion.button
+                            layout
+                            onClick={() => handleOpenNewNoteDialog()}
+                            className="group flex flex-col items-center justify-center h-40 rounded-2xl border border-dashed border-gray-700 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all w-full"
+                          >
+                            <div className="h-10 w-10 rounded-full bg-gray-800 group-hover:bg-purple-500/20 flex items-center justify-center mb-3 transition-colors">
+                              <Plus className="h-5 w-5 text-gray-400 group-hover:text-purple-400" />
+                            </div>
+                            <span className="text-sm text-gray-400 group-hover:text-purple-300 font-medium">Nova anotação</span>
+                          </motion.button>
+
+                          {filteredNotes.map((note: any) => (
+                            <motion.div
+                              layout
+                              key={note.id}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="group"
+                            >
+                              <div
+                                onClick={() => setActiveNote(note)}
+                                className="h-40 p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-purple-500/30 transition-all cursor-pointer flex flex-col justify-between group-hover:shadow-lg group-hover:shadow-purple-900/10 relative overflow-hidden"
+                              >
+                                <div>
+                                  <div className="flex justify-between items-start mb-2">
+                                    <h3 className="text-base font-semibold text-gray-200 group-hover:text-white line-clamp-1 transition-colors">
+                                      {note.title || 'Sem título'}
+                                    </h3>
+                                    <span className="text-[10px] text-gray-500 font-medium bg-black/20 px-2 py-1 rounded-full whitespace-nowrap ml-2">
+                                      {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true, locale: ptBR })}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-500 line-clamp-3 group-hover:text-gray-400 transition-colors">
+                                    {note.content ? note.content.replace(/<[^>]*>?/gm, '').substring(0, 100) : 'Sem conteúdo...'}
+                                  </p>
+                                </div>
+
+                                <button
+                                  onClick={(e) => deleteNoteFromList(note.id, e)}
+                                  className="absolute bottom-4 right-4 p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-all"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </>
+      )}
     </div>
   );
 };

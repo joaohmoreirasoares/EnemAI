@@ -19,9 +19,10 @@ interface NoteGraphProps {
     notes: any[];
     onNodeClick: (id: string) => void;
     onCreateConnection?: (sourceId: string) => void;
+    className?: string; // Add className prop
 }
 
-export const NoteGraph = ({ notes, onNodeClick, onCreateConnection }: NoteGraphProps) => {
+export const NoteGraph = ({ notes, onNodeClick, onCreateConnection, className = "" }: NoteGraphProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [nodes, setNodes] = useState<Node[]>([]);
@@ -88,17 +89,28 @@ export const NoteGraph = ({ notes, onNodeClick, onCreateConnection }: NoteGraphP
         const newLinks: Link[] = [];
         notes.forEach((sourceNote) => {
             if (!sourceNote.content) return;
-            notes.forEach((targetNote) => {
-                if (sourceNote.id === targetNote.id) return;
-                if (sourceNote.content.includes(`[[${targetNote.title}]]`)) {
-                    newLinks.push({ source: sourceNote.id, target: targetNote.id });
+
+            // Simple HTML strip to ensure we catch text accurately, or just match on raw string
+            // Matching on raw string is usually fine for [[...]] unless it spans tags
+            const matches = sourceNote.content.matchAll(/\[\[(.*?)\]\]/gi);
+
+            for (const match of matches) {
+                const linkedTitle = match[1].trim().toLowerCase();
+                const targetNote = notes.find(n => n.title.toLowerCase() === linkedTitle);
+
+                if (targetNote && targetNote.id !== sourceNote.id) {
+                    // Prevent duplicates if multiple links to same note exist
+                    if (!newLinks.some(l => l.source === sourceNote.id && l.target === targetNote.id)) {
+                        newLinks.push({ source: sourceNote.id, target: targetNote.id });
+                    }
                 }
-            });
+            }
         });
 
         setNodes(newNodes);
         setLinks(newLinks);
-    }, [notes, dimensions.width, dimensions.height]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [notes]);
 
     // Simulation loop
     useEffect(() => {
@@ -314,7 +326,7 @@ export const NoteGraph = ({ notes, onNodeClick, onCreateConnection }: NoteGraphP
     };
 
     return (
-        <div ref={containerRef} className="w-full h-full bg-gray-900/50 rounded-xl border border-gray-800 overflow-hidden relative">
+        <div ref={containerRef} className={`w-full h-full overflow-hidden relative ${className}`}>
             <canvas
                 ref={canvasRef}
                 width={dimensions.width}
