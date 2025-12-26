@@ -8,6 +8,16 @@ interface AuthInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     icon?: React.ReactNode;
 }
 
+// Define translations outside component to avoid recreation
+const translations: Record<string, string> = {
+    "auth.show_password": "Exibir senha",
+    "auth.hide_password": "Ocultar senha"
+};
+
+const t = (key: string, fallback: string) => {
+    return translations[key] || fallback;
+};
+
 export function AuthInput({ label, icon, className, type, ...props }: AuthInputProps) {
     const generatedId = React.useId();
     const inputId = props.id || generatedId;
@@ -53,15 +63,7 @@ export function AuthInput({ label, icon, className, type, ...props }: AuthInputP
         props.onChange?.(e);
     };
 
-    // Define translations outside component to avoid recreation
-    const translations: Record<string, string> = {
-        "auth.show_password": "Exibir senha",
-        "auth.hide_password": "Ocultar senha"
-    };
 
-    const t = (key: string, fallback: string) => {
-        return translations[key] || fallback;
-    };
 
     return (
         <div className="relative mb-4 group">
